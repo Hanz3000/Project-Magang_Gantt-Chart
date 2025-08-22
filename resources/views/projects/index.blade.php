@@ -845,7 +845,7 @@ function updateZoomLevel() {
         cell.style.minWidth = newWidth + 'px';
     });
     
-    // Update month header widths
+    //
     const monthSections = document.querySelectorAll('.month-section');
     monthSections.forEach(section => {
         const dayCount = parseInt(section.style.width) / baseWidth;
