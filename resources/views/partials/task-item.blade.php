@@ -45,14 +45,14 @@
     </div>
     
     <!-- Start Date Column -->
-    <div class="task-cell">
-        {{ $task->start ? \Carbon\Carbon::parse($task->start)->format('d/m/y') : '-' }}
-    </div>
-    
-    <!-- Finish Date Column -->
-    <div class="task-cell">
-        {{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('d/m/y') : '-' }}
-    </div>
+<div class="task-cell">
+    {{ $task->start ? \Carbon\Carbon::parse($task->start)->format('j-n-y') : '-' }}
+</div>
+
+<!-- Finish Date Column -->
+<div class="task-cell">
+    {{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('j-n-y') : '-' }}
+</div>
 </div>
 
 <!-- Recursively render children -->

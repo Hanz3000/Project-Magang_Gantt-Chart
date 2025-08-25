@@ -895,7 +895,7 @@ body {
     </div>
 
     <!-- Combined Header -->
-    <div class="combined-header-container">
+     <div class="combined-header-container">
         <!-- Task List Header Section -->
         <div class="task-list-header-section">
             <div class="task-header-row">
@@ -917,13 +917,13 @@ body {
     </div>
 
     <!-- Main Content -->
-    <div class="gantt-main-content">
+     <div class="gantt-main-content">
         <!-- Task List (50% width) -->
         <div class="task-list-container">
             <div class="task-list-body" id="taskListBody">
                 @if(isset($tasks) && $tasks->count() > 0)
                     @foreach($tasks as $task)
-                        @include('partials.gantt-task-item', ['task' => $task, 'level' => 0])
+                        @include('partials.task-item', ['task' => $task, 'level' => 0])
                     @endforeach
                 @else
                 <div class="p-8 text-center text-gray-500">
@@ -945,6 +945,7 @@ body {
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <script>
@@ -1457,11 +1458,10 @@ body {
     // Utility functions
     function formatDate(dateString) {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            year: '2-digit'
-        });
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear().toString().slice(-2);
+        return `${day}-${month}-${year}`;
     }
 
     function calculateDuration(startDate, endDate) {
