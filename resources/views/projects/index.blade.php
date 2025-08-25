@@ -285,6 +285,10 @@
         background: #e3f2fd;
     }
 
+    .gantt-row.hidden-gantt-row {
+        display: none;
+    }
+
     .gantt-grid-cell {
         width: 24px;
         min-width: 24px;
@@ -951,6 +955,8 @@
     };
 
     let tasksData = [];
+    let collapsedTasks = new Set(); // Track collapsed tasks
+
     @if(isset($structuredTasks) && count($structuredTasks) > 0)
     tasksData = @json($structuredTasks);
     @endif
@@ -1097,15 +1103,42 @@
         return Math.round(baseWidth * (currentZoom / 100));
     }
 
+    // Check if a task should be visible (not collapsed)
+    function isTaskVisible(task) {
+        // If task has no parent, it's always visible
+        if (!task.parent_id) {
+            return true;
+        }
+
+        // Check if any parent is collapsed
+        let currentParentId = task.parent_id;
+        while (currentParentId) {
+            if (collapsedTasks.has(currentParentId.toString())) {
+                return false;
+            }
+            // Find the parent task to check its parent
+            const parentTask = tasksData.find(t => t.id == currentParentId);
+            currentParentId = parentTask ? parentTask.parent_id : null;
+        }
+
+        return true;
+    }
+
+    // Get visible tasks based on collapse state
+    function getVisibleTasks() {
+        return tasksData.filter(task => isTaskVisible(task));
+    }
+
     // Update Gantt chart bars
     function updateGanttChart() {
         const ganttRowsContainer = document.getElementById('ganttRowsContainer');
         if (!ganttRowsContainer) return;
 
         let ganttHTML = '';
+        const visibleTasks = getVisibleTasks();
 
-        if (tasksData.length > 0) {
-            tasksData.forEach(task => {
+        if (visibleTasks.length > 0) {
+            visibleTasks.forEach(task => {
                 ganttHTML += generateGanttRow(task);
             });
         }
@@ -1300,7 +1333,7 @@
         });
     }
 
-    // Task collapse/expand functionality
+    // Task collapse/expand functionality - MODIFIED
     function toggleTaskCollapse(taskId) {
         const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
         const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
@@ -1308,6 +1341,16 @@
         if (toggleIcon && childrenContainer) {
             toggleIcon.classList.toggle('rotate-90');
             childrenContainer.classList.toggle('collapsed');
+            
+            // Update collapsed tasks tracking
+            if (childrenContainer.classList.contains('collapsed')) {
+                collapsedTasks.add(taskId.toString());
+            } else {
+                collapsedTasks.delete(taskId.toString());
+            }
+            
+            // Update Gantt chart to reflect visibility changes
+            updateGanttChart();
         }
     }
 
@@ -1340,7 +1383,7 @@
         }
     }
 
-    // Expand/Collapse all functions
+    // Expand/Collapse all functions - MODIFIED
     function expandAll() {
         document.querySelectorAll('.task-children').forEach(container => {
             container.classList.remove('collapsed');
@@ -1348,15 +1391,29 @@
         document.querySelectorAll('.toggle-collapse').forEach(icon => {
             icon.classList.add('rotate-90');
         });
+        
+        // Clear collapsed tasks tracking
+        collapsedTasks.clear();
+        
+        // Update Gantt chart
+        updateGanttChart();
     }
 
     function collapseAll() {
         document.querySelectorAll('.task-children').forEach(container => {
             container.classList.add('collapsed');
+            // Add parent task ID to collapsed set
+            const parentId = container.getAttribute('data-parent-id');
+            if (parentId) {
+                collapsedTasks.add(parentId);
+            }
         });
         document.querySelectorAll('.toggle-collapse').forEach(icon => {
             icon.classList.remove('rotate-90');
         });
+        
+        // Update Gantt chart
+        updateGanttChart();
     }
 
     // Keyboard shortcuts
@@ -1479,7 +1536,7 @@
         },
 
         getVisibleTasks: function() {
-            return tasksData.filter(task => {
+            return getVisibleTasks().filter(task => {
                 const startDate = task.start || task.startDate;
                 const endDate = task.finish || task.endDate;
                 if (!startDate || !endDate) return false;
@@ -1499,13 +1556,22 @@
 
     document.addEventListener('taskUpdated', function(e) {
         const updatedTask = e.detail.task;
-        window.GanttChart.updateTask(updatedTask.id, updatedTask);
+        console.log('Task updated:', updatedTask);
+        // Handle task updates - refresh the chart
+        updateGanttChart();
     });
 
-    document.addEventListener('taskDeleted', function(e) {
-        const taskId = e.detail.taskId;
-        window.GanttChart.removeTask(taskId);
+    // Initialize collapse state from DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for initially collapsed task containers
+        document.querySelectorAll('.task-children.collapsed').forEach(container => {
+            const parentId = container.getAttribute('data-parent-id');
+            if (parentId) {
+                collapsedTasks.add(parentId);
+            }
+        });
     });
 </script>
 
 @endsection
+
