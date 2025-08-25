@@ -4,52 +4,92 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Carbon\Carbon; 
 
 class TaskController extends Controller
 {
-    public function index()
+     public function index()
     {
-        $tasks = Task::with('children')->whereNull('parent_id')->get();
-        return view('projects.index', compact('tasks'));
+        // Ambil hanya parent tasks (level 0) beserta semua level children-nya
+        $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level') // Eager load nested children
+                     ->whereNull('parent_id')
+                     ->get();
+
+        // Ubah struktur data menjadi flat array untuk kemudahan rendering di Blade & JS
+        $structuredTasks = $this->buildTaskTree($tasks);
+
+        return view('projects.index', [
+            'tasks' => $tasks, // Data asli untuk rendering rekursif di Blade
+            'structuredTasks' => $structuredTasks, // Data untuk JavaScript
+            'createRoute' => route('tasks.create') // Menambahkan route untuk tombol "Add Task"
+        ]);
     }
 
-    public function create()
+    private function buildTaskTree($tasks, $level = 0)
+    {
+        $result = [];
+        foreach ($tasks as $task) {
+            // Format tanggal agar konsisten
+            $startDate = $task->start ? Carbon::parse($task->start)->format('Y-m-d') : null;
+            $endDate = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
+
+            $result[] = [
+                'id' => $task->id,
+                'name' => $task->name,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'duration' => $task->duration,
+                'level' => $level,
+                'status' => $task->status ?? 'pending',
+                'progress' => $task->progress ?? 0,
+                'parent_id' => $task->parent_id,
+            ];
+
+            // Jika task memiliki children, panggil fungsi ini lagi untuk mereka
+            if ($task->children->isNotEmpty()) {
+                $result = array_merge($result, $this->buildTaskTree($task->children, $level + 1));
+            }
+        }
+        return $result;
+    }
+
+
+     public function create()
     {
         $parents = Task::all();
         return view('projects.create', compact('parents'));
     }
 
-    public function store(Request $request)
-{
-    $request->validate([
-        'name'      => 'required|string|max:255',
-        'duration'  => 'required|integer|min:1',
-        'start'     => 'required|date',
-        'parent_id' => 'nullable|exists:tasks,id',
-    ]);
+   public function store(Request $request)
+    {
+        $request->validate([
+            'name'      => 'required|string|max:255',
+            'duration'  => 'required|integer|min:1',
+            'start'     => 'required|date',
+            'parent_id' => 'nullable|exists:tasks,id',
+        ]);
 
-    $start  = new \Carbon\Carbon($request->start);
-    $finish = (clone $start)->addDays($request->duration - 1);
+        $start  = new Carbon($request->start);
+        $finish = (clone $start)->addDays($request->duration - 1);
 
-    // Cari level berdasarkan parent (jika ada)
-    $level = 0;
-    if ($request->parent_id) {
-        $parent = Task::find($request->parent_id);
-        $level  = $parent ? $parent->depth + 1 : 0; 
+        $level = 0;
+        if ($request->parent_id) {
+            $parent = Task::find($request->parent_id);
+            $level  = $parent ? $parent->level + 1 : 0;
+        }
+
+        Task::create([
+            'name'      => $request->name,
+            'parent_id' => $request->parent_id,
+            'duration'  => $request->duration,
+            'start'     => $request->start,
+            'finish'    => $finish,
+            'progress'  => 0,
+            'level'     => $level,
+        ]);
+
+        return redirect()->route('tasks.index')->with('success', 'Task berhasil ditambahkan!');
     }
-
-    Task::create([
-        'name'      => $request->name,
-        'parent_id' => $request->parent_id,
-        'duration'  => $request->duration,
-        'start'     => $request->start,
-        'finish'    => $finish,
-        'progress'  => 0,
-        'level'     => $level,
-    ]);
-
-    return redirect()->route('tasks.index')->with('success', 'Task berhasil ditambahkan!');
-}
 
 
 public function edit(Task $task)
