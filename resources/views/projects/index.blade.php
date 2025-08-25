@@ -113,13 +113,12 @@
 
     /* Task List Body */
     .task-list-body {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        min-height: 0;
-        background: white;
-        max-height: calc(100vh - 250px);
-    }
+    flex: 1;
+    overflow: visible !important;   /* jangan auto */
+    min-height: auto !important;
+    background: white;
+    max-height: none !important;
+}
 
     .timeline-header-container {
         background: #f1f3f4;
@@ -135,15 +134,20 @@
         display: none;
     }
 
-    /* Gantt Content Container */
-    .gantt-content-container {
-        flex: 1;
-        overflow: auto;
-        position: relative;
-        background: #ffffff;
-        max-height: calc(100vh - 250px);
-        max-width: 100%;
-    }
+   .gantt-content-container {
+    flex: 1;
+    overflow: visible !important;   /* hilangkan scroll internal */
+    position: relative;
+    background: #ffffff;
+    max-height: none !important;
+    max-width: 100%;
+}
+
+/* Tambahkan ini untuk memastikan scroll global di body */
+body {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
     /* Timeline Grid */
     .month-header {
@@ -1574,4 +1578,3 @@
 </script>
 
 @endsection
-
