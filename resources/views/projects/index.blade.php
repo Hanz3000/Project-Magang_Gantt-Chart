@@ -2,16 +2,16 @@
 
 @section('content')
 <style>
-/* Microsoft Project Style Gantt Chart - Width Constraints Fixed */
+/* Microsoft Project Style Gantt Chart - Enhanced Version */
 .gantt-container {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 120px);
-    overflow: hidden; /* Keep hidden to prevent horizontal overflow */
+    overflow: hidden;
     background: #ffffff;
     border: 1px solid #d1d5db;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 100vw; /* Prevent container from exceeding viewport */
+    max-width: 100vw;
 }
 
 .gantt-header {
@@ -27,10 +27,10 @@
     display: flex;
     flex: 1;
     min-height: 0;
-    overflow: hidden; /* Prevent main content from overflowing */
+    overflow: hidden;
 }
 
-/* Task List - 50% width - CONSTRAINED */
+/* Task List - 50% width */
 .task-list-container {
     width: 50%;
     min-width: 50%;
@@ -39,10 +39,10 @@
     flex-direction: column;
     border-right: 1px solid #d1d5db;
     background: #ffffff;
-    overflow: hidden; /* Prevent overflow */
+    overflow: hidden;
 }
 
-/* Gantt View - 50% width - CONSTRAINED */
+/* Gantt View - 50% width */
 .gantt-view-container {
     width: 50%;
     min-width: 50%;
@@ -50,7 +50,7 @@
     display: flex;
     flex-direction: column;
     background: white;
-    overflow: hidden; /* Prevent overflow */
+    overflow: hidden;
 }
 
 /* Combined Header Container */
@@ -111,14 +111,14 @@
     text-align: left;
 }
 
-/* Task List Body - Controlled Height */
+/* Task List Body */
 .task-list-body {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 0;
     background: white;
-    max-height: calc(100vh - 200px); /* Set reasonable max height */
+    max-height: calc(100vh - 250px);
 }
 
 .timeline-header-container {
@@ -128,7 +128,6 @@
     overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    /* Calculate max width based on timeline days */
     max-width: 100%;
 }
 
@@ -136,23 +135,23 @@
     display: none;
 }
 
-/* Gantt Content Container - FIXED WIDTH CONSTRAINTS */
+/* Gantt Content Container */
 .gantt-content-container {
     flex: 1;
     overflow: auto;
     position: relative;
     background: #ffffff;
-    max-height: calc(100vh - 200px); /* Set reasonable max height */
-    max-width: 100%; /* Ensure doesn't exceed container */
+    max-height: calc(100vh - 250px);
+    max-width: 100%;
 }
 
-/* Timeline Grid - CONTROLLED WIDTH */
+/* Timeline Grid */
 .month-header {
     display: flex;
     border-bottom: 1px solid #d1d5db;
     background: #f1f3f4;
     height: 20px;
-    min-width: fit-content; /* Adjust to content */
+    min-width: fit-content;
 }
 
 .month-section {
@@ -166,7 +165,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 60px; /* Set minimum width for months */
+    min-width: 60px;
 }
 
 .day-header {
@@ -174,13 +173,13 @@
     background: #f8f9fa;
     height: 32px;
     border-bottom: 1px solid #d1d5db;
-    min-width: fit-content; /* Adjust to content */
+    min-width: fit-content;
 }
 
 .timeline-day {
     width: 24px;
     min-width: 24px;
-    max-width: 24px; /* Ensure consistent width */
+    max-width: 24px;
     flex-shrink: 0;
     text-align: center;
     border-right: 1px solid #e5e7eb;
@@ -205,7 +204,7 @@
     font-weight: 700;
 }
 
-/* Task Rows - CONTROLLED WIDTH */
+/* Task Rows */
 .task-row {
     display: grid;
     grid-template-columns: 40px 1fr 80px 80px 80px;
@@ -216,7 +215,7 @@
     background: white;
     font-size: 11px;
     transition: background-color 0.1s ease;
-    max-width: 100%; /* Prevent overflow */
+    max-width: 100%;
 }
 
 .task-row:nth-child(even) {
@@ -256,14 +255,15 @@
     white-space: nowrap;
 }
 
-/* Gantt Rows - CONTROLLED WIDTH */
+/* Gantt Rows */
 .gantt-row {
     height: 32px;
     position: relative;
     border-bottom: 1px solid #f1f5f9;
     background: white;
     display: flex;
-    min-width: fit-content; /* Adjust to content width */
+    min-width: fit-content;
+    overflow: hidden;
 }
 
 .gantt-row:nth-child(even) {
@@ -277,7 +277,7 @@
 .gantt-grid-cell {
     width: 24px;
     min-width: 24px;
-    max-width: 24px; /* Ensure consistent width */
+    max-width: 24px;
     height: 32px;
     border-right: 1px solid #f1f5f9;
     flex-shrink: 0;
@@ -293,7 +293,7 @@
     border-right: 2px solid #f59e0b;
 }
 
-/* Task Bars - CONSTRAINED WIDTH */
+/* Task Bars */
 .gantt-bar {
     position: absolute;
     top: 6px;
@@ -312,10 +312,9 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     min-width: 20px;
-    max-width: calc(100% - 10px); /* Ensure bar doesn't exceed row width */
     z-index: 5;
     border: 1px solid rgba(0,0,0,0.1);
-    box-sizing: border-box; /* Include padding and border in width */
+    box-sizing: border-box;
 }
 
 .gantt-bar:hover {
@@ -324,7 +323,7 @@
     z-index: 10;
 }
 
-/* Microsoft Project Task Colors */
+/* Task Colors by Level */
 .level-0 { background: #0078d4; border-color: #106ebe; }
 .level-1 { background: #107c10; border-color: #0e6e0e; }
 .level-2 { background: #881798; border-color: #7a1589; }
@@ -383,163 +382,72 @@
     transform: rotate(90deg);
 }
 
-/* Container for Gantt Rows - CONTROLLED WIDTH */
+/* Container for Gantt Rows */
 .gantt-rows-container {
     min-height: 100%;
     display: block;
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden; /* Prevent horizontal overflow */
+    overflow-x: hidden;
 }
 
-/* Scrollbar Styles */
-.task-list-body::-webkit-scrollbar,
-.gantt-content-container::-webkit-scrollbar,
-.timeline-header-container::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+/* Month Navigation Styles */
+.month-navigation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-bottom: 1px solid #d1d5db;
+    flex-wrap: wrap;
 }
 
-.task-list-body::-webkit-scrollbar-track,
-.gantt-content-container::-webkit-scrollbar-track,
-.timeline-header-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
+.nav-button {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #374151;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
 }
 
-.task-list-body::-webkit-scrollbar-thumb,
-.gantt-content-container::-webkit-scrollbar-thumb,
-.timeline-header-container::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 6px;
+.nav-button:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
 }
 
-.task-list-body::-webkit-scrollbar-thumb:hover,
-.gantt-content-container::-webkit-scrollbar-thumb:hover,
-.timeline-header-container::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+.nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-/* Responsive Design - IMPROVED CONSTRAINTS */
-@media (max-width: 1024px) {
-    .task-list-container {
-        width: 45%;
-        min-width: 45%;
-        max-width: 45%;
-    }
-    
-    .gantt-view-container {
-        width: 55%;
-        min-width: 55%;
-        max-width: 55%;
-    }
-    
-    .task-list-header-section {
-        width: 45%;
-        min-width: 45%;
-        max-width: 45%;
-    }
-    
-    .timeline-header-section {
-        width: 55%;
-        min-width: 55%;
-        max-width: 55%;
-    }
-    
-    .timeline-day {
-        width: 22px;
-        min-width: 22px;
-        max-width: 22px;
-    }
-    
-    .gantt-grid-cell {
-        width: 22px;
-        min-width: 22px;
-        max-width: 22px;
-    }
+.current-period {
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    min-width: 180px;
+    text-align: center;
+    padding: 6px 12px;
+    background: #e3f2fd;
+    border-radius: 4px;
+    border: 1px solid #bbdefb;
 }
 
-@media (max-width: 768px) {
-    .task-list-container {
-        width: 40%;
-        min-width: 40%;
-        max-width: 40%;
-    }
-    
-    .gantt-view-container {
-        width: 60%;
-        min-width: 60%;
-        max-width: 60%;
-    }
-    
-    .task-list-header-section {
-        width: 40%;
-        min-width: 40%;
-        max-width: 40%;
-    }
-    
-    .timeline-header-section {
-        width: 60%;
-        min-width: 60%;
-        max-width: 60%;
-    }
-    
-    .timeline-day {
-        width: 20px;
-        min-width: 20px;
-        max-width: 20px;
-    }
-    
-    .gantt-grid-cell {
-        width: 20px;
-        min-width: 20px;
-        max-width: 20px;
-    }
-    
-    .gantt-container {
-        min-height: calc(100vh - 100px);
-    }
-    
-    .task-list-body {
-        max-height: calc(100vh - 180px);
-    }
-    
-    .gantt-content-container {
-        max-height: calc(100vh - 180px);
-    }
-}
-
-/* Additional constraints for very small screens */
-@media (max-width: 480px) {
-    .gantt-container {
-        min-height: calc(100vh - 80px);
-    }
-    
-    .timeline-day {
-        width: 18px;
-        min-width: 18px;
-        max-width: 18px;
-        font-size: 9px;
-    }
-    
-    .gantt-grid-cell {
-        width: 18px;
-        min-width: 18px;
-        max-width: 18px;
-    }
-    
-    .gantt-bar {
-        font-size: 9px;
-        padding: 0 4px;
-        min-width: 16px;
-    }
-    
-    .task-list-body {
-        max-height: calc(100vh - 160px);
-    }
-    
-    .gantt-content-container {
-        max-height: calc(100vh - 160px);
-    }
+.period-selector {
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    color: #374151;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
 }
 
 /* Toolbar Styles */
@@ -551,112 +459,39 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
-.toolbar-button {
-    padding: 6px 12px;
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.control-button {
+    padding: 6px 10px;
     border: 1px solid #d1d5db;
     border-radius: 4px;
     background: white;
     color: #374151;
     font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.1s ease;
-}
-
-.toolbar-button:hover {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-}
-
-.toolbar-button.primary {
-    background: #0078d4;
-    color: white;
-    border-color: #106ebe;
-}
-
-.toolbar-button.primary:hover {
-    background: #106ebe;
-}
-
-/* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal.show {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 4px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-}
-
-.modal-header {
-    background: #f8f9fa;
-    padding: 12px 16px;
-    border-bottom: 1px solid #d1d5db;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-body {
-    padding: 16px;
-}
-
-.modal-footer {
-    background: #f8f9fa;
-    padding: 12px 16px;
-    border-top: 1px solid #d1d5db;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-/* Controls Container */
-.controls-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 8px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 4px;
-    margin: 4px;
-    z-index: 30;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.control-button {
-    padding: 4px 8px;
-    border: 1px solid #d1d5db;
-    border-radius: 3px;
-    background: white;
-    color: #374151;
-    font-size: 11px;
     cursor: pointer;
     transition: all 0.1s ease;
     display: flex;
     align-items: center;
     gap: 4px;
+    font-weight: 500;
 }
 
 .control-button:hover {
@@ -677,86 +512,46 @@
 .zoom-controls {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: #f9fafb;
 }
 
 .zoom-button {
-    padding: 2px 4px;
+    padding: 4px 6px;
     border: 1px solid #d1d5db;
     background: white;
     color: #374151;
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.1s ease;
 }
 
-.zoom-button:hover {
+.zoom-button:hover:not(:disabled) {
     background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.zoom-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .zoom-level {
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     color: #374151;
-    min-width: 36px;
+    min-width: 40px;
     text-align: center;
+    padding: 0 4px;
 }
 
-/* Additional styles for truncated gantt bars */
-.gantt-bar.truncated {
-    position: relative;
-}
-
-.gantt-bar.truncated::after {
-    content: "...";
-    position: absolute;
-    right: 2px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: bold;
-    font-size: 8px;
-    pointer-events: none;
-}
-
-/* Improved tooltip for truncated bars */
-.gantt-bar.truncated:hover::before {
-    content: attr(title);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 3px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: 1000;
-    margin-bottom: 5px;
-}
-
-.gantt-bar.truncated:hover::after {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 4px solid transparent;
-    border-top-color: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
-    margin-bottom: 1px;
-}
-
-/* Ensure proper overflow handling */
-.gantt-row {
-    position: relative;
-    overflow: hidden; /* Hide overflowing content */
-}
-
-/* Today indicator line */
+/* Today Indicator Line */
 .today-indicator {
     position: absolute;
     top: 0;
@@ -765,31 +560,10 @@
     background: #f59e0b;
     z-index: 15;
     pointer-events: none;
+    box-shadow: 0 0 4px rgba(245, 158, 11, 0.5);
 }
 
-/* Weekend background for gantt rows */
-.gantt-grid-cell.weekend {
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.02) 0%,
-        rgba(0, 0, 0, 0.03) 100%
-    );
-}
-
-/* Hover effects for better UX */
-.gantt-row:hover .gantt-grid-cell {
-    background-color: rgba(59, 130, 246, 0.05);
-}
-
-.gantt-row:hover .gantt-grid-cell.weekend {
-    background: linear-gradient(
-        to bottom,
-        rgba(59, 130, 246, 0.05) 0%,
-        rgba(59, 130, 246, 0.08) 100%
-    );
-}
-
-/* Loading state for gantt bars */
+/* Loading States */
 .gantt-bar.loading {
     background: #e5e7eb !important;
     animation: pulse 1.5s ease-in-out infinite;
@@ -800,51 +574,102 @@
     50% { opacity: 0.7; }
 }
 
-/* Responsive adjustments for smaller screens */
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .toolbar-left,
+    .toolbar-right {
+        justify-content: center;
+    }
+    
+    .month-navigation {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .current-period {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .task-list-container,
+    .task-list-header-section {
+        width: 45%;
+        min-width: 45%;
+        max-width: 45%;
+    }
+    
+    .gantt-view-container,
+    .timeline-header-section {
+        width: 55%;
+        min-width: 55%;
+        max-width: 55%;
+    }
+    
+    .timeline-day,
+    .gantt-grid-cell {
+        width: 22px;
+        min-width: 22px;
+        max-width: 22px;
+    }
+}
+
 @media (max-width: 768px) {
-    .gantt-bar {
-        font-size: 9px;
-        padding: 0 3px;
+    .task-list-container,
+    .task-list-header-section {
+        width: 40%;
+        min-width: 40%;
+        max-width: 40%;
     }
     
-    .gantt-bar.truncated::after {
-        font-size: 7px;
-        right: 1px;
+    .gantt-view-container,
+    .timeline-header-section {
+        width: 60%;
+        min-width: 60%;
+        max-width: 60%;
+    }
+    
+    .timeline-day,
+    .gantt-grid-cell {
+        width: 20px;
+        min-width: 20px;
+        max-width: 20px;
+    }
+    
+    .month-navigation {
+        padding: 6px;
+        gap: 4px;
+    }
+    
+    .nav-button,
+    .control-button {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+    
+    .current-period {
+        min-width: 120px;
+        font-size: 12px;
     }
 }
 
-/* Print styles */
-@media print {
-    .gantt-container {
-        height: auto !important;
-        min-height: auto !important;
-        max-height: none !important;
-        overflow: visible !important;
-    }
-    
-    .task-list-body,
-    .gantt-content-container {
-        height: auto !important;
-        max-height: none !important;
-        overflow: visible !important;
-    }
-    
-    .gantt-bar {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-}
-
-/* Focus styles for accessibility */
+/* Accessibility Improvements */
 .gantt-bar:focus {
     outline: 2px solid #2563eb;
     outline-offset: 1px;
 }
 
-.toggle-collapse:focus {
+.nav-button:focus,
+.control-button:focus,
+.zoom-button:focus {
     outline: 2px solid #2563eb;
-    outline-offset: 1px;
-    border-radius: 2px;
+    outline-offset: 2px;
 }
 
 /* High contrast mode support */
@@ -854,11 +679,7 @@
         border-style: solid;
     }
     
-    .gantt-grid-cell {
-        border-width: 1px;
-        border-color: #000;
-    }
-    
+    .gantt-grid-cell,
     .timeline-day {
         border-width: 1px;
         border-color: #000;
@@ -883,12 +704,39 @@
         animation: none;
     }
 }
+
+/* Print styles */
+@media print {
+    .gantt-container {
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    .task-list-body,
+    .gantt-content-container {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    .toolbar,
+    .month-navigation {
+        display: none !important;
+    }
+    
+    .gantt-bar {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
 </style>
 
 <div class="gantt-container">
     <!-- Toolbar -->
     <div class="toolbar">
-        <div class="flex items-center space-x-3">
+        <div class="toolbar-left">
             <h5 class="text-sm font-semibold text-gray-800 flex items-center">
                 <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
@@ -897,47 +745,81 @@
             </h5>
         </div>
         
-        <div class="flex items-center space-x-3 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200">
-        
-         <div class="zoom-controls">
-                    <button class="zoom-button" onclick="zoomOut()">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
-                    
-                    <span class="zoom-level" id="zoomLevel">100%</span>
-                    
-                    <button class="zoom-button" onclick="zoomIn()">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
-                </div>
+        <div class="toolbar-right">
+            <div class="zoom-controls">
+                <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out (Ctrl/Cmd + -)">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+                
+                <span class="zoom-level" id="zoomLevel">100%</span>
+                
+                <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In (Ctrl/Cmd + +)">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
 
-        <!-- Expand All -->
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition" onclick="expandAll()">
-                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <button class="control-button" onclick="expandAll()" title="Expand All Tasks">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
                 </svg>
                 Expand
             </button>
 
-            <!-- Collapse All -->
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition" onclick="collapseAll()">
-                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+            <button class="control-button" onclick="collapseAll()" title="Collapse All Tasks">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
                 </svg>
                 Collapse
             </button>
-<!-- add task -->
-             <a href="{{ route('tasks.create') }}" class="control-button primary">
+
+            @if(isset($createRoute))
+                <a href="{{ $createRoute }}" class="control-button primary" title="Add New Task">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
                     </svg>
                     Add Task
                 </a>
+            @endif
         </div>
+    </div>
+
+    <!-- Month Navigation -->
+    <div class="month-navigation">
+        <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Previous Month (Alt + Left Arrow)">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            Previous
+        </button>
+
+        <div class="current-period" id="currentPeriod">
+            January 2025
+        </div>
+
+        <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Next Month (Alt + Right Arrow)">
+            Next
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+
+        <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Select Timeline Period">
+            <option value="1">1 Month</option>
+            <option value="3" selected>3 Months</option>
+            <option value="6">6 Months</option>
+            <option value="12">1 Year</option>
+        </select>
+
+        <button class="nav-button" onclick="goToToday()" title="Go to Today (Alt + Home)">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+            </svg>
+            Today
+        </button>
     </div>
 
     <!-- Combined Header -->
@@ -955,53 +837,12 @@
         
         <!-- Timeline Header Section -->
         <div class="timeline-header-section" id="timelineHeaderSection">
-            @if(isset($tasks) && $tasks->count() > 0)
-                @php
-                    $minDate = \Carbon\Carbon::now()->startOfMonth();
-                    $maxDate = \Carbon\Carbon::now()->addMonths(6)->endOfMonth();
-                    $totalDays = $minDate->diffInDays($maxDate) + 1;
-                    
-                    // Group days by month
-                    $monthGroups = [];
-                    $currentDate = $minDate->copy();
-                    while ($currentDate <= $maxDate) {
-                        $monthKey = $currentDate->format('Y-m');
-                        if (!isset($monthGroups[$monthKey])) {
-                            $monthGroups[$monthKey] = [
-                                'name' => $currentDate->format('M Y'),
-                                'days' => []
-                            ];
-                        }
-                        $monthGroups[$monthKey]['days'][] = $currentDate->copy();
-                        $currentDate->addDay();
-                    }
-                @endphp
-                
-                <!-- Month Headers -->
-                <div class="month-header">
-                    @foreach($monthGroups as $monthData)
-                        <div class="month-section" style="width: {{ count($monthData['days']) * 24 }}px;">
-                            {{ $monthData['name'] }}
-                        </div>
-                    @endforeach
-                </div>
-                
-                <!-- Day Headers -->
-                <div class="day-header">
-                    @foreach($monthGroups as $monthData)
-                        @foreach($monthData['days'] as $date)
-                            @php
-                                $dayOfWeek = $date->dayOfWeek;
-                                $isWeekend = in_array($dayOfWeek, [0, 6]);
-                                $isToday = $date->isToday();
-                            @endphp
-                            <div class="timeline-day {{ $isWeekend ? 'weekend' : '' }} {{ $isToday ? 'today' : '' }}">
-                                {{ $date->format('d') }}
-                            </div>
-                        @endforeach
-                    @endforeach
-                </div>
-            @endif
+            <div id="monthHeaderContainer">
+                <!-- Month headers will be generated by JavaScript -->
+            </div>
+            <div id="dayHeaderContainer">
+                <!-- Day headers will be generated by JavaScript -->
+            </div>
         </div>
     </div>
 
@@ -1009,11 +850,10 @@
     <div class="gantt-main-content">
         <!-- Task List (50% width) -->
         <div class="task-list-container">
-            <!-- Task List Body -->
             <div class="task-list-body" id="taskListBody">
                 @if(isset($tasks) && $tasks->count() > 0)
                     @foreach($tasks as $task)
-                        @include('partials.task-item', ['task' => $task, 'level' => 0])
+                        @include('partials.gantt-task-item', ['task' => $task, 'level' => 0])
                     @endforeach
                 @else
                     <div class="p-8 text-center text-gray-500">
@@ -1028,56 +868,389 @@
 
         <!-- Gantt View (50% width) -->
         <div class="gantt-view-container">
-                        <!-- Gantt Content -->
             <div class="gantt-content-container" id="ganttContent">
-                @if(isset($tasks) && $tasks->count() > 0)
-                    <div class="gantt-rows-container">
-                        @foreach($tasks as $task)
-                            @include('partials.gantt-item', [
-                                'task' => $task, 
-                                'level' => 0, 
-                                'minDate' => $minDate, 
-                                'totalDays' => $totalDays
-                            ])
-                        @endforeach
-                    </div>
-                @endif
+                <div class="gantt-rows-container" id="ganttRowsContainer">
+                    <!-- Gantt bars will be generated by JavaScript -->
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-// Synchronize scrolling between task list and gantt chart
+// Global variables for timeline management
+let currentDate = new Date();
+let timelinePeriod = 3; // months
+let currentZoom = 100;
+let timelineData = {
+    startDate: null,
+    endDate: null,
+    days: []
+};
+
+let tasksData = [];
+@if(isset($tasks) && $tasks->count() > 0)
+    @php
+    // Helper untuk mengubah objek Carbon menjadi string tanggal Y-m-d
+    function formatDate($date) {
+        if ($date instanceof \Carbon\Carbon) {
+            return $date->format('Y-m-d');
+        }
+        return $date; // Kembalikan apa adanya jika bukan objek Carbon
+    }
+
+    $mappedTasks = $tasks->map(function($task) {
+        // Pastikan start dan finish adalah objek Carbon sebelum memformat
+        $startDate = $task->start ? \Carbon\Carbon::parse($task->start) : null;
+        $endDate = $task->finish ? \Carbon\Carbon::parse($task->finish) : null;
+
+        return [
+            'id' => $task->id,
+            'name' => $task->name ?? $task->title,
+            // Gunakan nama kolom yang benar: 'start' dan 'finish'
+            'startDate' => $startDate ? $startDate->format('Y-m-d') : null,
+            'endDate' => $endDate ? $endDate->format('Y-m-d') : null,
+            'duration' => $task->duration,
+            'level' => $task->level ?? 0,
+            'status' => $task->status ?? 'pending',
+            'progress' => $task->progress ?? 0,
+            'children' => [] // Anda bisa mengisi ini jika ada relasi
+        ];
+    });
+@endphp
+    tasksData = @json($mappedTasks);
+@endif
+
+// Initialize the Gantt chart
 document.addEventListener('DOMContentLoaded', function() {
+    initializeTimeline();
+    setupScrollSynchronization();
+    updateGanttChart();
+    updateZoomButtons();
+});
+
+// Initialize timeline based on current date and period
+function initializeTimeline() {
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    timelineData.startDate = new Date(startOfMonth);
+    
+    const endDate = new Date(startOfMonth);
+    endDate.setMonth(endDate.getMonth() + timelinePeriod);
+    endDate.setDate(endDate.getDate() - 1);
+    timelineData.endDate = endDate;
+    
+    generateTimelineDays();
+    updateCurrentPeriodDisplay();
+    renderTimelineHeaders();
+}
+
+// Generate array of days for the timeline
+function generateTimelineDays() {
+    timelineData.days = [];
+    const currentDay = new Date(timelineData.startDate);
+    
+    while (currentDay <= timelineData.endDate) {
+        const dayInfo = {
+            date: new Date(currentDay),
+            dayOfWeek: currentDay.getDay(),
+            isWeekend: currentDay.getDay() === 0 || currentDay.getDay() === 6,
+            isToday: isToday(currentDay),
+            dayNumber: currentDay.getDate(),
+            monthYear: currentDay.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+        };
+        timelineData.days.push(dayInfo);
+        currentDay.setDate(currentDay.getDate() + 1);
+    }
+}
+
+// Check if date is today
+function isToday(date) {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
+}
+
+// Update current period display
+function updateCurrentPeriodDisplay() {
+    const periodElement = document.getElementById('currentPeriod');
+    if (periodElement) {
+        const startMonth = timelineData.startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        const endMonth = timelineData.endDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        
+        if (timelinePeriod === 1) {
+            periodElement.textContent = startMonth;
+        } else {
+            periodElement.textContent = `${startMonth} - ${endMonth}`;
+        }
+    }
+}
+
+// Render timeline headers
+function renderTimelineHeaders() {
+    renderMonthHeaders();
+    renderDayHeaders();
+}
+
+// Render month headers
+function renderMonthHeaders() {
+    const monthHeaderContainer = document.getElementById('monthHeaderContainer');
+    if (!monthHeaderContainer) return;
+    
+    // Group days by month
+    const monthGroups = {};
+    timelineData.days.forEach(day => {
+        const monthKey = `${day.date.getFullYear()}-${day.date.getMonth()}`;
+        if (!monthGroups[monthKey]) {
+            monthGroups[monthKey] = {
+                name: day.date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+                days: []
+            };
+        }
+        monthGroups[monthKey].days.push(day);
+    });
+    
+    // Create month header HTML
+    let monthHeaderHTML = '<div class="month-header">';
+    Object.values(monthGroups).forEach(month => {
+        const dayWidth = getDayWidth();
+        const monthWidth = month.days.length * dayWidth;
+        monthHeaderHTML += `<div class="month-section" style="width: ${monthWidth}px;">${month.name}</div>`;
+    });
+    monthHeaderHTML += '</div>';
+    
+    monthHeaderContainer.innerHTML = monthHeaderHTML;
+}
+
+// Render day headers
+function renderDayHeaders() {
+    const dayHeaderContainer = document.getElementById('dayHeaderContainer');
+    if (!dayHeaderContainer) return;
+    
+    let dayHeaderHTML = '<div class="day-header">';
+    timelineData.days.forEach(day => {
+        const classes = ['timeline-day'];
+        if (day.isWeekend) classes.push('weekend');
+        if (day.isToday) classes.push('today');
+        
+        const dayWidth = getDayWidth();
+        dayHeaderHTML += `
+            <div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;">
+                ${day.dayNumber}
+            </div>
+        `;
+    });
+    dayHeaderHTML += '</div>';
+    
+    dayHeaderContainer.innerHTML = dayHeaderHTML;
+}
+
+// Get current day width based on zoom
+function getDayWidth() {
+    const baseWidth = 24;
+    return Math.round(baseWidth * (currentZoom / 100));
+}
+
+// Update Gantt chart bars
+function updateGanttChart() {
+    const ganttRowsContainer = document.getElementById('ganttRowsContainer');
+    if (!ganttRowsContainer) return;
+    
+    let ganttHTML = '';
+    
+    if (tasksData.length > 0) {
+        tasksData.forEach(task => {
+            ganttHTML += generateGanttRow(task);
+        });
+    }
+    
+    ganttRowsContainer.innerHTML = ganttHTML;
+    
+    // Add today indicator if today is visible in timeline
+    addTodayIndicator();
+}
+
+// Generate Gantt row for a task
+function generateGanttRow(task) {
+    const dayWidth = getDayWidth();
+    let rowHTML = '<div class="gantt-row">';
+    
+    // Create grid cells for each day
+    timelineData.days.forEach(day => {
+        const classes = ['gantt-grid-cell'];
+        if (day.isWeekend) classes.push('weekend');
+        if (day.isToday) classes.push('today');
+        
+        rowHTML += `<div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"></div>`;
+    });
+    
+    // Add task bar if it falls within timeline
+    const taskBar = generateTaskBar(task, dayWidth);
+    if (taskBar) {
+        rowHTML += taskBar;
+    }
+    
+    rowHTML += '</div>';
+    return rowHTML;
+}
+
+// Generate task bar
+function generateTaskBar(task, dayWidth) {
+    if (!task.startDate || !task.endDate) return null;
+    
+    const taskStart = new Date(task.startDate);
+    const taskEnd = new Date(task.endDate);
+    
+    // Check if task overlaps with timeline
+    if (taskEnd < timelineData.startDate || taskStart > timelineData.endDate) {
+        return null; // Task is outside timeline
+    }
+    
+    // Calculate position and width
+    const timelineStart = timelineData.startDate;
+    const startDayOffset = Math.max(0, Math.floor((taskStart - timelineStart) / (24 * 60 * 60 * 1000)));
+    const endDayOffset = Math.min(timelineData.days.length - 1, Math.floor((taskEnd - timelineStart) / (24 * 60 * 60 * 1000)));
+    
+    const barLeft = startDayOffset * dayWidth;
+    const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
+    
+    const levelClass = `level-${task.level % 6}`;
+    const progressWidth = task.progress ? (barWidth * task.progress / 100) : 0;
+    
+    let taskBarHTML = `
+        <div class="gantt-bar ${levelClass}" 
+             style="left: ${barLeft}px; width: ${barWidth}px;"
+             data-task-id="${task.id}"
+             data-start-day="${startDayOffset}"
+             data-duration="${task.duration}"
+             title="${task.name} (${task.duration} days) - ${task.progress}% complete">
+    `;
+    
+    // Add progress indicator if exists
+    if (task.progress > 0) {
+        taskBarHTML += `<div class="progress-indicator" style="width: ${progressWidth}px; height: 100%; background: rgba(255,255,255,0.3); position: absolute; left: 0; top: 0; border-radius: 2px;"></div>`;
+    }
+    
+    taskBarHTML += `<span class="task-bar-text">${task.name}</span></div>`;
+    
+    return taskBarHTML;
+}
+
+// Add today indicator line
+function addTodayIndicator() {
+    const today = new Date();
+    const todayIndex = timelineData.days.findIndex(day => 
+        day.date.getDate() === today.getDate() &&
+        day.date.getMonth() === today.getMonth() &&
+        day.date.getFullYear() === today.getFullYear()
+    );
+    
+    if (todayIndex !== -1) {
+        const dayWidth = getDayWidth();
+        const leftPosition = todayIndex * dayWidth + (dayWidth / 2);
+        
+        const ganttRows = document.querySelectorAll('.gantt-row');
+        ganttRows.forEach(row => {
+            // Remove existing today indicator
+            const existingIndicator = row.querySelector('.today-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+            
+            // Add new today indicator
+            const todayIndicator = document.createElement('div');
+            todayIndicator.className = 'today-indicator';
+            todayIndicator.style.left = leftPosition + 'px';
+            row.appendChild(todayIndicator);
+        });
+    }
+}
+
+// Navigation functions
+function navigateMonth(direction) {
+    currentDate.setMonth(currentDate.getMonth() + direction);
+    initializeTimeline();
+    updateGanttChart();
+}
+
+function changePeriod(months) {
+    timelinePeriod = parseInt(months);
+    initializeTimeline();
+    updateGanttChart();
+}
+
+function goToToday() {
+    currentDate = new Date();
+    initializeTimeline();
+    updateGanttChart();
+}
+
+// Zoom functions
+const minZoom = 50;
+const maxZoom = 200;
+const zoomStep = 25;
+
+function updateZoomLevel() {
+    const zoomLevelElement = document.getElementById('zoomLevel');
+    if (zoomLevelElement) {
+        zoomLevelElement.textContent = currentZoom + '%';
+    }
+    
+    updateZoomButtons();
+    renderTimelineHeaders();
+    updateGanttChart();
+}
+
+function updateZoomButtons() {
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    
+    if (zoomInBtn) {
+        zoomInBtn.disabled = currentZoom >= maxZoom;
+    }
+    
+    if (zoomOutBtn) {
+        zoomOutBtn.disabled = currentZoom <= minZoom;
+    }
+}
+
+function zoomIn() {
+    if (currentZoom < maxZoom) {
+        currentZoom += zoomStep;
+        updateZoomLevel();
+    }
+}
+
+function zoomOut() {
+    if (currentZoom > minZoom) {
+        currentZoom -= zoomStep;
+        updateZoomLevel();
+    }
+}
+
+// Scroll synchronization
+function setupScrollSynchronization() {
     const taskListBody = document.getElementById('taskListBody');
     const ganttContent = document.getElementById('ganttContent');
     const timelineHeaderSection = document.getElementById('timelineHeaderSection');
     
-    // Vertical scroll synchronization
-    if (taskListBody && ganttContent) {
-        taskListBody.addEventListener('scroll', function() {
-            ganttContent.scrollTop = this.scrollTop;
-        });
-        
-        ganttContent.addEventListener('scroll', function() {
-            taskListBody.scrollTop = this.scrollTop;
-            if (timelineHeaderSection) {
-                timelineHeaderSection.scrollLeft = this.scrollLeft;
-            }
-        });
-    }
+    if (!taskListBody || !ganttContent || !timelineHeaderSection) return;
     
-    // Horizontal scroll synchronization for timeline
-    if (timelineHeaderSection && ganttContent) {
-        timelineHeaderSection.addEventListener('scroll', function() {
-            ganttContent.scrollLeft = this.scrollLeft;
-        });        
-        ganttContent.addEventListener('scroll', function() {
-            timelineHeaderSection.scrollLeft = this.scrollLeft;
-        });
-    }
-});
+    // Vertical scroll synchronization
+    taskListBody.addEventListener('scroll', function() {
+        ganttContent.scrollTop = this.scrollTop;
+    });
+    
+    ganttContent.addEventListener('scroll', function() {
+        taskListBody.scrollTop = this.scrollTop;
+        timelineHeaderSection.scrollLeft = this.scrollLeft;
+    });
+    
+    // Horizontal scroll synchronization
+    timelineHeaderSection.addEventListener('scroll', function() {
+        ganttContent.scrollLeft = this.scrollLeft;
+    });
+}
 
 // Task collapse/expand functionality
 function toggleTaskCollapse(taskId) {
@@ -1104,7 +1277,30 @@ document.addEventListener('click', function(e) {
         const taskId = e.target.closest('.toggle-collapse').getAttribute('data-task-id');
         toggleTaskCollapse(taskId);
     }
+    
+    // Task bar click handler
+    if (e.target.closest('.gantt-bar')) {
+        const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
+        handleTaskBarClick(taskId);
+    }
 });
+
+// Handle task bar click
+function handleTaskBarClick(taskId) {
+    const task = tasksData.find(t => t.id == taskId);
+    if (task) {
+        // You can customize this to show task details, edit form, etc.
+        console.log('Task clicked:', task);
+        
+        // Example: Show task details in a modal or redirect to edit page
+        // window.location.href = `/tasks/${taskId}/edit`;
+        
+        // Or trigger a custom event
+        document.dispatchEvent(new CustomEvent('taskSelected', {
+            detail: { task: task }
+        }));
+    }
+}
 
 // Expand/Collapse all functions
 function expandAll() {
@@ -1131,85 +1327,8 @@ function collapseAll() {
     });
 }
 
-// Zoom functions
-let currentZoom = 100;
-const minZoom = 50;
-const maxZoom = 200;
-const zoomStep = 25;
-
-function updateZoomLevel() {
-    const zoomLevelElement = document.getElementById('zoomLevel');
-    if (zoomLevelElement) {
-        zoomLevelElement.textContent = currentZoom + '%';
-    }
-    
-    // Calculate new day width based on zoom level
-    const baseWidth = 24; // Base width in pixels
-    const newWidth = Math.round(baseWidth * (currentZoom / 100));
-    
-    // Update timeline day widths
-    const timelineDays = document.querySelectorAll('.timeline-day');
-    const ganttGridCells = document.querySelectorAll('.gantt-grid-cell');
-    
-    timelineDays.forEach(day => {
-        day.style.width = newWidth + 'px';
-        day.style.minWidth = newWidth + 'px';
-    });
-    
-    ganttGridCells.forEach(cell => {
-        cell.style.width = newWidth + 'px';
-        cell.style.minWidth = newWidth + 'px';
-    });
-    
-    // Update month section widths
-    const monthSections = document.querySelectorAll('.month-section');
-    monthSections.forEach(section => {
-        const dayCount = parseInt(section.style.width) / baseWidth;
-        section.style.width = (dayCount * newWidth) + 'px';
-    });
-    
-    // Recalculate gantt bar positions
-    updateGanttBarPositions(newWidth);
-}
-
-function updateGanttBarPositions(dayWidth) {
-    const ganttBars = document.querySelectorAll('.gantt-bar');
-    ganttBars.forEach(bar => {
-        const startDay = parseInt(bar.getAttribute('data-start-day') || '0');
-        const duration = parseInt(bar.getAttribute('data-duration') || '1');
-        
-        bar.style.left = (startDay * dayWidth) + 'px';
-        bar.style.width = (duration * dayWidth - 2) + 'px'; // -2 for border
-    });
-}
-
-function zoomIn() {
-    if (currentZoom < maxZoom) {
-        currentZoom += zoomStep;
-        updateZoomLevel();
-    }
-}
-
-function zoomOut() {
-    if (currentZoom > minZoom) {
-        currentZoom -= zoomStep;
-        updateZoomLevel();
-    }
-}
-
-// Close modal when clicking outside
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('modal')) {
-        closeTaskModal();
-    }
-});
-
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeTaskModal();
-    }
-    
     if (e.ctrlKey || e.metaKey) {
         if (e.key === '=' || e.key === '+') {
             e.preventDefault();
@@ -1219,6 +1338,139 @@ document.addEventListener('keydown', function(e) {
             zoomOut();
         }
     }
+    
+    // Navigation shortcuts
+    if (e.altKey) {
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            navigateMonth(-1);
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            navigateMonth(1);
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            goToToday();
+        }
+    }
+    
+    if (e.key === 'Escape') {
+        // Close any open modals or deselect items
+        document.querySelectorAll('.gantt-bar.selected').forEach(bar => {
+            bar.classList.remove('selected');
+        });
+    }
+});
+
+// Utility functions
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        month: '2-digit', 
+        day: '2-digit', 
+        year: '2-digit' 
+    });
+}
+
+function calculateDuration(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const timeDiff = end.getTime() - start.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+}
+
+// Responsive handling
+function handleResize() {
+    setTimeout(() => {
+        renderTimelineHeaders();
+        updateGanttChart();
+    }, 100);
+}
+
+window.addEventListener('resize', handleResize);
+
+// Public API for external integration
+window.GanttChart = {
+    // Navigation
+    navigateMonth,
+    changePeriod,
+    goToToday,
+    
+    // Zoom
+    zoomIn,
+    zoomOut,
+    setZoom: function(level) {
+        if (level >= minZoom && level <= maxZoom) {
+            currentZoom = level;
+            updateZoomLevel();
+        }
+    },
+    
+    // Task management
+    expandAll,
+    collapseAll,
+    updateGanttChart,
+    
+    // Data manipulation
+    addTask: function(task) {
+        tasksData.push(task);
+        updateGanttChart();
+    },
+    
+    removeTask: function(taskId) {
+        const index = tasksData.findIndex(task => task.id == taskId);
+        if (index > -1) {
+            tasksData.splice(index, 1);
+            updateGanttChart();
+        }
+    },
+    
+    updateTask: function(taskId, updates) {
+        const task = tasksData.find(task => task.id == taskId);
+        if (task) {
+            Object.assign(task, updates);
+            updateGanttChart();
+        }
+    },
+    
+    refreshData: function(newTasks) {
+        tasksData = newTasks;
+        updateGanttChart();
+    },
+    
+    // Getters
+    getCurrentPeriod: function() {
+        return {
+            startDate: timelineData.startDate,
+            endDate: timelineData.endDate,
+            period: timelinePeriod
+        };
+    },
+    
+    getVisibleTasks: function() {
+        return tasksData.filter(task => {
+            if (!task.startDate || !task.endDate) return false;
+            const taskStart = new Date(task.startDate);
+            const taskEnd = new Date(task.endDate);
+            return !(taskEnd < timelineData.startDate || taskStart > timelineData.endDate);
+        });
+    }
+};
+
+// Event listeners for Laravel integration
+document.addEventListener('taskSelected', function(e) {
+    const task = e.detail.task;
+    console.log('Task selected:', task);
+    // Handle task selection - you can customize this
+});
+
+document.addEventListener('taskUpdated', function(e) {
+    const updatedTask = e.detail.task;
+    window.GanttChart.updateTask(updatedTask.id, updatedTask);
+});
+
+document.addEventListener('taskDeleted', function(e) {
+    const taskId = e.detail.taskId;
+    window.GanttChart.removeTask(taskId);
 });
 </script>
 
