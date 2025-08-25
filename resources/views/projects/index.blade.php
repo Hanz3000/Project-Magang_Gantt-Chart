@@ -803,6 +803,227 @@ body {
             print-color-adjust: exact;
         }
     }
+
+  /* Enhanced Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease-out;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
+    color: white;
+    padding: 20px 24px;
+    border-bottom: none;
+    position: relative;
+}
+
+.modal-header h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.modal-close-x {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.modal-close-x:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+    padding: 24px;
+    background: #ffffff;
+}
+
+.modal-field {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.modal-field:last-child {
+    margin-bottom: 0;
+}
+
+.modal-field-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-field-value {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 8px 12px;
+    background: #f9fafb;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.modal-field-value.empty {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 24px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+.modal-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid transparent;
+}
+
+.modal-btn-secondary {
+    background: #ffffff;
+    color: #6b7280;
+    border-color: #d1d5db;
+}
+
+.modal-btn-secondary:hover {
+    background: #f9fafb;
+    color: #374151;
+    border-color: #9ca3af;
+}
+
+.modal-btn-primary {
+    background: #0078d4;
+    color: white;
+    border-color: #0078d4;
+}
+
+.modal-btn-primary:hover {
+    background: #106ebe;
+    border-color: #106ebe;
+}
+
+.modal-btn-danger {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+.modal-btn-danger:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 20px auto;
+        max-height: calc(100vh - 40px);
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 16px 20px;
+    }
+    
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+    
+    .modal-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    .modal {
+        align-items: stretch;
+    }
+}
 </style>
 
 <div class="gantt-container">
@@ -858,6 +1079,64 @@ body {
             @endif
         </div>
     </div>
+
+<!-- Enhanced Modal Structure -->
+<div id="taskModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="taskName">Task Details</h4>
+            <button class="modal-close-x" onclick="closeTaskModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="modal-field">
+                <div class="modal-field-label">Duration</div>
+                <div class="modal-field-value" id="taskDuration">-</div>
+            </div>
+            
+            <div class="modal-field">
+                <div class="modal-field-label">Start Date</div>
+                <div class="modal-field-value" id="taskStartDate">-</div>
+            </div>
+            
+            <div class="modal-field">
+                <div class="modal-field-label">Finish Date</div>
+                <div class="modal-field-value" id="taskFinishDate">-</div>
+            </div>
+            
+            
+            <div class="modal-field">
+                <div class="modal-field-label">Description</div>
+                <div class="modal-field-value" id="taskDescription">No description available</div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closeTaskModal()">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+                Close
+            </button>
+            
+            <a href="#" id="editTaskBtn" class="modal-btn modal-btn-primary">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                </svg>
+                Edit
+            </a>
+            
+            <a href="#" id="deleteTaskBtn" class="modal-btn modal-btn-danger">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Delete
+            </a>
+        </div>
+    </div>
+</div>
+
 
     <!-- Month Navigation -->
     <div class="month-navigation">
@@ -1575,6 +1854,107 @@ body {
             }
         });
     });
+
+  // Enhanced modal functions
+function openTaskModal(task) {
+    const modal = document.getElementById('taskModal');
+    
+    // Populate modal content
+    document.getElementById('taskName').textContent = task.name || 'Untitled Task';
+    
+    const durationEl = document.getElementById('taskDuration');
+    durationEl.textContent = task.duration ? `${task.duration} days` : 'Not specified';
+    durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
+    
+    const startDateEl = document.getElementById('taskStartDate');
+    startDateEl.textContent = task.start || task.startDate ? formatDate(task.start || task.startDate) : 'Not set';
+    startDateEl.className = (task.start || task.startDate) ? 'modal-field-value' : 'modal-field-value empty';
+    
+    const finishDateEl = document.getElementById('taskFinishDate');
+    finishDateEl.textContent = task.finish || task.endDate ? formatDate(task.finish || task.endDate) : 'Not set';
+    finishDateEl.className = (task.finish || task.endDate) ? 'modal-field-value' : 'modal-field-value empty';
+    
+    // Handle progress
+    const progress = task.progress || 0;
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    
+    if (progressFill && progressText) {
+        progressFill.style.width = progress + '%';
+        progressText.textContent = progress + '%';
+    }
+    
+    const descriptionEl = document.getElementById('taskDescription');
+    descriptionEl.textContent = task.description || 'No description available';
+    descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
+    
+    // Set action button links
+    const editBtn = document.getElementById('editTaskBtn');
+    const deleteBtn = document.getElementById('deleteTaskBtn');
+    
+    if (editBtn) {
+        editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
+    }
+    
+    if (deleteBtn) {
+        deleteBtn.onclick = function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to delete this task?')) {
+                window.location.href = `/tasks/${task.id}/delete`;
+            }
+        };
+    }
+    
+    // Show modal with animation
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+function closeTaskModal() {
+    const modal = document.getElementById('taskModal');
+    
+    // Hide modal with animation
+    modal.classList.remove('show');
+    
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }, 300);
+}
+
+// Enhanced click handlers
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('taskModal');
+    
+    // Close modal when clicking backdrop
+    if (e.target === modal) {
+        closeTaskModal();
+    }
+    
+    // Handle gantt bar clicks
+    if (e.target.closest('.gantt-bar')) {
+        const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
+        const task = tasksData.find(t => t.id == taskId);
+        if (task) {
+            openTaskModal(task);
+        }
+    }
+});
+
+// Keyboard support
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('taskModal');
+        if (modal.style.display === 'flex') {
+            closeTaskModal();
+        }
+    }
+});
 </script>
 
 @endsection
