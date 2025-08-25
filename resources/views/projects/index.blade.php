@@ -2,15 +2,16 @@
 
 @section('content')
 <style>
-/* Microsoft Project Style Gantt Chart */
+/* Microsoft Project Style Gantt Chart - Width Constraints Fixed */
 .gantt-container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 120px);
-    overflow: hidden;
+    min-height: calc(100vh - 120px);
+    overflow: hidden; /* Keep hidden to prevent horizontal overflow */
     background: #ffffff;
     border: 1px solid #d1d5db;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 100vw; /* Prevent container from exceeding viewport */
 }
 
 .gantt-header {
@@ -26,9 +27,10 @@
     display: flex;
     flex: 1;
     min-height: 0;
+    overflow: hidden; /* Prevent main content from overflowing */
 }
 
-/* Task List - 50% width */
+/* Task List - 50% width - CONSTRAINED */
 .task-list-container {
     width: 50%;
     min-width: 50%;
@@ -37,18 +39,51 @@
     flex-direction: column;
     border-right: 1px solid #d1d5db;
     background: #ffffff;
+    overflow: hidden; /* Prevent overflow */
 }
 
-.task-list-header {
+/* Gantt View - 50% width - CONSTRAINED */
+.gantt-view-container {
+    width: 50%;
+    min-width: 50%;
+    max-width: 50%;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    overflow: hidden; /* Prevent overflow */
+}
+
+/* Combined Header Container */
+.combined-header-container {
+    display: flex;
+    width: 100%;
     background: #f1f3f4;
     border-bottom: 1px solid #d1d5db;
-    padding: 0;
     position: sticky;
     top: 0;
     z-index: 20;
-    font-size: 11px;
-    font-weight: 600;
-    color: #374151;
+}
+
+.task-list-header-section {
+    width: 50%;
+    min-width: 50%;
+    max-width: 50%;
+    border-right: 1px solid #d1d5db;
+    overflow: hidden;
+}
+
+.timeline-header-section {
+    width: 50%;
+    min-width: 50%;
+    max-width: 50%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.timeline-header-section::-webkit-scrollbar {
+    display: none;
 }
 
 .task-header-row {
@@ -67,57 +102,57 @@
     font-size: 11px;
     font-weight: 600;
     color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .task-header-cell:first-child {
     text-align: left;
 }
 
+/* Task List Body - Controlled Height */
 .task-list-body {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     min-height: 0;
     background: white;
-}
-
-/* Gantt View - 50% width */
-.gantt-view-container {
-    width: 50%;
-    min-width: 50%;
-    max-width: 50%;
-    display: flex;
-    flex-direction: column;
-    background: white;
+    max-height: calc(100vh - 200px); /* Set reasonable max height */
 }
 
 .timeline-header-container {
     background: #f1f3f4;
     border-bottom: 1px solid #d1d5db;
-    position: sticky;
-    top: 0;
-    z-index: 15;
     overflow-x: auto;
+    overflow-y: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    /* Calculate max width based on timeline days */
+    max-width: 100%;
 }
 
 .timeline-header-container::-webkit-scrollbar {
     display: none;
 }
 
+/* Gantt Content Container - FIXED WIDTH CONSTRAINTS */
 .gantt-content-container {
     flex: 1;
     overflow: auto;
     position: relative;
     background: #ffffff;
+    max-height: calc(100vh - 200px); /* Set reasonable max height */
+    max-width: 100%; /* Ensure doesn't exceed container */
 }
 
-/* Timeline Grid - Microsoft Project Style */
+/* Timeline Grid - CONTROLLED WIDTH */
 .month-header {
     display: flex;
     border-bottom: 1px solid #d1d5db;
     background: #f1f3f4;
     height: 20px;
+    min-width: fit-content; /* Adjust to content */
 }
 
 .month-section {
@@ -131,6 +166,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 60px; /* Set minimum width for months */
 }
 
 .day-header {
@@ -138,11 +174,13 @@
     background: #f8f9fa;
     height: 32px;
     border-bottom: 1px solid #d1d5db;
+    min-width: fit-content; /* Adjust to content */
 }
 
 .timeline-day {
     width: 24px;
     min-width: 24px;
+    max-width: 24px; /* Ensure consistent width */
     flex-shrink: 0;
     text-align: center;
     border-right: 1px solid #e5e7eb;
@@ -167,7 +205,7 @@
     font-weight: 700;
 }
 
-/* Task Rows - Microsoft Project Style */
+/* Task Rows - CONTROLLED WIDTH */
 .task-row {
     display: grid;
     grid-template-columns: 40px 1fr 80px 80px 80px;
@@ -178,6 +216,7 @@
     background: white;
     font-size: 11px;
     transition: background-color 0.1s ease;
+    max-width: 100%; /* Prevent overflow */
 }
 
 .task-row:nth-child(even) {
@@ -212,15 +251,19 @@
     padding-left: 4px;
     font-weight: 500;
     color: #374151;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Gantt Rows */
+/* Gantt Rows - CONTROLLED WIDTH */
 .gantt-row {
     height: 32px;
     position: relative;
     border-bottom: 1px solid #f1f5f9;
     background: white;
     display: flex;
+    min-width: fit-content; /* Adjust to content width */
 }
 
 .gantt-row:nth-child(even) {
@@ -234,6 +277,7 @@
 .gantt-grid-cell {
     width: 24px;
     min-width: 24px;
+    max-width: 24px; /* Ensure consistent width */
     height: 32px;
     border-right: 1px solid #f1f5f9;
     flex-shrink: 0;
@@ -249,7 +293,7 @@
     border-right: 2px solid #f59e0b;
 }
 
-/* Task Bars - Microsoft Project Style */
+/* Task Bars - CONSTRAINED WIDTH */
 .gantt-bar {
     position: absolute;
     top: 6px;
@@ -268,8 +312,10 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     min-width: 20px;
+    max-width: calc(100% - 10px); /* Ensure bar doesn't exceed row width */
     z-index: 5;
     border: 1px solid rgba(0,0,0,0.1);
+    box-sizing: border-box; /* Include padding and border in width */
 }
 
 .gantt-bar:hover {
@@ -337,6 +383,15 @@
     transform: rotate(90deg);
 }
 
+/* Container for Gantt Rows - CONTROLLED WIDTH */
+.gantt-rows-container {
+    min-height: 100%;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
 /* Scrollbar Styles */
 .task-list-body::-webkit-scrollbar,
 .gantt-content-container::-webkit-scrollbar,
@@ -364,7 +419,7 @@
     background: #a8a8a8;
 }
 
-/* Responsive Design */
+/* Responsive Design - IMPROVED CONSTRAINTS */
 @media (max-width: 1024px) {
     .task-list-container {
         width: 45%;
@@ -376,6 +431,30 @@
         width: 55%;
         min-width: 55%;
         max-width: 55%;
+    }
+    
+    .task-list-header-section {
+        width: 45%;
+        min-width: 45%;
+        max-width: 45%;
+    }
+    
+    .timeline-header-section {
+        width: 55%;
+        min-width: 55%;
+        max-width: 55%;
+    }
+    
+    .timeline-day {
+        width: 22px;
+        min-width: 22px;
+        max-width: 22px;
+    }
+    
+    .gantt-grid-cell {
+        width: 22px;
+        min-width: 22px;
+        max-width: 22px;
     }
 }
 
@@ -392,18 +471,74 @@
         max-width: 60%;
     }
     
+    .task-list-header-section {
+        width: 40%;
+        min-width: 40%;
+        max-width: 40%;
+    }
+    
+    .timeline-header-section {
+        width: 60%;
+        min-width: 60%;
+        max-width: 60%;
+    }
+    
     .timeline-day {
         width: 20px;
         min-width: 20px;
+        max-width: 20px;
     }
     
     .gantt-grid-cell {
         width: 20px;
         min-width: 20px;
+        max-width: 20px;
     }
     
     .gantt-container {
-        height: calc(100vh - 100px);
+        min-height: calc(100vh - 100px);
+    }
+    
+    .task-list-body {
+        max-height: calc(100vh - 180px);
+    }
+    
+    .gantt-content-container {
+        max-height: calc(100vh - 180px);
+    }
+}
+
+/* Additional constraints for very small screens */
+@media (max-width: 480px) {
+    .gantt-container {
+        min-height: calc(100vh - 80px);
+    }
+    
+    .timeline-day {
+        width: 18px;
+        min-width: 18px;
+        max-width: 18px;
+        font-size: 9px;
+    }
+    
+    .gantt-grid-cell {
+        width: 18px;
+        min-width: 18px;
+        max-width: 18px;
+    }
+    
+    .gantt-bar {
+        font-size: 9px;
+        padding: 0 4px;
+        min-width: 16px;
+    }
+    
+    .task-list-body {
+        max-height: calc(100vh - 160px);
+    }
+    
+    .gantt-content-container {
+        max-height: calc(100vh - 160px);
     }
 }
 
@@ -413,7 +548,7 @@
     border-bottom: 1px solid #d1d5db;
     padding: 8px 12px;
     display: flex;
-    justify-content: between;
+    justify-content: space-between;
     align-items: center;
     gap: 12px;
 }
@@ -568,6 +703,186 @@
     min-width: 36px;
     text-align: center;
 }
+
+/* Additional styles for truncated gantt bars */
+.gantt-bar.truncated {
+    position: relative;
+}
+
+.gantt-bar.truncated::after {
+    content: "...";
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+    font-size: 8px;
+    pointer-events: none;
+}
+
+/* Improved tooltip for truncated bars */
+.gantt-bar.truncated:hover::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.gantt-bar.truncated:hover::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    margin-bottom: 1px;
+}
+
+/* Ensure proper overflow handling */
+.gantt-row {
+    position: relative;
+    overflow: hidden; /* Hide overflowing content */
+}
+
+/* Today indicator line */
+.today-indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #f59e0b;
+    z-index: 15;
+    pointer-events: none;
+}
+
+/* Weekend background for gantt rows */
+.gantt-grid-cell.weekend {
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.02) 0%,
+        rgba(0, 0, 0, 0.03) 100%
+    );
+}
+
+/* Hover effects for better UX */
+.gantt-row:hover .gantt-grid-cell {
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+.gantt-row:hover .gantt-grid-cell.weekend {
+    background: linear-gradient(
+        to bottom,
+        rgba(59, 130, 246, 0.05) 0%,
+        rgba(59, 130, 246, 0.08) 100%
+    );
+}
+
+/* Loading state for gantt bars */
+.gantt-bar.loading {
+    background: #e5e7eb !important;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .gantt-bar {
+        font-size: 9px;
+        padding: 0 3px;
+    }
+    
+    .gantt-bar.truncated::after {
+        font-size: 7px;
+        right: 1px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .gantt-container {
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    .task-list-body,
+    .gantt-content-container {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    .gantt-bar {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+/* Focus styles for accessibility */
+.gantt-bar:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
+}
+
+.toggle-collapse:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
+    border-radius: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .gantt-bar {
+        border-width: 2px;
+        border-style: solid;
+    }
+    
+    .gantt-grid-cell {
+        border-width: 1px;
+        border-color: #000;
+    }
+    
+    .timeline-day {
+        border-width: 1px;
+        border-color: #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .gantt-bar {
+        transition: none;
+    }
+    
+    .gantt-bar:hover {
+        transform: none;
+    }
+    
+    .toggle-collapse {
+        transition: none;
+    }
+    
+    .gantt-bar.loading {
+        animation: none;
+    }
+}
 </style>
 
 <div class="gantt-container">
@@ -622,26 +937,78 @@
                     </svg>
                     Add Task
                 </a>
-            
+        </div>
+    </div>
+
+    <!-- Combined Header -->
+    <div class="combined-header-container">
+        <!-- Task List Header Section -->
+        <div class="task-list-header-section">
+            <div class="task-header-row">
+                <div class="task-header-cell"></div>
+                <div class="task-header-cell" style="text-align: left;">Task Name</div>
+                <div class="task-header-cell">Duration</div>
+                <div class="task-header-cell">Start</div>
+                <div class="task-header-cell">Finish</div>
+            </div>
         </div>
         
+        <!-- Timeline Header Section -->
+        <div class="timeline-header-section" id="timelineHeaderSection">
+            @if(isset($tasks) && $tasks->count() > 0)
+                @php
+                    $minDate = \Carbon\Carbon::now()->startOfMonth();
+                    $maxDate = \Carbon\Carbon::now()->addMonths(6)->endOfMonth();
+                    $totalDays = $minDate->diffInDays($maxDate) + 1;
+                    
+                    // Group days by month
+                    $monthGroups = [];
+                    $currentDate = $minDate->copy();
+                    while ($currentDate <= $maxDate) {
+                        $monthKey = $currentDate->format('Y-m');
+                        if (!isset($monthGroups[$monthKey])) {
+                            $monthGroups[$monthKey] = [
+                                'name' => $currentDate->format('M Y'),
+                                'days' => []
+                            ];
+                        }
+                        $monthGroups[$monthKey]['days'][] = $currentDate->copy();
+                        $currentDate->addDay();
+                    }
+                @endphp
+                
+                <!-- Month Headers -->
+                <div class="month-header">
+                    @foreach($monthGroups as $monthData)
+                        <div class="month-section" style="width: {{ count($monthData['days']) * 24 }}px;">
+                            {{ $monthData['name'] }}
+                        </div>
+                    @endforeach
+                </div>
+                
+                <!-- Day Headers -->
+                <div class="day-header">
+                    @foreach($monthGroups as $monthData)
+                        @foreach($monthData['days'] as $date)
+                            @php
+                                $dayOfWeek = $date->dayOfWeek;
+                                $isWeekend = in_array($dayOfWeek, [0, 6]);
+                                $isToday = $date->isToday();
+                            @endphp
+                            <div class="timeline-day {{ $isWeekend ? 'weekend' : '' }} {{ $isToday ? 'today' : '' }}">
+                                {{ $date->format('d') }}
+                            </div>
+                        @endforeach
+                    @endforeach
+                </div>
+            @endif
+        </div>
     </div>
 
     <!-- Main Content -->
     <div class="gantt-main-content">
         <!-- Task List (50% width) -->
         <div class="task-list-container">
-            <!-- Task List Header -->
-            <div class="task-list-header">
-                <div class="task-header-row">
-                    <div class="task-header-cell"></div>
-                    <div class="task-header-cell" style="text-align: left;">Task Name</div>
-                    <div class="task-header-cell">Duration</div>
-                    <div class="task-header-cell">Start</div>
-                    <div class="task-header-cell">Finish</div>
-                </div>
-            </div>
-            
             <!-- Task List Body -->
             <div class="task-list-body" id="taskListBody">
                 @if(isset($tasks) && $tasks->count() > 0)
@@ -661,61 +1028,7 @@
 
         <!-- Gantt View (50% width) -->
         <div class="gantt-view-container">
-            <!-- Timeline Header -->
-            <div class="timeline-header-container" id="timelineHeader">
-                @if(isset($tasks) && $tasks->count() > 0)
-                    @php
-                        $minDate = \Carbon\Carbon::now()->startOfMonth();
-                        $maxDate = \Carbon\Carbon::now()->addMonths(6)->endOfMonth();
-                        $totalDays = $minDate->diffInDays($maxDate) + 1;
-                        
-                        // Group days by month
-                        $monthGroups = [];
-                        $currentDate = $minDate->copy();
-                        while ($currentDate <= $maxDate) {
-                            $monthKey = $currentDate->format('Y-m');
-                            if (!isset($monthGroups[$monthKey])) {
-                                $monthGroups[$monthKey] = [
-                                    'name' => $currentDate->format('M Y'),
-                                    'days' => []
-                                ];
-                            }
-                            $monthGroups[$monthKey]['days'][] = $currentDate->copy();
-                            $currentDate->addDay();
-                        }
-                    @endphp
-                    
-                    <!-- Month Headers -->
-                    <div class="month-header">
-                        @foreach($monthGroups as $monthData)
-                            <div class="month-section" style="width: {{ count($monthData['days']) * 24 }}px;">
-                                {{ $monthData['name'] }}
-                            </div>
-                        @endforeach
-                    </div>
-                    
-                    <!-- Day Headers -->
-                    <div class="day-header">
-                        @foreach($monthGroups as $monthData)
-                            @foreach($monthData['days'] as $date)
-                                @php
-                                    $dayOfWeek = $date->dayOfWeek;
-                                    $isWeekend = in_array($dayOfWeek, [0, 6]);
-                                    $isToday = $date->isToday();
-                                @endphp
-                                <div class="timeline-day {{ $isWeekend ? 'weekend' : '' }} {{ $isToday ? 'today' : '' }}">
-                                    {{ $date->format('d') }}
-                                </div>
-                            @endforeach
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-            
-            <!-- Controls Container (Positioned above February 2026) -->
-            
-            
-            <!-- Gantt Content -->
+                        <!-- Gantt Content -->
             <div class="gantt-content-container" id="ganttContent">
                 @if(isset($tasks) && $tasks->count() > 0)
                     <div class="gantt-rows-container">
@@ -739,7 +1052,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const taskListBody = document.getElementById('taskListBody');
     const ganttContent = document.getElementById('ganttContent');
-    const timelineHeader = document.getElementById('timelineHeader');
+    const timelineHeaderSection = document.getElementById('timelineHeaderSection');
     
     // Vertical scroll synchronization
     if (taskListBody && ganttContent) {
@@ -749,16 +1062,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         ganttContent.addEventListener('scroll', function() {
             taskListBody.scrollTop = this.scrollTop;
-            if (timelineHeader) {
-                timelineHeader.scrollLeft = this.scrollLeft;
+            if (timelineHeaderSection) {
+                timelineHeaderSection.scrollLeft = this.scrollLeft;
             }
         });
     }
     
     // Horizontal scroll synchronization for timeline
-    if (timelineHeader && ganttContent) {
-        timelineHeader.addEventListener('scroll', function() {
+    if (timelineHeaderSection && ganttContent) {
+        timelineHeaderSection.addEventListener('scroll', function() {
             ganttContent.scrollLeft = this.scrollLeft;
+        });        
+        ganttContent.addEventListener('scroll', function() {
+            timelineHeaderSection.scrollLeft = this.scrollLeft;
         });
     }
 });
@@ -768,7 +1084,7 @@ function toggleTaskCollapse(taskId) {
     const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
     const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
     const ganttChildrenContainer = document.querySelector(`.gantt-children[data-parent-id="${taskId}"]`);
-    
+
     if (toggleIcon && childrenContainer) {
         toggleIcon.classList.toggle('rotate-90');
         
@@ -845,7 +1161,7 @@ function updateZoomLevel() {
         cell.style.minWidth = newWidth + 'px';
     });
     
-    //
+    // Update month section widths
     const monthSections = document.querySelectorAll('.month-section');
     monthSections.forEach(section => {
         const dayCount = parseInt(section.style.width) / baseWidth;
