@@ -230,6 +230,15 @@
         display: none;
     }
 
+    .task-row.task-child {
+        background: #f8f9fa;
+        border-left: 3px solid #e5e7eb;
+    }
+
+    .task-row.task-child:hover {
+        background-color: #f0f9ff;
+    }
+
     .task-cell {
         padding: 2px 4px;
         text-align: center;
@@ -612,15 +621,21 @@
     }
 
     @keyframes pulse {
-
-        0%,
-        100% {
+        0%, 100% {
             opacity: 1;
         }
-
         50% {
             opacity: 0.7;
         }
+    }
+
+    /* Task Children Container */
+    .task-children {
+        display: block;
+    }
+
+    .task-children.collapsed {
+        display: none;
     }
 
     /* Responsive Design */
@@ -647,7 +662,6 @@
     }
 
     @media (max-width: 1024px) {
-
         .task-list-container,
         .task-list-header-section {
             width: 45%;
@@ -671,7 +685,6 @@
     }
 
     @media (max-width: 768px) {
-
         .task-list-container,
         .task-list-header-section {
             width: 40%;
@@ -715,12 +728,6 @@
         outline: 2px solid #2563eb;
         outline-offset: 1px;
     }
-
-    .task-child {
-        padding-left: 20px;
-        /* Indentasi untuk child task */
-    }
-
 
     .nav-button:focus,
     .control-button:focus,
@@ -906,38 +913,10 @@
         <!-- Task List (50% width) -->
         <div class="task-list-container">
             <div class="task-list-body" id="taskListBody">
-                <!-- Di dalam loop task -->
                 @if(isset($tasks) && $tasks->count() > 0)
-                @foreach($tasks as $task)
-                <div class="task-row">
-                    <div class="task-cell">
-                        @if($task->children->count() > 0)
-                        <span class="toggle-collapse" data-task-id="{{ $task->id }}">
-                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                            </svg>
-                        </span>
-                        @endif
-                    </div>
-                    <div class="task-name-cell">
-                        <span class="task-indicator indicator-level-{{ $task->level % 6 }}"></span>
-                        {{ $task->name }}
-                    </div>
-                    <div class="task-cell">
-                        <span class="duration-badge">{{ $task->duration }}d</span>
-                    </div>
-                    <div class="task-cell">{{ $task->start ? \Carbon\Carbon::parse($task->start)->format('m/d/y') : '-' }}</div>
-                    <div class="task-cell">{{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('m/d/y') : '-' }}</div>
-                </div>
-
-                @if($task->children->count() > 0)
-                <div class="task-children" data-parent-id="{{ $task->id }}">
-                    @foreach($task->children as $child)
-                    @include('partials.gantt-task-item', ['task' => $child, 'level' => 1])
+                    @foreach($tasks as $task)
+                        @include('partials.gantt-task-item', ['task' => $task, 'level' => 0])
                     @endforeach
-                </div>
-                @endif
-                @endforeach
                 @else
                 <div class="p-8 text-center text-gray-500">
                     <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
@@ -1163,10 +1142,11 @@
 
     // Generate task bar
     function generateTaskBar(task, dayWidth) {
-        if (!task.startDate || !task.endDate) return null;
+        if (!task.start && !task.startDate) return null;
+        if (!task.finish && !task.endDate) return null;
 
-        const taskStart = new Date(task.startDate);
-        const taskEnd = new Date(task.endDate);
+        const taskStart = new Date(task.start || task.startDate);
+        const taskEnd = new Date(task.finish || task.endDate);
 
         // Check if task overlaps with timeline
         if (taskEnd < timelineData.startDate || taskStart > timelineData.endDate) {
@@ -1181,20 +1161,21 @@
         const barLeft = startDayOffset * dayWidth;
         const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
 
-        const levelClass = `level-${task.level % 6}`;
-        const progressWidth = task.progress ? (barWidth * task.progress / 100) : 0;
+        const levelClass = `level-${(task.level || 0) % 6}`;
+        const progress = task.progress || 0;
+        const progressWidth = progress ? (barWidth * progress / 100) : 0;
 
         let taskBarHTML = `
         <div class="gantt-bar ${levelClass}" 
             style="left: ${barLeft}px; width: ${barWidth}px;"
             data-task-id="${task.id}"
             data-start-day="${startDayOffset}"
-            data-duration="${task.duration}"
-            title="${task.name} (${task.duration} days) - ${task.progress}% complete">
+            data-duration="${task.duration || 0}"
+            title="${task.name} (${task.duration || 0} days) - ${progress}% complete">
     `;
 
         // Add progress indicator if exists
-        if (task.progress > 0) {
+        if (progress > 0) {
             taskBarHTML += `<div class="progress-indicator" style="width: ${progressWidth}px; height: 100%; background: rgba(255,255,255,0.3); position: absolute; left: 0; top: 0; border-radius: 2px;"></div>`;
         }
 
@@ -1323,18 +1304,10 @@
     function toggleTaskCollapse(taskId) {
         const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
         const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
-        const ganttChildrenContainer = document.querySelector(`.gantt-children[data-parent-id="${taskId}"]`);
 
         if (toggleIcon && childrenContainer) {
             toggleIcon.classList.toggle('rotate-90');
-
-            if (childrenContainer.style.display === 'none') {
-                childrenContainer.style.display = 'block';
-                if (ganttChildrenContainer) ganttChildrenContainer.style.display = 'block';
-            } else {
-                childrenContainer.style.display = 'none';
-                if (ganttChildrenContainer) ganttChildrenContainer.style.display = 'none';
-            }
+            childrenContainer.classList.toggle('collapsed');
         }
     }
 
@@ -1356,13 +1329,9 @@
     function handleTaskBarClick(taskId) {
         const task = tasksData.find(t => t.id == taskId);
         if (task) {
-            // You can customize this to show task details, edit form, etc.
             console.log('Task clicked:', task);
 
-            // Example: Show task details in a modal or redirect to edit page
-            // window.location.href = `/tasks/${taskId}/edit`;
-
-            // Or trigger a custom event
+            // Trigger a custom event
             document.dispatchEvent(new CustomEvent('taskSelected', {
                 detail: {
                     task: task
@@ -1374,10 +1343,7 @@
     // Expand/Collapse all functions
     function expandAll() {
         document.querySelectorAll('.task-children').forEach(container => {
-            container.style.display = 'block';
-        });
-        document.querySelectorAll('.gantt-children').forEach(container => {
-            container.style.display = 'block';
+            container.classList.remove('collapsed');
         });
         document.querySelectorAll('.toggle-collapse').forEach(icon => {
             icon.classList.add('rotate-90');
@@ -1386,10 +1352,7 @@
 
     function collapseAll() {
         document.querySelectorAll('.task-children').forEach(container => {
-            container.style.display = 'none';
-        });
-        document.querySelectorAll('.gantt-children').forEach(container => {
-            container.style.display = 'none';
+            container.classList.add('collapsed');
         });
         document.querySelectorAll('.toggle-collapse').forEach(icon => {
             icon.classList.remove('rotate-90');
@@ -1517,9 +1480,11 @@
 
         getVisibleTasks: function() {
             return tasksData.filter(task => {
-                if (!task.startDate || !task.endDate) return false;
-                const taskStart = new Date(task.startDate);
-                const taskEnd = new Date(task.endDate);
+                const startDate = task.start || task.startDate;
+                const endDate = task.finish || task.endDate;
+                if (!startDate || !endDate) return false;
+                const taskStart = new Date(startDate);
+                const taskEnd = new Date(endDate);
                 return !(taskEnd < timelineData.startDate || taskStart > timelineData.endDate);
             });
         }
