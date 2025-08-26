@@ -3,18 +3,19 @@
 @section('content')
 <style>
     /* Microsoft Project Style Gantt Chart - Enhanced Version */
-   .gantt-container {
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 120px);
-    overflow-y: auto; /* Izinkan scroll vertikal */
-    overflow-x: hidden;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 100vw;
-    box-sizing: border-box;
-}
+    .gantt-container {
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 120px);
+        overflow-y: auto;
+        /* Izinkan scroll vertikal */
+        overflow-x: hidden;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
 
     .gantt-header {
         background: #f8f9fa;
@@ -145,12 +146,12 @@
         max-width: 100%;
     }
 
-   body.no-scroll {
-    overflow: hidden !important;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-}
+    body.no-scroll {
+        overflow: hidden !important;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
 
     /* Timeline Grid */
     .month-header {
@@ -632,9 +633,12 @@
     }
 
     @keyframes pulse {
-        0%, 100% {
+
+        0%,
+        100% {
             opacity: 1;
         }
+
         50% {
             opacity: 0.7;
         }
@@ -673,6 +677,7 @@
     }
 
     @media (max-width: 1024px) {
+
         .task-list-container,
         .task-list-header-section {
             width: 45%;
@@ -696,6 +701,7 @@
     }
 
     @media (max-width: 768px) {
+
         .task-list-container,
         .task-list-header-section {
             width: 40%;
@@ -809,41 +815,45 @@
 
     /* Enhanced Modal Styles with Smooth Animations - UPDATED */
     .modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    opacity: 0;
-    transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none; /* Nonaktifkan interaksi saat modal tidak terlihat */
-}
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+        opacity: 0;
+        transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        /* Nonaktifkan interaksi saat modal tidak terlihat */
+    }
+
     .modal.show {
         display: flex;
-    pointer-events: auto; /* Aktifkan interaksi saat modal ditampilkan */
-}
+        pointer-events: auto;
+        /* Aktifkan interaksi saat modal ditampilkan */
+    }
 
     .modal.opening {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
-    opacity: 1;
-    pointer-events: auto;
-}
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        opacity: 1;
+        pointer-events: auto;
+    }
 
-.modal.closing {
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    opacity: 0;
-    pointer-events: none; /* Nonaktifkan interaksi selama animasi penutupan */
-}
+    .modal.closing {
+        background-color: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+        opacity: 0;
+        pointer-events: none;
+        /* Nonaktifkan interaksi selama animasi penutupan */
+    }
 
     .modal-content {
         background-color: #ffffff;
@@ -956,7 +966,7 @@
         font-style: italic;
     }
 
-        .modal-footer {
+    .modal-footer {
         display: flex;
         justify-content: flex-end;
         gap: 12px;
@@ -1044,17 +1054,17 @@
             max-height: calc(100vh - 40px);
             border-radius: 16px;
         }
-        
+
         .modal-header,
         .modal-body,
         .modal-footer {
             padding: 16px 20px;
         }
-        
+
         .modal-footer {
             flex-direction: column-reverse;
         }
-        
+
         .modal-btn {
             width: 100%;
             justify-content: center;
@@ -1070,7 +1080,7 @@
             border-radius: 0;
             margin: 0;
         }
-        
+
         .modal {
             align-items: stretch;
         }
@@ -1172,29 +1182,29 @@
                 <h4 id="taskName">Task Details</h4>
                 <button class="modal-close-x" onclick="closeTaskModal()" aria-label="Close modal">&times;</button>
             </div>
-            
+
             <div class="modal-body">
                 <div class="modal-field">
                     <div class="modal-field-label">Duration</div>
                     <div class="modal-field-value" id="taskDuration">-</div>
                 </div>
-                                
+
                 <div class="modal-field">
                     <div class="modal-field-label">Start Date</div>
                     <div class="modal-field-value" id="taskStartDate">-</div>
                 </div>
-                
+
                 <div class="modal-field">
                     <div class="modal-field-label">Finish Date</div>
                     <div class="modal-field-value" id="taskFinishDate">-</div>
                 </div>
-                
+
                 <div class="modal-field">
                     <div class="modal-field-label">Description</div>
                     <div class="modal-field-value" id="taskDescription">No description available</div>
                 </div>
             </div>
-            
+
             <div class="modal-footer">
                 <button class="modal-btn modal-btn-secondary" onclick="closeTaskModal()">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1202,14 +1212,15 @@
                     </svg>
                     Close
                 </button>
-                
+
                 <a href="#" id="editTaskBtn" class="modal-btn modal-btn-primary">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                     </svg>
                     Edit
                 </a>
-                
+
+                <!-- Tombol Delete di modal -->
                 <a href="#" id="deleteTaskBtn" class="modal-btn modal-btn-danger">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
@@ -1217,6 +1228,12 @@
                     </svg>
                     Delete
                 </a>
+
+                <!-- Form hapus task (hidden) -->
+                <form id="deleteTaskForm" method="POST" style="display:none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
             </div>
         </div>
     </div>
@@ -1284,9 +1301,9 @@
         <div class="task-list-container">
             <div class="task-list-body" id="taskListBody">
                 @if(isset($tasks) && $tasks->count() > 0)
-                    @foreach($tasks as $task)
-                        @include('partials.task-item', ['task' => $task, 'level' => 0])
-                    @endforeach
+                @foreach($tasks as $task)
+                @include('partials.task-item', ['task' => $task, 'level' => 0])
+                @endforeach
                 @else
                 <div class="p-8 text-center text-gray-500">
                     <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
@@ -1562,14 +1579,14 @@
         const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
 
         const levelClass = `level-${(task.level || 0) % 6}`;
-       
+
         let taskBarHTML = `
         <div class="gantt-bar ${levelClass}" 
             style="left: ${barLeft}px; width: ${barWidth}px;"
             data-task-id="${task.id}"
             data-start-day="${startDayOffset}"
             data-duration="${task.duration || 0}"           
-    `; 
+    `;
 
         taskBarHTML += `<span class="task-bar-text">${task.name}</span></div>`;
 
@@ -1700,14 +1717,14 @@
         if (toggleIcon && childrenContainer) {
             toggleIcon.classList.toggle('rotate-90');
             childrenContainer.classList.toggle('collapsed');
-            
+
             // Update collapsed tasks tracking
             if (childrenContainer.classList.contains('collapsed')) {
                 collapsedTasks.add(taskId.toString());
             } else {
                 collapsedTasks.delete(taskId.toString());
             }
-            
+
             // Update Gantt chart to reflect visibility changes
             updateGanttChart();
         }
@@ -1750,10 +1767,10 @@
         document.querySelectorAll('.toggle-collapse').forEach(icon => {
             icon.classList.add('rotate-90');
         });
-        
+
         // Clear collapsed tasks tracking
         collapsedTasks.clear();
-        
+
         // Update Gantt chart
         updateGanttChart();
     }
@@ -1770,7 +1787,7 @@
         document.querySelectorAll('.toggle-collapse').forEach(icon => {
             icon.classList.remove('rotate-90');
         });
-        
+
         // Update Gantt chart
         updateGanttChart();
     }
@@ -1937,98 +1954,100 @@
 
     // Enhanced modal functions with smooth animations - UPDATED
     function openTaskModal(task) {
-    if (isModalAnimating) return;
-    
-    const modal = document.getElementById('taskModal');
-    isModalAnimating = true;
-    
-    // Populate modal content
-    populateModalContent(task);
-    
-    // Prevent body scroll - UPDATED APPROACH
-    document.body.classList.add('no-scroll');
-    
-    // Simpan posisi scroll saat ini
-    const scrollY = window.scrollY;
-    document.body.style.top = `-${scrollY}px`;
-    document.body.dataset.scrollY = scrollY;
-    
-    // Show modal
-    modal.style.display = 'flex';
-    
-    // Force reflow
-    modal.offsetHeight;
-    
-    // Add opening class for animation
-    modal.classList.add('opening');
-    
-    // Reset animation flag after animation completes
-    setTimeout(() => {
-        isModalAnimating = false;
-    }, 300);
-}
+        if (isModalAnimating) return;
 
-function closeTaskModal() {
-    if (isModalAnimating) return;
-    
-    const modal = document.getElementById('taskModal');
-    isModalAnimating = true;
-    
-    // Add closing class for animation
-    modal.classList.remove('opening');
-    modal.classList.add('closing');
-    
-    // Restore body scroll - UPDATED APPROACH
-    document.body.classList.remove('no-scroll');
-    
-    // Kembalikan posisi scroll
-    const scrollY = document.body.dataset.scrollY || 0;
-    document.body.style.top = '';
-    window.scrollTo(0, parseInt(scrollY));
-    
-    // Hide modal after animation completes
-    setTimeout(() => {
-        modal.classList.remove('closing');
-        modal.style.display = 'none';
-        isModalAnimating = false;
-    }, 300);
-}
+        const modal = document.getElementById('taskModal');
+        isModalAnimating = true;
+
+        // Populate modal content
+        populateModalContent(task);
+
+        // Prevent body scroll - UPDATED APPROACH
+        document.body.classList.add('no-scroll');
+
+        // Simpan posisi scroll saat ini
+        const scrollY = window.scrollY;
+        document.body.style.top = `-${scrollY}px`;
+        document.body.dataset.scrollY = scrollY;
+
+        // Show modal
+        modal.style.display = 'flex';
+
+        // Force reflow
+        modal.offsetHeight;
+
+        // Add opening class for animation
+        modal.classList.add('opening');
+
+        // Reset animation flag after animation completes
+        setTimeout(() => {
+            isModalAnimating = false;
+        }, 300);
+    }
+
+    function closeTaskModal() {
+        if (isModalAnimating) return;
+
+        const modal = document.getElementById('taskModal');
+        isModalAnimating = true;
+
+        // Add closing class for animation
+        modal.classList.remove('opening');
+        modal.classList.add('closing');
+
+        // Restore body scroll - UPDATED APPROACH
+        document.body.classList.remove('no-scroll');
+
+        // Kembalikan posisi scroll
+        const scrollY = document.body.dataset.scrollY || 0;
+        document.body.style.top = '';
+        window.scrollTo(0, parseInt(scrollY));
+
+        // Hide modal after animation completes
+        setTimeout(() => {
+            modal.classList.remove('closing');
+            modal.style.display = 'none';
+            isModalAnimating = false;
+        }, 300);
+    }
 
     function populateModalContent(task) {
         // Populate modal fields
         document.getElementById('taskName').textContent = task.name || 'Untitled Task';
-        
+
         const durationEl = document.getElementById('taskDuration');
         durationEl.textContent = task.duration ? `${task.duration} days` : 'Not specified';
         durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
-        
+
         const startDateEl = document.getElementById('taskStartDate');
         startDateEl.textContent = task.start || task.startDate ? formatDate(task.start || task.startDate) : 'Not set';
         startDateEl.className = (task.start || task.startDate) ? 'modal-field-value' : 'modal-field-value empty';
-        
+
         const finishDateEl = document.getElementById('taskFinishDate');
         finishDateEl.textContent = task.finish || task.endDate ? formatDate(task.finish || task.endDate) : 'Not set';
         finishDateEl.className = (task.finish || task.endDate) ? 'modal-field-value' : 'modal-field-value empty';
-        
-        
-        
+
+
+
         const descriptionEl = document.getElementById('taskDescription');
         descriptionEl.textContent = task.description || 'No description available';
         descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
-        
+
         // Set action button links
         const editBtn = document.getElementById('editTaskBtn');
         const deleteBtn = document.getElementById('deleteTaskBtn');
-        
+
         if (editBtn && task.id) {
             editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
         }
-        
-        if (deleteBtn && task.id) {
+
+       if (deleteBtn && task.id) {
             deleteBtn.onclick = function(e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to delete this task?')) {
-                    window.location.href = `/tasks/${task.id}/delete`;
+                    const form = document.getElementById('deleteTaskForm');
+                    form.action = `/tasks/${task.id}`;
+                    form.submit();
                 }
             };
         }
@@ -2037,12 +2056,12 @@ function closeTaskModal() {
     // Enhanced click handlers - UPDATED
     document.addEventListener('click', function(e) {
         const modal = document.getElementById('taskModal');
-        
+
         // Close modal when clicking backdrop (but not during animation)
         if (e.target === modal && !isModalAnimating) {
             closeTaskModal();
         }
-        
+
         // Handle gantt bar clicks
         if (e.target.closest('.gantt-bar')) {
             const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');

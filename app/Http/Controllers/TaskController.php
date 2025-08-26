@@ -167,27 +167,19 @@ private function collectDescendants(Task $task, &$descendants)
 public function destroy(Task $task)
 {
     try {
-        // Check if task has children
+        // Cek apakah task punya children
         if ($task->children()->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak dapat menghapus task yang memiliki sub-task. Hapus sub-task terlebih dahulu.'
-            ], 400);
+            return redirect()->route('projects.index')
+                ->with('error', 'Tidak dapat menghapus task yang memiliki sub-task. Hapus sub-task terlebih dahulu.');
         }
 
         $task->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Task berhasil dihapus!'
-        ]);
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task berhasil dihapus!');
     } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan saat menghapus task: ' . $e->getMessage()
-        ], 500);
+        return redirect()->route('tasks.index')
+            ->with('error', 'Terjadi kesalahan saat menghapus task: ' . $e->getMessage());
     }
 }
-
-
 }
