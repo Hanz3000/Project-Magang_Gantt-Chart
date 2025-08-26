@@ -310,13 +310,13 @@
         background-color: #f9fafb;
     }
 
-    .gantt-grid-cell.today {
-        background-color: #fef3c7;
-        border-left: 2px solid #f59e0b;
-        border-right: 2px solid #f59e0b;
+   .gantt-grid-cell.today {
+        background-color: #dbeafe; /* Biru muda, sama dengan timeline-day.today */
+        border-left: 2px solid #1e40af;
+        border-right: 2px solid #1e40af;
     }
 
-    /* Task Bars */
+      /* Task Bars */
     .gantt-bar {
         position: absolute;
         top: 6px;
@@ -444,8 +444,8 @@
     .toggle-collapse.rotate-90 {
         transform: rotate(90deg);
     }
-
-    /* Pastikan gantt-rows-container mengikuti lebar konten */
+    
+    
 .gantt-rows-container {
     width: fit-content; /* Lebar sesuai konten (jumlah hari di timeline) */
     min-width: 100%; /* Mengisi parent */
@@ -613,17 +613,7 @@
         padding: 0 4px;
     }
 
-    /* Today Indicator Line */
-    .today-indicator {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: #f59e0b;
-        z-index: 15;
-        pointer-events: none;
-        box-shadow: 0 0 4px rgba(245, 158, 11, 0.5);
-    }
+    
 
     /* Loading States */
     .gantt-bar.loading {
@@ -1109,6 +1099,118 @@
     .modal-body::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
+
+/* Duration Badge Styles */
+.duration-badge {
+    transition: background-color 0.2s ease;
+}
+
+.duration-badge[data-level="0"] {
+    background-color: #0078d4; /* Blue */
+    color: white;
+    border: 1px solid #106ebe;
+}
+
+.duration-badge[data-level="1"] {
+    background-color: #107c10; /* Green */
+    color: white;
+    border: 1px solid #0e6e0e;
+}
+
+.duration-badge[data-level="2"] {
+    background-color: #881798; /* Purple */
+    color: white;
+    border: 1px solid #7a1589;
+}
+
+.duration-badge[data-level="3"] {
+    background-color: #ff8c00; /* Orange */
+    color: white;
+    border: 1px solid #e67e00;
+}
+
+.duration-badge[data-level="4"] {
+    background-color: #e81123; /* Red */
+    color: white;
+    border: 1px solid #d10e20;
+}
+
+.duration-badge[data-level="5"] {
+    background-color: #5c2d91; /* Dark Purple */
+    color: white;
+    border: 1px solid #522982;
+}
+
+/* Default for other levels */
+.duration-badge:not([data-level]) {
+    background-color: #6b7280; /* Gray */
+    color: white;
+    border: 1px solid #4b5563;
+}
+
+ .timeline-day {
+        width: 24px;
+        min-width: 24px;
+        max-width: 24px;
+        flex-shrink: 0;
+        text-align: center;
+        border-right: 1px solid #e5e7eb;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px;
+        background: #f8f9fa;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        position: relative;
+    }
+
+    /* Style untuk menampilkan hari dalam bahasa Indonesia */
+    .timeline-day::after {
+        content: attr(data-dayname);
+        font-size: 7px; /* Diperkecil sedikit */
+        font-weight: 400;
+        color: #6b7280;
+        position: absolute;
+        bottom: 1px;
+        width: 100%;
+        text-align: center;
+        line-height: 1;
+    }
+
+    .timeline-day.weekend {
+        background-color: #fef2f2; /* Background lebih terang untuk hari libur */
+        color: #dc2626; /* Warna merah untuk angka */
+    }
+
+    .timeline-day.weekend::after {
+        color: #dc2626; /* Warna merah untuk nama hari */
+        font-weight: 600;
+    }
+
+    .timeline-day.today {
+        background-color: #dbeafe;
+        color: #1e40af;
+        font-weight: 700;
+    }
+
+    .timeline-day.today::after {
+        color: #1e40af;
+        font-weight: 600;
+    }
+
+    /* Style khusus untuk hari Minggu */
+    .timeline-day.sunday {
+        background-color: #fef2f2;
+        color: #dc2626;
+    }
+
+    .timeline-day.sunday::after {
+        color: #dc2626;
+        font-weight: 700;
+    }
 </style>
 
 <div class="gantt-container">
@@ -1259,7 +1361,7 @@
             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
             </svg>
-            Today
+            Hari ini
         </button>
     </div>
 
@@ -1368,9 +1470,10 @@ function generateTimelineDays() {
             date: new Date(currentDay),
             dayOfWeek: currentDay.getDay(),
             isWeekend: currentDay.getDay() === 0 || currentDay.getDay() === 6,
+            isHoliday: isHoliday(currentDay), // Tambahkan pengecekan hari libur
             isToday: isToday(currentDay),
             dayNumber: currentDay.getDate(),
-            monthYear: currentDay.toLocaleDateString('en-US', {
+            monthYear: currentDay.toLocaleDateString('id-ID', {
                 month: 'short',
                 year: 'numeric'
             })
@@ -1453,15 +1556,27 @@ function renderDayHeaders() {
     const dayHeaderContainer = document.getElementById('dayHeaderContainer');
     if (!dayHeaderContainer) return;
 
+    // Nama hari dalam bahasa Indonesia format pendek
+    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    
     let dayHeaderHTML = '<div class="day-header">';
     timelineData.days.forEach(day => {
         const classes = ['timeline-day'];
-        if (day.isWeekend) classes.push('weekend');
+        
+              
+        // Tandai khusus hari Minggu
+        if (day.dayOfWeek === 0) {
+            classes.push('sunday');
+        }
+        
         if (day.isToday) classes.push('today');
 
         const dayWidth = getDayWidth();
         dayHeaderHTML += `
-            <div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;">
+            <div class="${classes.join(' ')}" 
+                 style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"
+                 data-dayname="${dayNames[day.dayOfWeek]}"
+                 title="${getFullDayName(day.dayOfWeek)}">
                 ${day.dayNumber}
             </div>
         `;
@@ -1470,6 +1585,33 @@ function renderDayHeaders() {
 
     dayHeaderContainer.innerHTML = dayHeaderHTML;
 }
+
+function getFullDayName(dayOfWeek) {
+    const fullDayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    return fullDayNames[dayOfWeek];
+}
+
+// Fungsi untuk menandai hari libur nasional (contoh implementasi)
+function isHoliday(date) {
+    // Daftar hari libur nasional Indonesia (contoh)
+    // Anda bisa menambahkan lebih banyak tanggal libur sesuai kebutuhan
+    const holidays = [
+        '2025-01-01', // Tahun Baru
+        '2025-03-03', // Hari Raya Nyepi
+        '2025-04-18', // Jumat Agung
+        '2025-05-01', // Hari Buruh
+        '2025-05-29', // Kenaikan Isa Almasih
+        '2025-06-01', // Hari Lahir Pancasila
+        '2025-06-29', // Idul Adha
+        '2025-08-17', // Hari Kemerdekaan
+        '2025-09-16', // Tahun Baru Islam
+        '2025-12-25', // Hari Natal
+    ];
+    
+    const dateString = date.toISOString().split('T')[0];
+    return holidays.includes(dateString);
+}
+
 
 // Get current day width based on zoom
 function getDayWidth() {
