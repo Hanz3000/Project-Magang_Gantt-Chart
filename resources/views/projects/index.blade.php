@@ -1479,24 +1479,21 @@
 
     // Check if a task should be visible (not collapsed)
     function isTaskVisible(task) {
-        // If task has no parent, it's always visible
-        if (!task.parent_id) {
-            return true;
-        }
-
-        // Check if any parent is collapsed
-        let currentParentId = task.parent_id;
-        while (currentParentId) {
-            if (collapsedTasks.has(currentParentId.toString())) {
-                return false;
-            }
-            // Find the parent task to check its parent
-            const parentTask = tasksData.find(t => t.id == currentParentId);
-            currentParentId = parentTask ? parentTask.parent_id : null;
-        }
-
+    // Jika tidak ada parent_id, tugas selalu terlihat
+    if (!task.parent_id) {
         return true;
     }
+
+    // Cari parent tugas
+    const parent = tasksData.find(t => t.id === task.parent_id);
+    if (!parent) {
+        return false;
+    }
+
+    // Periksa apakah parent terlihat dan tidak dikolaps
+    const isParentCollapsed = document.querySelector(`.task-children[data-parent-id="${parent.id}"]`)?.classList.contains('hidden');
+    return isTaskVisible(parent) && !isParentCollapsed;
+}
 
     // Get visible tasks based on collapse state
     function getVisibleTasks() {
@@ -1504,24 +1501,23 @@
     }
 
     // Update Gantt chart bars
-    function updateGanttChart() {
-        const ganttRowsContainer = document.getElementById('ganttRowsContainer');
-        if (!ganttRowsContainer) return;
+   function updateGanttChart() {
+    const ganttRowsContainer = document.getElementById('ganttRowsContainer');
+    if (!ganttRowsContainer) return;
 
-        let ganttHTML = '';
-        const visibleTasks = getVisibleTasks();
+    let ganttHTML = '';
+    const visibleTasks = getVisibleTasks();
 
-        if (visibleTasks.length > 0) {
-            visibleTasks.forEach(task => {
-                ganttHTML += generateGanttRow(task);
-            });
-        }
-
-        ganttRowsContainer.innerHTML = ganttHTML;
-
-        // Add today indicator if today is visible in timeline
-        addTodayIndicator();
+    if (visibleTasks.length > 0) {
+        visibleTasks.forEach(task => {
+            ganttHTML += generateGanttRow(task);
+        });
     }
+
+    ganttRowsContainer.innerHTML = ganttHTML;
+    addTodayIndicator();
+    updateGanttWidths();
+}
 
     // Generate Gantt row for a task
     function generateGanttRow(task) {
@@ -1949,13 +1945,13 @@ function updateGanttChart() {
             }
         },
 
-        updateTask: function(taskId, updates) {
-            const task = tasksData.find(task => task.id == taskId);
-            if (task) {
-                Object.assign(task, updates);
-                updateGanttChart();
-            }
-        },
+      updateTask: function(taskId, updates) {
+    const taskIndex = tasksData.findIndex(task => task.id == taskId);
+    if (taskIndex > -1) {
+        tasksData[taskIndex] = { ...tasksData[taskIndex], ...updates };
+        updateGanttChart();
+    }
+},
 
         refreshData: function(newTasks) {
             tasksData = newTasks;
