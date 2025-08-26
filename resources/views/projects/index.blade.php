@@ -1317,191 +1317,204 @@
 </div>
 
 <script>
-    // Global variables for timeline management
-    let currentDate = new Date();
-    let timelinePeriod = 3; // months
-    let currentZoom = 100;
-    let timelineData = {
-        startDate: null,
-        endDate: null,
-        days: []
-    };
+// Global variables for timeline management
+let currentDate = new Date();
+let timelinePeriod = 3; // months
+let currentZoom = 100;
+let timelineData = {
+    startDate: null,
+    endDate: null,
+    days: []
+};
 
-    let tasksData = [];
-    let collapsedTasks = new Set(); // Track collapsed tasks
-    let isModalAnimating = false; // ADDED: Animation lock
+let tasksData = [];
+let collapsedTasks = new Set(); // Track collapsed tasks
+let isModalAnimating = false;
 
-    @if(isset($structuredTasks) && count($structuredTasks) > 0)
-    tasksData = @json($structuredTasks);
-    @endif
+@if(isset($structuredTasks) && count($structuredTasks) > 0)
+tasksData = @json($structuredTasks);
+@endif
 
-    // Initialize the Gantt chart
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeTimeline();
-        setupScrollSynchronization();
-        updateGanttChart();
-        updateZoomButtons();
-    });
+// Initialize the Gantt chart
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTimeline();
+    setupScrollSynchronization();
+    updateGanttChart();
+    updateZoomButtons();
+});
 
-    // Initialize timeline based on current date and period
-    function initializeTimeline() {
-        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        timelineData.startDate = new Date(startOfMonth);
+// Initialize timeline based on current date and period
+function initializeTimeline() {
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    timelineData.startDate = new Date(startOfMonth);
 
-        const endDate = new Date(startOfMonth);
-        endDate.setMonth(endDate.getMonth() + timelinePeriod);
-        endDate.setDate(endDate.getDate() - 1);
-        timelineData.endDate = endDate;
+    const endDate = new Date(startOfMonth);
+    endDate.setMonth(endDate.getMonth() + timelinePeriod);
+    endDate.setDate(endDate.getDate() - 1);
+    timelineData.endDate = endDate;
 
-        generateTimelineDays();
-        updateCurrentPeriodDisplay();
-        renderTimelineHeaders();
+    generateTimelineDays();
+    updateCurrentPeriodDisplay();
+    renderTimelineHeaders();
+}
+
+// Generate array of days for the timeline
+function generateTimelineDays() {
+    timelineData.days = [];
+    const currentDay = new Date(timelineData.startDate);
+
+    while (currentDay <= timelineData.endDate) {
+        const dayInfo = {
+            date: new Date(currentDay),
+            dayOfWeek: currentDay.getDay(),
+            isWeekend: currentDay.getDay() === 0 || currentDay.getDay() === 6,
+            isToday: isToday(currentDay),
+            dayNumber: currentDay.getDate(),
+            monthYear: currentDay.toLocaleDateString('en-US', {
+                month: 'short',
+                year: 'numeric'
+            })
+        };
+        timelineData.days.push(dayInfo);
+        currentDay.setDate(currentDay.getDate() + 1);
     }
+}
 
-    // Generate array of days for the timeline
-    function generateTimelineDays() {
-        timelineData.days = [];
-        const currentDay = new Date(timelineData.startDate);
+// Check if date is today
+function isToday(date) {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear();
+}
 
-        while (currentDay <= timelineData.endDate) {
-            const dayInfo = {
-                date: new Date(currentDay),
-                dayOfWeek: currentDay.getDay(),
-                isWeekend: currentDay.getDay() === 0 || currentDay.getDay() === 6,
-                isToday: isToday(currentDay),
-                dayNumber: currentDay.getDate(),
-                monthYear: currentDay.toLocaleDateString('en-US', {
+// Update current period display
+function updateCurrentPeriodDisplay() {
+    const periodElement = document.getElementById('currentPeriod');
+    if (periodElement) {
+        const startMonth = timelineData.startDate.toLocaleDateString('en-US', {
+            month: 'long',
+            year: 'numeric'
+        });
+        const endMonth = timelineData.endDate.toLocaleDateString('en-US', {
+            month: 'long',
+            year: 'numeric'
+        });
+
+        if (timelinePeriod === 1) {
+            periodElement.textContent = startMonth;
+        } else {
+            periodElement.textContent = `${startMonth} - ${endMonth}`;
+        }
+    }
+}
+
+// Render timeline headers
+function renderTimelineHeaders() {
+    renderMonthHeaders();
+    renderDayHeaders();
+    updateGanttWidths();
+    setDefaultScrollPosition();
+}
+
+// Render month headers
+function renderMonthHeaders() {
+    const monthHeaderContainer = document.getElementById('monthHeaderContainer');
+    if (!monthHeaderContainer) return;
+
+    const monthGroups = {};
+    timelineData.days.forEach(day => {
+        const monthKey = `${day.date.getFullYear()}-${day.date.getMonth()}`;
+        if (!monthGroups[monthKey]) {
+            monthGroups[monthKey] = {
+                name: day.date.toLocaleDateString('en-US', {
                     month: 'short',
                     year: 'numeric'
-                })
+                }),
+                days: []
             };
-            timelineData.days.push(dayInfo);
-            currentDay.setDate(currentDay.getDate() + 1);
         }
-    }
+        monthGroups[monthKey].days.push(day);
+    });
 
-    // Check if date is today
-    function isToday(date) {
-        const today = new Date();
-        return date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear();
-    }
+    let monthHeaderHTML = '<div class="month-header">';
+    Object.values(monthGroups).forEach(month => {
+        const dayWidth = getDayWidth();
+        const monthWidth = month.days.length * dayWidth;
+        monthHeaderHTML += `<div class="month-section" style="width: ${monthWidth}px;">${month.name}</div>`;
+    });
+    monthHeaderHTML += '</div>';
 
-    // Update current period display
-    function updateCurrentPeriodDisplay() {
-        const periodElement = document.getElementById('currentPeriod');
-        if (periodElement) {
-            const startMonth = timelineData.startDate.toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric'
-            });
-            const endMonth = timelineData.endDate.toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric'
-            });
+    monthHeaderContainer.innerHTML = monthHeaderHTML;
+}
 
-            if (timelinePeriod === 1) {
-                periodElement.textContent = startMonth;
-            } else {
-                periodElement.textContent = `${startMonth} - ${endMonth}`;
-            }
-        }
-    }
+// Render day headers
+function renderDayHeaders() {
+    const dayHeaderContainer = document.getElementById('dayHeaderContainer');
+    if (!dayHeaderContainer) return;
 
-    // Render timeline headers
-    function renderTimelineHeaders() {
-        renderMonthHeaders();
-        renderDayHeaders();
-    }
+    let dayHeaderHTML = '<div class="day-header">';
+    timelineData.days.forEach(day => {
+        const classes = ['timeline-day'];
+        if (day.isWeekend) classes.push('weekend');
+        if (day.isToday) classes.push('today');
 
-    // Render month headers
-    function renderMonthHeaders() {
-        const monthHeaderContainer = document.getElementById('monthHeaderContainer');
-        if (!monthHeaderContainer) return;
-
-        // Group days by month
-        const monthGroups = {};
-        timelineData.days.forEach(day => {
-            const monthKey = `${day.date.getFullYear()}-${day.date.getMonth()}`;
-            if (!monthGroups[monthKey]) {
-                monthGroups[monthKey] = {
-                    name: day.date.toLocaleDateString('en-US', {
-                        month: 'short',
-                        year: 'numeric'
-                    }),
-                    days: []
-                };
-            }
-            monthGroups[monthKey].days.push(day);
-        });
-
-        // Create month header HTML
-        let monthHeaderHTML = '<div class="month-header">';
-        Object.values(monthGroups).forEach(month => {
-            const dayWidth = getDayWidth();
-            const monthWidth = month.days.length * dayWidth;
-            monthHeaderHTML += `<div class="month-section" style="width: ${monthWidth}px;">${month.name}</div>`;
-        });
-        monthHeaderHTML += '</div>';
-
-        monthHeaderContainer.innerHTML = monthHeaderHTML;
-    }
-
-    // Render day headers
-    function renderDayHeaders() {
-        const dayHeaderContainer = document.getElementById('dayHeaderContainer');
-        if (!dayHeaderContainer) return;
-
-        let dayHeaderHTML = '<div class="day-header">';
-        timelineData.days.forEach(day => {
-            const classes = ['timeline-day'];
-            if (day.isWeekend) classes.push('weekend');
-            if (day.isToday) classes.push('today');
-
-            const dayWidth = getDayWidth();
-            dayHeaderHTML += `
+        const dayWidth = getDayWidth();
+        dayHeaderHTML += `
             <div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;">
                 ${day.dayNumber}
             </div>
         `;
-        });
-        dayHeaderHTML += '</div>';
+    });
+    dayHeaderHTML += '</div>';
 
-        dayHeaderContainer.innerHTML = dayHeaderHTML;
-    }
+    dayHeaderContainer.innerHTML = dayHeaderHTML;
+}
 
-    // Get current day width based on zoom
-    function getDayWidth() {
-        const baseWidth = 24;
-        return Math.round(baseWidth * (currentZoom / 100));
-    }
+// Get current day width based on zoom
+function getDayWidth() {
+    const baseWidth = 24;
+    return Math.round(baseWidth * (currentZoom / 100));
+}
 
-    // Check if a task should be visible (not collapsed)
-    function isTaskVisible(task) {
-    // Jika tidak ada parent_id, tugas selalu terlihat
+// Check if a task should be visible
+function isTaskVisible(task) {
     if (!task.parent_id) {
         return true;
     }
 
-    // Cari parent tugas
     const parent = tasksData.find(t => t.id === task.parent_id);
     if (!parent) {
         return false;
     }
 
-    // Periksa apakah parent terlihat dan tidak dikolaps
-    const isParentCollapsed = document.querySelector(`.task-children[data-parent-id="${parent.id}"]`)?.classList.contains('hidden');
+    const isParentCollapsed = collapsedTasks.has(parent.id.toString());
     return isTaskVisible(parent) && !isParentCollapsed;
 }
 
-    // Get visible tasks based on collapse state
-    function getVisibleTasks() {
-        return tasksData.filter(task => isTaskVisible(task));
+// Get visible tasks in hierarchical order
+function getVisibleTasks() {
+    const visibleTasks = [];
+
+    function traverseTasks(tasks, parentId = null) {
+        tasks.forEach(task => {
+            if (task.parent_id === parentId) {
+                if (isTaskVisible(task)) {
+                    visibleTasks.push(task);
+                    if (!collapsedTasks.has(task.id.toString())) {
+                        traverseTasks(tasks, task.id);
+                    }
+                }
+            }
+        });
     }
 
-    // Update Gantt chart bars
-   function updateGanttChart() {
+    traverseTasks(tasksData, null);
+    return visibleTasks;
+}
+
+// Update Gantt chart bars
+function updateGanttChart() {
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (!ganttRowsContainer) return;
 
@@ -1519,171 +1532,163 @@
     updateGanttWidths();
 }
 
-    // Generate Gantt row for a task
-    function generateGanttRow(task) {
-        const dayWidth = getDayWidth();
-        let rowHTML = '<div class="gantt-row">';
+// Generate Gantt row for a task
+function generateGanttRow(task) {
+    const dayWidth = getDayWidth();
+    const isHidden = !isTaskVisible(task);
+    let rowHTML = `<div class="gantt-row ${isHidden ? 'hidden-gantt-row' : ''}" data-task-id="${task.id}">`;
 
-        // Create grid cells for each day
-        timelineData.days.forEach(day => {
-            const classes = ['gantt-grid-cell'];
-            if (day.isWeekend) classes.push('weekend');
-            if (day.isToday) classes.push('today');
+    timelineData.days.forEach(day => {
+        const classes = ['gantt-grid-cell'];
+        if (day.isWeekend) classes.push('weekend');
+        if (day.isToday) classes.push('today');
 
-            rowHTML += `<div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"></div>`;
-        });
+        rowHTML += `<div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"></div>`;
+    });
 
-        // Add task bar if it falls within timeline
-        const taskBar = generateTaskBar(task, dayWidth);
-        if (taskBar) {
-            rowHTML += taskBar;
-        }
-
-        rowHTML += '</div>';
-        return rowHTML;
+    const taskBar = generateTaskBar(task, dayWidth);
+    if (taskBar) {
+        rowHTML += taskBar;
     }
 
-    // Generate task bar
-    function generateTaskBar(task, dayWidth) {
-        if (!task.start && !task.startDate) return null;
-        if (!task.finish && !task.endDate) return null;
+    rowHTML += '</div>';
+    return rowHTML;
+}
 
-        const taskStart = new Date(task.start || task.startDate);
-        const taskEnd = new Date(task.finish || task.endDate);
+// Generate task bar
+function generateTaskBar(task, dayWidth) {
+    if (!task.start && !task.startDate) return null;
+    if (!task.finish && !task.endDate) return null;
 
-        // Check if task overlaps with timeline
-        if (taskEnd < timelineData.startDate || taskStart > timelineData.endDate) {
-            return null; // Task is outside timeline
-        }
+    const taskStart = new Date(task.start || task.startDate);
+    const taskEnd = new Date(task.finish || task.endDate);
 
-        // Calculate position and width
-        const timelineStart = timelineData.startDate;
-        const startDayOffset = Math.max(0, Math.floor((taskStart - timelineStart) / (24 * 60 * 60 * 1000)));
-        const endDayOffset = Math.min(timelineData.days.length - 1, Math.floor((taskEnd - timelineStart) / (24 * 60 * 60 * 1000)));
+    if (taskEnd < timelineData.startDate || taskStart > timelineData.endDate) {
+        return null;
+    }
 
-        const barLeft = startDayOffset * dayWidth;
-        const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
+    const timelineStart = timelineData.startDate;
+    const startDayOffset = Math.max(0, Math.floor((taskStart - timelineStart) / (24 * 60 * 60 * 1000)));
+    const endDayOffset = Math.min(timelineData.days.length - 1, Math.floor((taskEnd - timelineStart) / (24 * 60 * 60 * 1000)));
 
-        const levelClass = `level-${(task.level || 0) % 6}`;
-       
-        let taskBarHTML = `
+    const barLeft = startDayOffset * dayWidth;
+    const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
+
+    const levelClass = `level-${(task.level || 0) % 6}`;
+    let taskBarHTML = `
         <div class="gantt-bar ${levelClass}" 
             style="left: ${barLeft}px; width: ${barWidth}px;"
             data-task-id="${task.id}"
             data-start-day="${startDayOffset}"
-            data-duration="${task.duration || 0}"           
-    `; 
+            data-duration="${task.duration || 0}">
+            <span class="task-bar-text">${task.name}</span>
+        </div>
+    `;
 
-        taskBarHTML += `<span class="task-bar-text">${task.name}</span></div>`;
+    return taskBarHTML;
+}
 
-        return taskBarHTML;
+// Add today indicator line
+function addTodayIndicator() {
+    const today = new Date();
+    const todayIndex = timelineData.days.findIndex(day =>
+        day.date.getDate() === today.getDate() &&
+        day.date.getMonth() === today.getMonth() &&
+        day.date.getFullYear() === today.getFullYear()
+    );
+
+    if (todayIndex !== -1) {
+        const dayWidth = getDayWidth();
+        const leftPosition = todayIndex * dayWidth + (dayWidth / 2);
+
+        const ganttRows = document.querySelectorAll('.gantt-row');
+        ganttRows.forEach(row => {
+            const existingIndicator = row.querySelector('.today-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            const todayIndicator = document.createElement('div');
+            todayIndicator.className = 'today-indicator';
+            todayIndicator.style.left = leftPosition + 'px';
+            row.appendChild(todayIndicator);
+        });
+    }
+}
+
+// Navigation functions
+function navigateMonth(direction) {
+    currentDate.setMonth(currentDate.getMonth() + direction);
+    initializeTimeline();
+    updateGanttChart();
+}
+
+function changePeriod(months) {
+    timelinePeriod = parseInt(months);
+    initializeTimeline();
+    updateGanttChart();
+}
+
+function goToToday() {
+    currentDate = new Date();
+    initializeTimeline();
+    updateGanttChart();
+}
+
+// Zoom functions
+const minZoom = 50;
+const maxZoom = 200;
+const zoomStep = 25;
+
+function updateZoomLevel() {
+    const zoomLevelElement = document.getElementById('zoomLevel');
+    if (zoomLevelElement) {
+        zoomLevelElement.textContent = currentZoom + '%';
     }
 
-    // Add today indicator line
-    function addTodayIndicator() {
-        const today = new Date();
-        const todayIndex = timelineData.days.findIndex(day =>
-            day.date.getDate() === today.getDate() &&
-            day.date.getMonth() === today.getMonth() &&
-            day.date.getFullYear() === today.getFullYear()
-        );
+    updateZoomButtons();
+    renderTimelineHeaders();
+    updateGanttChart();
+}
 
-        if (todayIndex !== -1) {
-            const dayWidth = getDayWidth();
-            const leftPosition = todayIndex * dayWidth + (dayWidth / 2);
+function updateZoomButtons() {
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
 
-            const ganttRows = document.querySelectorAll('.gantt-row');
-            ganttRows.forEach(row => {
-                // Remove existing today indicator
-                const existingIndicator = row.querySelector('.today-indicator');
-                if (existingIndicator) {
-                    existingIndicator.remove();
-                }
-
-                // Add new today indicator
-                const todayIndicator = document.createElement('div');
-                todayIndicator.className = 'today-indicator';
-                todayIndicator.style.left = leftPosition + 'px';
-                row.appendChild(todayIndicator);
-            });
-        }
+    if (zoomInBtn) {
+        zoomInBtn.disabled = currentZoom >= maxZoom;
     }
 
-    // Navigation functions
-    function navigateMonth(direction) {
-        currentDate.setMonth(currentDate.getMonth() + direction);
-        initializeTimeline();
-        updateGanttChart();
+    if (zoomOutBtn) {
+        zoomOutBtn.disabled = currentZoom <= minZoom;
     }
+}
 
-    function changePeriod(months) {
-        timelinePeriod = parseInt(months);
-        initializeTimeline();
-        updateGanttChart();
+function zoomIn() {
+    if (currentZoom < maxZoom) {
+        currentZoom += zoomStep;
+        updateZoomLevel();
     }
+}
 
-    function goToToday() {
-        currentDate = new Date();
-        initializeTimeline();
-        updateGanttChart();
+function zoomOut() {
+    if (currentZoom > minZoom) {
+        currentZoom -= zoomStep;
+        updateZoomLevel();
     }
+}
 
-    // Zoom functions
-    const minZoom = 50;
-    const maxZoom = 200;
-    const zoomStep = 25;
-
-    function updateZoomLevel() {
-        const zoomLevelElement = document.getElementById('zoomLevel');
-        if (zoomLevelElement) {
-            zoomLevelElement.textContent = currentZoom + '%';
-        }
-
-        updateZoomButtons();
-        renderTimelineHeaders();
-        updateGanttChart();
-    }
-
-    function updateZoomButtons() {
-        const zoomInBtn = document.getElementById('zoomInBtn');
-        const zoomOutBtn = document.getElementById('zoomOutBtn');
-
-        if (zoomInBtn) {
-            zoomInBtn.disabled = currentZoom >= maxZoom;
-        }
-
-        if (zoomOutBtn) {
-            zoomOutBtn.disabled = currentZoom <= minZoom;
-        }
-    }
-
-    function zoomIn() {
-        if (currentZoom < maxZoom) {
-            currentZoom += zoomStep;
-            updateZoomLevel();
-        }
-    }
-
-    function zoomOut() {
-        if (currentZoom > minZoom) {
-            currentZoom -= zoomStep;
-            updateZoomLevel();
-        }
-    }
-
-// Fungsi untuk menyesuaikan lebar gantt-rows-container dan timeline-header-container
+// Update Gantt widths
 function updateGanttWidths() {
     const dayWidth = getDayWidth();
     const totalWidth = timelineData.days.length * dayWidth;
 
-    // Set lebar gantt-rows-container
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (ganttRowsContainer) {
         ganttRowsContainer.style.width = `${totalWidth}px`;
         ganttRowsContainer.style.minWidth = `${totalWidth}px`;
     }
 
-    // Set lebar timeline-header-container
     const timelineHeaderContainer = document.querySelector('.timeline-header-container');
     if (timelineHeaderContainer) {
         timelineHeaderContainer.style.width = `${totalWidth}px`;
@@ -1691,7 +1696,7 @@ function updateGanttWidths() {
     }
 }
 
-// Modifikasi fungsi setupScrollSynchronization untuk sinkronisasi dua arah
+// Setup scroll synchronization
 function setupScrollSynchronization() {
     const taskListBody = document.getElementById('taskListBody');
     const ganttContent = document.getElementById('ganttContent');
@@ -1699,339 +1704,273 @@ function setupScrollSynchronization() {
 
     if (!taskListBody || !ganttContent || !timelineHeaderSection) return;
 
-    // Sinkronisasi scroll vertikal
     taskListBody.addEventListener('scroll', function() {
         ganttContent.scrollTop = this.scrollTop;
     });
 
     ganttContent.addEventListener('scroll', function() {
         taskListBody.scrollTop = this.scrollTop;
-        timelineHeaderSection.scrollLeft = this.scrollLeft; // Sinkronkan header dengan gantt
+        timelineHeaderSection.scrollLeft = this.scrollLeft;
     });
 }
 
-// Fungsi untuk mengatur posisi scroll ke kanan secara default
+// Set default scroll position
 function setDefaultScrollPosition() {
     const ganttContent = document.getElementById('ganttContent');
     if (ganttContent) {
-        // Set scroll ke posisi maksimum (kanan) jika konten lebih pendek dari viewport
         const ganttRowsContainer = document.getElementById('ganttRowsContainer');
         if (ganttRowsContainer) {
             const containerWidth = ganttContent.clientWidth;
             const contentWidth = ganttRowsContainer.scrollWidth;
             if (contentWidth <= containerWidth) {
-                ganttContent.scrollLeft = contentWidth - containerWidth; // Geser ke kanan
+                ganttContent.scrollLeft = contentWidth - containerWidth;
             }
         }
     }
 }
 
-// Panggil updateGanttWidths di tempat yang tepat
-document.addEventListener('DOMContentLoaded', function() {
-    initializeTimeline();
-    setupScrollSynchronization();
-    updateGanttChart();
-    updateZoomButtons();
-    updateGanttWidths(); 
+// Task collapse/expand functionality
+function toggleTaskCollapse(taskId) {
+    const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
+    const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
+
+    if (toggleIcon && childrenContainer) {
+        toggleIcon.classList.toggle('rotate-90');
+        childrenContainer.classList.toggle('collapsed');
+        
+        if (childrenContainer.classList.contains('collapsed')) {
+            collapsedTasks.add(taskId.toString());
+        } else {
+            collapsedTasks.delete(taskId.toString());
+        }
+        
+        updateGanttChart();
+    }
+}
+
+// Event listeners for toggle buttons
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.toggle-collapse')) {
+        const taskId = e.target.closest('.toggle-collapse').getAttribute('data-task-id');
+        toggleTaskCollapse(taskId);
+    }
+
+    if (e.target.closest('.gantt-bar')) {
+        const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
+        handleTaskBarClick(taskId);
+    }
 });
 
-// Tambahkan updateGanttWidths ke fungsi yang mengubah tampilan
-function renderTimelineHeaders() {
-    renderMonthHeaders();
-    renderDayHeaders();
-    updateGanttWidths(); 
-    setDefaultScrollPosition(); 
+// Handle task bar click
+function handleTaskBarClick(taskId) {
+    const task = tasksData.find(t => t.id == taskId);
+    if (task) {
+        openTaskModal(task);
+        document.dispatchEvent(new CustomEvent('taskSelected', {
+            detail: {
+                task: task
+            }
+        }));
+    }
 }
 
-function updateGanttChart() {
-    const ganttRowsContainer = document.getElementById('ganttRowsContainer');
-    if (!ganttRowsContainer) return;
-
-    let ganttHTML = '';
-    const visibleTasks = getVisibleTasks();
-
-    if (visibleTasks.length > 0) {
-        visibleTasks.forEach(task => {
-            ganttHTML += generateGanttRow(task);
-        });
-    }
-
-    ganttRowsContainer.innerHTML = ganttHTML;
-    addTodayIndicator();
-    updateGanttWidths(); // Pastikan lebar diperbarui setelah render gantt
+// Expand/Collapse all functions
+function expandAll() {
+    document.querySelectorAll('.task-children').forEach(container => {
+        container.classList.remove('collapsed');
+    });
+    document.querySelectorAll('.toggle-collapse').forEach(icon => {
+        icon.classList.add('rotate-90');
+    });
+    
+    collapsedTasks.clear();
+    updateGanttChart();
 }
 
-    // Task collapse/expand functionality - MODIFIED
-    function toggleTaskCollapse(taskId) {
-        const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
-        const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
+function collapseAll() {
+    document.querySelectorAll('.task-children').forEach(container => {
+        container.classList.add('collapsed');
+        const parentId = container.getAttribute('data-parent-id');
+        if (parentId) {
+            collapsedTasks.add(parentId);
+        }
+    });
+    document.querySelectorAll('.toggle-collapse').forEach(icon => {
+        icon.classList.remove('rotate-90');
+    });
+    
+    updateGanttChart();
+}
 
-        if (toggleIcon && childrenContainer) {
-            toggleIcon.classList.toggle('rotate-90');
-            childrenContainer.classList.toggle('collapsed');
-            
-            // Update collapsed tasks tracking
-            if (childrenContainer.classList.contains('collapsed')) {
-                collapsedTasks.add(taskId.toString());
-            } else {
-                collapsedTasks.delete(taskId.toString());
-            }
-            
-            // Update Gantt chart to reflect visibility changes
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.metaKey) {
+        if (e.key === '=' || e.key === '+') {
+            e.preventDefault();
+            zoomIn();
+        } else if (e.key === '-') {
+            e.preventDefault();
+            zoomOut();
+        }
+    }
+
+    if (e.altKey) {
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            navigateMonth(-1);
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            navigateMonth(1);
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            goToToday();
+        }
+    }
+
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('taskModal');
+        if (modal.classList.contains('opening') && !isModalAnimating) {
+            closeTaskModal();
+        }
+        document.querySelectorAll('.gantt-bar.selected').forEach(bar => {
+            bar.classList.remove('selected');
+        });
+    }
+});
+
+// Utility functions
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2);
+    return `${day}-${month}-${year}`;
+}
+
+function calculateDuration(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const timeDiff = end.getTime() - start.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+}
+
+// Responsive handling
+function handleResize() {
+    setTimeout(() => {
+        renderTimelineHeaders();
+        updateGanttChart();
+    }, 100);
+}
+
+window.addEventListener('resize', handleResize);
+
+// Public API for external integration
+window.GanttChart = {
+    navigateMonth,
+    changePeriod,
+    goToToday,
+    zoomIn,
+    zoomOut,
+    setZoom: function(level) {
+        if (level >= minZoom && level <= maxZoom) {
+            currentZoom = level;
+            updateZoomLevel();
+        }
+    },
+    expandAll,
+    collapseAll,
+    updateGanttChart,
+    addTask: function(task) {
+        tasksData.push(task);
+        updateGanttChart();
+    },
+    removeTask: function(taskId) {
+        const index = tasksData.findIndex(task => task.id == taskId);
+        if (index > -1) {
+            tasksData.splice(index, 1);
             updateGanttChart();
         }
-    }
-
-    // Add event listeners for toggle buttons
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.toggle-collapse')) {
-            const taskId = e.target.closest('.toggle-collapse').getAttribute('data-task-id');
-            toggleTaskCollapse(taskId);
-        }
-
-        // Task bar click handler
-        if (e.target.closest('.gantt-bar')) {
-            const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
-            handleTaskBarClick(taskId);
-        }
-    });
-
-    // Handle task bar click
-    function handleTaskBarClick(taskId) {
-        const task = tasksData.find(t => t.id == taskId);
-        if (task) {
-            console.log('Task clicked:', task);
-
-            // Trigger a custom event
-            document.dispatchEvent(new CustomEvent('taskSelected', {
-                detail: {
-                    task: task
-                }
-            }));
-        }
-    }
-
-    // Expand/Collapse all functions - MODIFIED
-    function expandAll() {
-        document.querySelectorAll('.task-children').forEach(container => {
-            container.classList.remove('collapsed');
-        });
-        document.querySelectorAll('.toggle-collapse').forEach(icon => {
-            icon.classList.add('rotate-90');
-        });
-        
-        // Clear collapsed tasks tracking
-        collapsedTasks.clear();
-        
-        // Update Gantt chart
-        updateGanttChart();
-    }
-
-    function collapseAll() {
-        document.querySelectorAll('.task-children').forEach(container => {
-            container.classList.add('collapsed');
-            // Add parent task ID to collapsed set
-            const parentId = container.getAttribute('data-parent-id');
-            if (parentId) {
-                collapsedTasks.add(parentId);
-            }
-        });
-        document.querySelectorAll('.toggle-collapse').forEach(icon => {
-            icon.classList.remove('rotate-90');
-        });
-        
-        // Update Gantt chart
-        updateGanttChart();
-    }
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey || e.metaKey) {
-            if (e.key === '=' || e.key === '+') {
-                e.preventDefault();
-                zoomIn();
-            } else if (e.key === '-') {
-                e.preventDefault();
-                zoomOut();
-            }
-        }
-
-        // Navigation shortcuts
-        if (e.altKey) {
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                navigateMonth(-1);
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                navigateMonth(1);
-            } else if (e.key === 'Home') {
-                e.preventDefault();
-                goToToday();
-            }
-        }
-
-        // Modal keyboard support - UPDATED
-        if (e.key === 'Escape') {
-            const modal = document.getElementById('taskModal');
-            if (modal.classList.contains('opening') && !isModalAnimating) {
-                closeTaskModal();
-            }
-            // Close any open modals or deselect items
-            document.querySelectorAll('.gantt-bar.selected').forEach(bar => {
-                bar.classList.remove('selected');
-            });
-        }
-    });
-
-    // Utility functions
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear().toString().slice(-2);
-        return `${day}-${month}-${year}`;
-    }
-
-    function calculateDuration(startDate, endDate) {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        const timeDiff = end.getTime() - start.getTime();
-        return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
-    }
-
-    // Responsive handling
-    function handleResize() {
-        setTimeout(() => {
-            renderTimelineHeaders();
+    },
+    updateTask: function(taskId, updates) {
+        const taskIndex = tasksData.findIndex(task => task.id == taskId);
+        if (taskIndex > -1) {
+            tasksData[taskIndex] = { ...tasksData[taskIndex], ...updates };
             updateGanttChart();
-        }, 100);
-    }
-
-    window.addEventListener('resize', handleResize);
-
-    // Public API for external integration
-    window.GanttChart = {
-        // Navigation
-        navigateMonth,
-        changePeriod,
-        goToToday,
-
-        // Zoom
-        zoomIn,
-        zoomOut,
-        setZoom: function(level) {
-            if (level >= minZoom && level <= maxZoom) {
-                currentZoom = level;
-                updateZoomLevel();
-            }
-        },
-
-        // Task management
-        expandAll,
-        collapseAll,
-        updateGanttChart,
-
-        // Data manipulation
-        addTask: function(task) {
-            tasksData.push(task);
-            updateGanttChart();
-        },
-
-        removeTask: function(taskId) {
-            const index = tasksData.findIndex(task => task.id == taskId);
-            if (index > -1) {
-                tasksData.splice(index, 1);
-                updateGanttChart();
-            }
-        },
-
-      updateTask: function(taskId, updates) {
-    const taskIndex = tasksData.findIndex(task => task.id == taskId);
-    if (taskIndex > -1) {
-        tasksData[taskIndex] = { ...tasksData[taskIndex], ...updates };
-        updateGanttChart();
-    }
-},
-
-        refreshData: function(newTasks) {
-            tasksData = newTasks;
-            updateGanttChart();
-        },
-
-        // Getters
-        getCurrentPeriod: function() {
-            return {
-                startDate: timelineData.startDate,
-                endDate: timelineData.endDate,
-                period: timelinePeriod
-            };
-        },
-
-        getVisibleTasks: function() {
-            return getVisibleTasks().filter(task => {
-                const startDate = task.start || task.startDate;
-                const endDate = task.finish || task.endDate;
-                if (!startDate || !endDate) return false;
-                const taskStart = new Date(startDate);
-                const taskEnd = new Date(endDate);
-                return !(taskEnd < timelineData.startDate || taskStart > timelineData.endDate);
-            });
         }
-    };
-
-    // Event listeners for Laravel integration
-    document.addEventListener('taskSelected', function(e) {
-        const task = e.detail.task;
-        console.log('Task selected:', task);
-        // Handle task selection - you can customize this
-    });
-
-    document.addEventListener('taskUpdated', function(e) {
-        const updatedTask = e.detail.task;
-        console.log('Task updated:', updatedTask);
-        // Handle task updates - refresh the chart
+    },
+    refreshData: function(newTasks) {
+        tasksData = newTasks;
         updateGanttChart();
-    });
-
-    // Initialize collapse state from DOM
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check for initially collapsed task containers
-        document.querySelectorAll('.task-children.collapsed').forEach(container => {
-            const parentId = container.getAttribute('data-parent-id');
-            if (parentId) {
-                collapsedTasks.add(parentId);
-            }
+    },
+    getCurrentPeriod: function() {
+        return {
+            startDate: timelineData.startDate,
+            endDate: timelineData.endDate,
+            period: timelinePeriod
+        };
+    },
+    getVisibleTasks: function() {
+        return getVisibleTasks().filter(task => {
+            const startDate = task.start || task.startDate;
+            const endDate = task.finish || task.endDate;
+            if (!startDate || !endDate) return false;
+            const taskStart = new Date(startDate);
+            const taskEnd = new Date(endDate);
+            return !(taskEnd < timelineData.startDate || taskStart > timelineData.endDate);
         });
-    });
+    }
+};
 
-    // Enhanced modal functions with smooth animations - UPDATED
-    function openTaskModal(task) {
+// Event listeners for Laravel integration
+document.addEventListener('taskSelected', function(e) {
+    const task = e.detail.task;
+    console.log('Task selected:', task);
+});
+
+document.addEventListener('taskUpdated', function(e) {
+    const updatedTask = e.detail.task;
+    console.log('Task updated:', updatedTask);
+    updateGanttChart();
+});
+
+document.addEventListener('taskDeleted', function(e) {
+    const taskId = e.detail.taskId;
+    window.GanttChart.removeTask(taskId);
+});
+
+document.addEventListener('taskAdded', function(e) {
+    const newTask = e.detail.task;
+    window.GanttChart.addTask(newTask);
+});
+
+// Initialize collapse state from DOM
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.task-children.collapsed').forEach(container => {
+        const parentId = container.getAttribute('data-parent-id');
+        if (parentId) {
+            collapsedTasks.add(parentId);
+        }
+    });
+});
+
+// Enhanced modal functions
+function openTaskModal(task) {
     if (isModalAnimating) return;
     
     const modal = document.getElementById('taskModal');
     isModalAnimating = true;
     
-    // Populate modal content
     populateModalContent(task);
     
-    // Prevent body scroll - UPDATED APPROACH
     document.body.classList.add('no-scroll');
-    
-    // Simpan posisi scroll saat ini
     const scrollY = window.scrollY;
     document.body.style.top = `-${scrollY}px`;
     document.body.dataset.scrollY = scrollY;
     
-    // Show modal
     modal.style.display = 'flex';
-    
-    // Force reflow
     modal.offsetHeight;
-    
-    // Add opening class for animation
     modal.classList.add('opening');
     
-    // Reset animation flag after animation completes
     setTimeout(() => {
         isModalAnimating = false;
     }, 300);
@@ -2043,19 +1982,14 @@ function closeTaskModal() {
     const modal = document.getElementById('taskModal');
     isModalAnimating = true;
     
-    // Add closing class for animation
     modal.classList.remove('opening');
     modal.classList.add('closing');
     
-    // Restore body scroll - UPDATED APPROACH
     document.body.classList.remove('no-scroll');
-    
-    // Kembalikan posisi scroll
     const scrollY = document.body.dataset.scrollY || 0;
     document.body.style.top = '';
     window.scrollTo(0, parseInt(scrollY));
     
-    // Hide modal after animation completes
     setTimeout(() => {
         modal.classList.remove('closing');
         modal.style.display = 'none';
@@ -2063,58 +1997,51 @@ function closeTaskModal() {
     }, 300);
 }
 
-    function populateModalContent(task) {
-        // Populate modal fields
-        document.getElementById('taskName').textContent = task.name || 'Untitled Task';
-        
-        const durationEl = document.getElementById('taskDuration');
-        durationEl.textContent = task.duration ? `${task.duration} days` : 'Not specified';
-        durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
-        
-        const startDateEl = document.getElementById('taskStartDate');
-        startDateEl.textContent = task.start || task.startDate ? formatDate(task.start || task.startDate) : 'Not set';
-        startDateEl.className = (task.start || task.startDate) ? 'modal-field-value' : 'modal-field-value empty';
-        
-        const finishDateEl = document.getElementById('taskFinishDate');
-        finishDateEl.textContent = task.finish || task.endDate ? formatDate(task.finish || task.endDate) : 'Not set';
-        finishDateEl.className = (task.finish || task.endDate) ? 'modal-field-value' : 'modal-field-value empty';
-        
-        
-        
-        const descriptionEl = document.getElementById('taskDescription');
-        descriptionEl.textContent = task.description || 'No description available';
-        descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
-        
-        // Set action button links
-        const editBtn = document.getElementById('editTaskBtn');
-        const deleteBtn = document.getElementById('deleteTaskBtn');
-        
-        if (editBtn && task.id) {
-            editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
-        }
-        
-        if (deleteBtn && task.id) {
-    deleteBtn.onclick = function(e) {
-        e.preventDefault();
-        if (confirm('Are you sure you want to delete this task?')) {
-            const form = document.getElementById('deleteTaskForm');
-            form.action = `/tasks/${task.id}`;
-            form.submit();
-        }
-    };
-}
+function populateModalContent(task) {
+    document.getElementById('taskName').textContent = task.name || 'Untitled Task';
+    
+    const durationEl = document.getElementById('taskDuration');
+    durationEl.textContent = task.duration ? `${task.duration} days` : 'Not specified';
+    durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
+    
+    const startDateEl = document.getElementById('taskStartDate');
+    startDateEl.textContent = task.start || task.startDate ? formatDate(task.start || task.startDate) : 'Not set';
+    startDateEl.className = (task.start || task.startDate) ? 'modal-field-value' : 'modal-field-value empty';
+    
+    const finishDateEl = document.getElementById('taskFinishDate');
+    finishDateEl.textContent = task.finish || task.endDate ? formatDate(task.finish || task.endDate) : 'Not set';
+    finishDateEl.className = (task.finish || task.endDate) ? 'modal-field-value' : 'modal-field-value empty';
+    
+    const descriptionEl = document.getElementById('taskDescription');
+    descriptionEl.textContent = task.description || 'No description available';
+    descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
+    
+    const editBtn = document.getElementById('editTaskBtn');
+    const deleteBtn = document.getElementById('deleteTaskBtn');
+    
+    if (editBtn && task.id) {
+        editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
     }
+    
+    if (deleteBtn && task.id) {
+        deleteBtn.onclick = function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to delete this task?')) {
+                const form = document.getElementById('deleteTaskForm');
+                form.action = `/tasks/${task.id}`;
+                form.submit();
+            }
+        };
+    }
+}
 
-    // Enhanced click handlers - UPDATED
-    document.addEventListener('click', function(e) {
+// Enhanced click handlers
+document.addEventListener('click', function(e) {
     const modal = document.getElementById('taskModal');
-
-    // Close modal when clicking backdrop (but not during animation)
     if (e.target === modal && !isModalAnimating) {
         closeTaskModal();
     }
 
-    // Handle task-name-cell click
     const taskNameCell = e.target.closest('.task-name-cell');
     if (taskNameCell) {
         const taskId = taskNameCell.getAttribute('data-task-id');
@@ -2124,7 +2051,6 @@ function closeTaskModal() {
         }
     }
 
-    // Handle gantt-bar click
     if (e.target.closest('.gantt-bar')) {
         const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
         const task = tasksData.find(t => t.id == taskId);
@@ -2133,44 +2059,44 @@ function closeTaskModal() {
         }
     }
 });
-    // Prevent double-tap zoom on mobile
-    document.addEventListener('touchend', function(e) {
-        if (e.target.closest('.modal-btn') || e.target.closest('.modal-close-x')) {
-            e.preventDefault();
-        }
-    });
 
-    // Add focus trap for accessibility
-    function trapFocus(element) {
-        const focusableElements = element.querySelectorAll(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstFocusable = focusableElements[0];
-        const lastFocusable = focusableElements[focusableElements.length - 1];
+// Prevent double-tap zoom on mobile
+document.addEventListener('touchend', function(e) {
+    if (e.target.closest('.modal-btn') || e.target.closest('.modal-close-x')) {
+        e.preventDefault();
+    }
+});
 
-        element.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                if (e.shiftKey) {
-                    if (document.activeElement === firstFocusable) {
-                        lastFocusable.focus();
-                        e.preventDefault();
-                    }
-                } else {
-                    if (document.activeElement === lastFocusable) {
-                        firstFocusable.focus();
-                        e.preventDefault();
-                    }
+// Add focus trap for accessibility
+function trapFocus(element) {
+    const focusableElements = element.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            if (e.shiftKey) {
+                if (document.activeElement === firstFocusable) {
+                    lastFocusable.focus();
+                    e.preventDefault();
+                }
+            } else {
+                if (document.activeElement === lastFocusable) {
+                    firstFocusable.focus();
+                    e.preventDefault();
                 }
             }
-        });
-    }
-
-    // Initialize focus trap when modal opens
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('taskModal');
-        if (modal) {
-            trapFocus(modal);
         }
     });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('taskModal');
+    if (modal) {
+        trapFocus(modal);
+    }
+});
 </script>
 @endsection
