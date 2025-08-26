@@ -169,7 +169,7 @@ public function destroy(Task $task)
     try {
         // Cek apakah task punya children
         if ($task->children()->count() > 0) {
-            return redirect()->route('projects.index')
+            return redirect()->route('task.index')
                 ->with('error', 'Tidak dapat menghapus task yang memiliki sub-task. Hapus sub-task terlebih dahulu.');
         }
 
