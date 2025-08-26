@@ -2,8 +2,7 @@
 
 @section('content')
 <style>
-    /* Microsoft Project Style Gantt Chart - Enhanced Version */
-   .gantt-container {
+      .gantt-container {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 120px);
@@ -75,14 +74,12 @@
     }
 
     .timeline-header-section {
-        width: 50%;
-        min-width: 50%;
-        max-width: 50%;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scrollbar-width: thin;
-        -ms-overflow-style: none;
-    }
+    overflow-x: hidden !important; /* Hilangkan scrollbar horizontal */
+    overflow-y: hidden;
+    width: 50%;
+    min-width: 50%;
+    max-width: 50%;
+}
 
     .timeline-header-section::-webkit-scrollbar {
         display: none;
@@ -138,12 +135,15 @@
         display: none;
     }
 
-    .gantt-content-container {
-    overflow-x: auto !important; /* Aktifkan scroll horizontal */
-    overflow-y: auto !important; /* Aktifkan scroll vertikal untuk sinkronisasi dengan task list */
+  /* Pastikan gantt-content-container selalu memiliki scrollbar horizontal */
+.gantt-content-container {
+    overflow-x: auto !important; /* Selalu tampilkan scrollbar horizontal */
+    overflow-y: auto !important; /* Scroll vertikal tetap aktif */
     max-height: none !important;
     max-width: 100%;
-    scrollbar-width: thin; /* Untuk browser seperti Firefox */
+    scrollbar-width: thin; /* Untuk Firefox */
+    /* Tambahkan padding-bottom agar scrollbar selalu terlihat di bawah */
+    padding-bottom: 10px; /* Sesuaikan sesuai kebutuhan */
 }
 
    body.no-scroll {
@@ -445,11 +445,11 @@
         transform: rotate(90deg);
     }
 
-    /* Container for Gantt Rows */
-    .gantt-rows-container {
+    /* Pastikan gantt-rows-container mengikuti lebar konten */
+.gantt-rows-container {
     width: fit-content; /* Lebar sesuai konten (jumlah hari di timeline) */
-    min-width: 100%; /* Pastikan minimal mengisi parent */
-    overflow-x: visible; /* Cegah pemotongan konten lebar */
+    min-width: 100%; /* Mengisi parent */
+    overflow-x: visible; /* Cegah pemotongan */
     display: block;
 }
 
@@ -1675,7 +1675,7 @@
         }
     }
 
-    // Fungsi untuk menyesuaikan lebar gantt-rows-container dan timeline-header-container
+// Fungsi untuk menyesuaikan lebar gantt-rows-container dan timeline-header-container
 function updateGanttWidths() {
     const dayWidth = getDayWidth();
     const totalWidth = timelineData.days.length * dayWidth;
@@ -1703,25 +1703,31 @@ function setupScrollSynchronization() {
 
     if (!taskListBody || !ganttContent || !timelineHeaderSection) return;
 
-    // Sinkronisasi scroll vertikal (tetap seperti sebelumnya)
+    // Sinkronisasi scroll vertikal
     taskListBody.addEventListener('scroll', function() {
         ganttContent.scrollTop = this.scrollTop;
     });
 
     ganttContent.addEventListener('scroll', function() {
         taskListBody.scrollTop = this.scrollTop;
-        timelineHeaderSection.scrollLeft = this.scrollLeft; // Sinkronkan header saat gantt digeser
+        timelineHeaderSection.scrollLeft = this.scrollLeft; // Sinkronkan header dengan gantt
     });
+}
 
-    // Sinkronisasi scroll horizontal dua arah
-    timelineHeaderSection.addEventListener('scroll', function() {
-        ganttContent.scrollLeft = this.scrollLeft; // Sinkronkan gantt saat header digeser
-    });
-
-    // Tambahan: Sinkronkan header saat gantt content digeser
-    ganttContent.addEventListener('scroll', function() {
-        timelineHeaderSection.scrollLeft = this.scrollLeft;
-    });
+// Fungsi untuk mengatur posisi scroll ke kanan secara default
+function setDefaultScrollPosition() {
+    const ganttContent = document.getElementById('ganttContent');
+    if (ganttContent) {
+        // Set scroll ke posisi maksimum (kanan) jika konten lebih pendek dari viewport
+        const ganttRowsContainer = document.getElementById('ganttRowsContainer');
+        if (ganttRowsContainer) {
+            const containerWidth = ganttContent.clientWidth;
+            const contentWidth = ganttRowsContainer.scrollWidth;
+            if (contentWidth <= containerWidth) {
+                ganttContent.scrollLeft = contentWidth - containerWidth; // Geser ke kanan
+            }
+        }
+    }
 }
 
 // Panggil updateGanttWidths di tempat yang tepat
@@ -1730,14 +1736,15 @@ document.addEventListener('DOMContentLoaded', function() {
     setupScrollSynchronization();
     updateGanttChart();
     updateZoomButtons();
-    updateGanttWidths(); // Tambahkan ini untuk set lebar awal
+    updateGanttWidths(); 
 });
 
 // Tambahkan updateGanttWidths ke fungsi yang mengubah tampilan
 function renderTimelineHeaders() {
     renderMonthHeaders();
     renderDayHeaders();
-    updateGanttWidths(); // Pastikan lebar diperbarui setelah render header
+    updateGanttWidths(); 
+    setDefaultScrollPosition(); 
 }
 
 function updateGanttChart() {
@@ -2104,23 +2111,32 @@ function closeTaskModal() {
 
     // Enhanced click handlers - UPDATED
     document.addEventListener('click', function(e) {
-        const modal = document.getElementById('taskModal');
-        
-        // Close modal when clicking backdrop (but not during animation)
-        if (e.target === modal && !isModalAnimating) {
-            closeTaskModal();
-        }
-        
-        // Handle gantt bar clicks
-        if (e.target.closest('.gantt-bar')) {
-            const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
-            const task = tasksData.find(t => t.id == taskId);
-            if (task) {
-                openTaskModal(task);
-            }
-        }
-    });
+    const modal = document.getElementById('taskModal');
 
+    // Close modal when clicking backdrop (but not during animation)
+    if (e.target === modal && !isModalAnimating) {
+        closeTaskModal();
+    }
+
+    // Handle task-name-cell click
+    const taskNameCell = e.target.closest('.task-name-cell');
+    if (taskNameCell) {
+        const taskId = taskNameCell.getAttribute('data-task-id');
+        const task = tasksData.find(t => t.id == taskId);
+        if (task) {
+            openTaskModal(task);
+        }
+    }
+
+    // Handle gantt-bar click
+    if (e.target.closest('.gantt-bar')) {
+        const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
+        const task = tasksData.find(t => t.id == taskId);
+        if (task) {
+            openTaskModal(task);
+        }
+    }
+});
     // Prevent double-tap zoom on mobile
     document.addEventListener('touchend', function(e) {
         if (e.target.closest('.modal-btn') || e.target.closest('.modal-close-x')) {
@@ -2161,5 +2177,4 @@ function closeTaskModal() {
         }
     });
 </script>
-
 @endsection
