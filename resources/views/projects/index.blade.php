@@ -145,11 +145,11 @@
         max-width: 100%;
     }
 
-    /* Tambahkan ini untuk memastikan scroll global di body */
-   body {
-    overflow-y: auto !important;
+   body.no-scroll {
+    overflow: hidden !important;
+    position: fixed;
     width: 100%;
-    margin: 0;
+    height: 100%;
 }
 
     /* Timeline Grid */
@@ -956,39 +956,7 @@
         font-style: italic;
     }
 
-    /* Progress bar styles */
-    .progress-container {
-        background: #f3f4f6;
-        border-radius: 8px;
-        height: 24px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid #e5e7eb;
-    }
-
-    .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #10b981, #059669);
-        border-radius: 7px;
-        transition: width 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-
-    .progress-text {
-        color: white;
-        font-size: 11px;
-        font-weight: 600;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1;
-    }
-
-    .modal-footer {
+        .modal-footer {
         display: flex;
         justify-content: flex-end;
         gap: 12px;
@@ -1210,16 +1178,7 @@
                     <div class="modal-field-label">Duration</div>
                     <div class="modal-field-value" id="taskDuration">-</div>
                 </div>
-                
-                <div class="modal-field">
-                    <div class="modal-field-label">Progress</div>
-                    <div class="progress-container">
-                        <div class="progress-bar" id="progressBar" style="width: 0%;">
-                            <div class="progress-text" id="progressText">0%</div>
-                        </div>
-                    </div>
-                </div>
-                
+                                
                 <div class="modal-field">
                     <div class="modal-field-label">Start Date</div>
                     <div class="modal-field-value" id="taskStartDate">-</div>
@@ -1603,22 +1562,14 @@
         const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
 
         const levelClass = `level-${(task.level || 0) % 6}`;
-        const progress = task.progress || 0;
-        const progressWidth = progress ? (barWidth * progress / 100) : 0;
-
+       
         let taskBarHTML = `
         <div class="gantt-bar ${levelClass}" 
             style="left: ${barLeft}px; width: ${barWidth}px;"
             data-task-id="${task.id}"
             data-start-day="${startDayOffset}"
-            data-duration="${task.duration || 0}"
-            title="${task.name} (${task.duration || 0} days) - ${progress}% complete">
-    `;
-
-        // Add progress indicator if exists
-        if (progress > 0) {
-            taskBarHTML += `<div class="progress-indicator" style="width: ${progressWidth}px; height: 100%; background: rgba(255,255,255,0.3); position: absolute; left: 0; top: 0; border-radius: 2px;"></div>`;
-        }
+            data-duration="${task.duration || 0}"           
+    `; 
 
         taskBarHTML += `<span class="task-bar-text">${task.name}</span></div>`;
 
@@ -1986,33 +1937,38 @@
 
     // Enhanced modal functions with smooth animations - UPDATED
     function openTaskModal(task) {
-        if (isModalAnimating) return;
-        
-        const modal = document.getElementById('taskModal');
-        isModalAnimating = true;
-        
-        // Populate modal content
-        populateModalContent(task);
-        
-        // Prevent body scroll
-        document.body.style.overflow = 'hidden';
-        
-        // Show modal
-        modal.style.display = 'flex';
-        
-        // Force reflow
-        modal.offsetHeight;
-        
-        // Add opening class for animation
-        modal.classList.add('opening');
-        
-        // Reset animation flag after animation completes
-        setTimeout(() => {
-            isModalAnimating = false;
-        }, 300);
-    }
+    if (isModalAnimating) return;
+    
+    const modal = document.getElementById('taskModal');
+    isModalAnimating = true;
+    
+    // Populate modal content
+    populateModalContent(task);
+    
+    // Prevent body scroll - UPDATED APPROACH
+    document.body.classList.add('no-scroll');
+    
+    // Simpan posisi scroll saat ini
+    const scrollY = window.scrollY;
+    document.body.style.top = `-${scrollY}px`;
+    document.body.dataset.scrollY = scrollY;
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Force reflow
+    modal.offsetHeight;
+    
+    // Add opening class for animation
+    modal.classList.add('opening');
+    
+    // Reset animation flag after animation completes
+    setTimeout(() => {
+        isModalAnimating = false;
+    }, 300);
+}
 
-    function closeTaskModal() {
+function closeTaskModal() {
     if (isModalAnimating) return;
     
     const modal = document.getElementById('taskModal');
@@ -2022,13 +1978,20 @@
     modal.classList.remove('opening');
     modal.classList.add('closing');
     
+    // Restore body scroll - UPDATED APPROACH
+    document.body.classList.remove('no-scroll');
+    
+    // Kembalikan posisi scroll
+    const scrollY = document.body.dataset.scrollY || 0;
+    document.body.style.top = '';
+    window.scrollTo(0, parseInt(scrollY));
+    
     // Hide modal after animation completes
     setTimeout(() => {
         modal.classList.remove('closing');
         modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
         isModalAnimating = false;
-    }, 300); // Match with CSS transition duration
+    }, 300);
 }
 
     function populateModalContent(task) {
@@ -2047,15 +2010,7 @@
         finishDateEl.textContent = task.finish || task.endDate ? formatDate(task.finish || task.endDate) : 'Not set';
         finishDateEl.className = (task.finish || task.endDate) ? 'modal-field-value' : 'modal-field-value empty';
         
-        // Handle progress
-        const progress = task.progress || 0;
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
         
-        if (progressBar && progressText) {
-            progressBar.style.width = progress + '%';
-            progressText.textContent = progress + '%';
-        }
         
         const descriptionEl = document.getElementById('taskDescription');
         descriptionEl.textContent = task.description || 'No description available';
