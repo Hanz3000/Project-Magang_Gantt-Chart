@@ -20,8 +20,8 @@ class TaskController extends Controller
         $structuredTasks = $this->buildTaskTree($tasks);
 
         return view('projects.index', [
-            'tasks' => $tasks, // Data asli untuk rendering rekursif di Blade
-            'structuredTasks' => $structuredTasks, // Data untuk JavaScript
+            'tasks' => $tasks,
+            'structuredTasks' => $structuredTasks,
             'createRoute' => route('tasks.create')
         ]);
     }
@@ -46,7 +46,7 @@ class TaskController extends Controller
                 'parent_id' => $task->parent_id,
                 'order' => $task->order ?? 0,
                 'description' => $task->description ?? null,
-                'children' => [] // Tambahkan children kosong untuk konsistensi
+                'children' => []
             ];
 
             // Jika task memiliki children, panggil fungsi ini lagi untuk mereka
@@ -66,58 +66,91 @@ class TaskController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'parent_id' => 'nullable|exists:tasks,id',
-        'start' => 'required|date',
-        'finish' => 'required_if:duration,null|date|after_or_equal:start',
-        'duration' => 'nullable|integer|min:1',
-        'description' => 'nullable|string',
-    ]);
+    {
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'parent_id'   => 'nullable|exists:tasks,id',
+            'start'       => 'required|date',
+            'finish'      => 'required_if:duration,null|date|after_or_equal:start',
+            'duration'    => 'nullable|integer|min:1',
+            'description' => 'nullable|string',
+        ]);
 
-    $start = new Carbon($request->start);
-    $finish = $request->finish ? new Carbon($request->finish) : $start->copy()->addDays($request->duration - 1);
-    $duration = $request->duration ?: $start->diffInDays($finish) + 1;
+        $start = new Carbon($request->start, 'Asia/Jakarta');
+        $start = $start->startOfDay();
 
-    $level = 0;
-    $parent = null;
-    if ($request->parent_id) {
-        $parent = Task::find($request->parent_id);
-        $level = $parent ? $parent->level + 1 : 0;
-        // Validasi start tidak sebelum parent start
-        if ($start < new Carbon($parent->start)) {
-            $start = new Carbon($parent->start);
-            $finish = $start->copy()->addDays($duration - 1);
+        $finish = $request->finish
+            ? new Carbon($request->finish, 'Asia/Jakarta')
+            : $start->copy()->addDays($request->duration - 1);
+        $finish = $finish->startOfDay();
+
+        $duration = $request->duration ?: $start->diffInDays($finish) + 1;
+
+        $level = 0;
+        $parent = null;
+
+        if ($request->parent_id) {
+            $parent = Task::find($request->parent_id);
+            $level  = $parent ? $parent->level + 1 : 0;
+
+            if ($start < new Carbon($parent->start, 'Asia/Jakarta')) {
+                $start  = new Carbon($parent->start, 'Asia/Jakarta');
+                $start  = $start->startOfDay();
+                $finish = $start->copy()->addDays($duration - 1);
+            }
+
+            if ($finish > new Carbon($parent->finish, 'Asia/Jakarta')) {
+                $this->updateParentRecursively($parent, $finish);
+            }
         }
-        // Perpanjang parent jika sub-task melebihi dan perbarui duration
-        if ($finish > new Carbon($parent->finish)) {
-            $parent->finish = $finish;
-            $parent->duration = $parent->start->diffInDays($parent->finish) + 1; // Hitung ulang duration berdasarkan start dan finish baru
-            $parent->save();
-        }
+
+        $maxOrder = Task::max('order') ?? 0;
+
+        Task::create([
+            'name'        => $request->name,
+            'parent_id'   => $request->parent_id,
+            'duration'    => $duration,
+            'start'       => $start,
+            'finish'      => $finish,
+            'progress'    => 0,
+            'level'       => $level,
+            'order'       => $maxOrder + 1,
+            'description' => $request->description,
+        ]);
+
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Task berhasil ditambahkan!');
     }
 
-    $maxOrder = Task::max('order') ?? 0;
+    protected function updateParentRecursively($task, $newFinish)
+    {
+        if (!$task->start || !$task->finish) {
+            return;
+        }
 
-    Task::create([
-        'name' => $request->name,
-        'parent_id' => $request->parent_id,
-        'duration' => $duration,
-        'start' => $start,
-        'finish' => $finish,
-        'progress' => 0,
-        'level' => $level,
-        'order' => $maxOrder + 1,
-        'description' => $request->description,
-    ]);
+        $taskStart = new Carbon($task->start, 'Asia/Jakarta');
+        $taskStart = $taskStart->startOfDay();
 
-    return redirect()->route('tasks.index')->with('success', 'Task berhasil ditambahkan!');
-}
+        $taskFinish = new Carbon($task->finish, 'Asia/Jakarta');
+        $taskFinish = $taskFinish->startOfDay();
+
+        $newFinish  = $newFinish->startOfDay();
+
+        if ($newFinish > $taskFinish) {
+            $task->finish   = $newFinish;
+            $task->duration = $taskStart->diffInDays($newFinish) + 1;
+            $task->save();
+
+            if ($task->parent_id) {
+                $parent = Task::find($task->parent_id);
+                $this->updateParentRecursively($parent, $newFinish);
+            }
+        }
+    }   
 
     public function edit(Task $task)
     {
-        // Ambil semua task yang bisa dijadikan parent (kecuali task yang sedang diedit dan child-nya)
         $parents = Task::where('id', '!=', $task->id)
                        ->whereNotIn('id', $this->getDescendantIds($task))
                        ->get();
@@ -135,9 +168,8 @@ class TaskController extends Controller
             'description' => 'nullable|string|max:1000'
         ]);
 
-        // Validasi circular dependency
         if ($request->parent_id) {
-            $descendantIds = $task->getDescendants();
+            $descendantIds = $this->getDescendantIds($task);
             if (in_array($request->parent_id, $descendantIds) || $request->parent_id == $task->id) {
                 return back()->withErrors([
                     'parent_id' => 'Tidak dapat memilih task ini atau child-nya sebagai parent.'
@@ -145,7 +177,6 @@ class TaskController extends Controller
             }
         }
 
-        // Update data task
         $task->update([
             'name' => $request->name,
             'duration' => $request->duration,
@@ -156,7 +187,6 @@ class TaskController extends Controller
             'level' => $request->parent_id ? (Task::find($request->parent_id)->level + 1) : 0,
         ]);
 
-        // Ambil semua tugas dengan urutan berdasarkan kolom order
         $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order')
                      ->whereNull('parent_id')
                      ->orderBy('order')
@@ -175,7 +205,6 @@ class TaskController extends Controller
         $structured = [];
         $taskMap = [];
 
-        // Bangun peta tugas tanpa memodifikasi properti children
         foreach ($tasks as $task) {
             $startDate = $task->start ? Carbon::parse($task->start)->format('Y-m-d') : null;
             $endDate = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
@@ -197,7 +226,6 @@ class TaskController extends Controller
             $taskMap[$task->id] = $taskArray;
         }
 
-        // Atur hierarki tugas
         foreach ($tasks as $task) {
             if ($task->parent_id && isset($taskMap[$task->parent_id])) {
                 $taskMap[$task->parent_id]['children'][] = $taskMap[$task->id];
