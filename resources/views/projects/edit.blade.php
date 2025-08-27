@@ -26,9 +26,15 @@
             @error('parent_id')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
-            <p class="text-sm text-gray-600 mt-1" id="parentInfo" hidden>
-                Sub-task mulai 03-08-2025, selesai idealnya 17-08-2025. Melebihi, task utama diperpanjang.
-            </p>
+            <p class="text-sm text-gray-600 mt-1" id="parentInfo"
+   @if(!$task->parent_id) hidden @endif>
+   @if($task->parent_id && $task->parent)
+       Sub-task mulai {{ \Carbon\Carbon::parse($task->parent->start)->format('d/m/Y') }},
+       selesai idealnya {{ \Carbon\Carbon::parse($task->parent->finish)->format('d/m/Y') }}.
+       Melebihi, task utama diperpanjang.
+   @endif
+</p>
+
         </div>
 
         <div class="mb-3">
