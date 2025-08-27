@@ -280,8 +280,11 @@ class TaskController extends Controller
     {
         try {
             if ($task->children()->count() > 0) {
+                // Menghapus tugas utama beserta sub-task dengan alert
+                $task->children()->delete();
+                $task->delete();
                 return redirect()->route('tasks.index')
-                    ->with('error', 'Tidak dapat menghapus task yang memiliki sub-task. Hapus sub-task terlebih dahulu.');
+                    ->with('warning', 'Tugas utama dan semua sub-task-nya telah dihapus!');
             }
 
             $task->delete();

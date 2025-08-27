@@ -2168,7 +2168,7 @@ function populateModalContent(task) {
     if (deleteBtn && task.id) {
         deleteBtn.onclick = function(e) {
             e.preventDefault();
-            if (confirm('Are you sure you want to delete this task?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
                 const form = document.getElementById('deleteTaskForm');
                 form.action = `/tasks/${task.id}`;
                 form.submit();

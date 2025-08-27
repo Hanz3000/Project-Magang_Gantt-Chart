@@ -8,7 +8,7 @@
         @csrf
 
         <div class="mb-3">
-            <label for="parent_id" class="block font-medium">Pilih Task Utama (Jika Sub-Task)</label>
+            <label for="parent_id" class="block font-medium">Pilih Task Utama atau Sub Task</label>
             <select name="parent_id" id="parent_id" 
                     class="w-full border rounded p-2 @error('parent_id') border-red-500 @enderror">
                 <option value="">-- Tidak ada (Task Baru) --</option>
