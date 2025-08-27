@@ -81,9 +81,21 @@ class TaskController extends Controller
     $duration = $request->duration ?: $start->diffInDays($finish) + 1;
 
     $level = 0;
+    $parent = null;
     if ($request->parent_id) {
         $parent = Task::find($request->parent_id);
         $level = $parent ? $parent->level + 1 : 0;
+        // Validasi start tidak sebelum parent start
+        if ($start < new Carbon($parent->start)) {
+            $start = new Carbon($parent->start);
+            $finish = $start->copy()->addDays($duration - 1);
+        }
+        // Perpanjang parent jika sub-task melebihi dan perbarui duration
+        if ($finish > new Carbon($parent->finish)) {
+            $parent->finish = $finish;
+            $parent->duration = $parent->start->diffInDays($parent->finish) + 1; // Hitung ulang duration berdasarkan start dan finish baru
+            $parent->save();
+        }
     }
 
     $maxOrder = Task::max('order') ?? 0;
@@ -92,7 +104,7 @@ class TaskController extends Controller
         'name' => $request->name,
         'parent_id' => $request->parent_id,
         'duration' => $duration,
-        'start' => $request->start,
+        'start' => $start,
         'finish' => $finish,
         'progress' => 0,
         'level' => $level,
