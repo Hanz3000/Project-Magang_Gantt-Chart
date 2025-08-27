@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Task extends Model
 {
     protected $fillable = [
-        'name', 'parent_id', 'duration', 'start', 'finish', 'progress', 'level', 'order'
+        'name', 'parent_id', 'duration', 'start', 'finish', 'progress', 'level', 'order', 'description'
     ];
 
     // 🔑 Casting field tanggal ke Carbon instance

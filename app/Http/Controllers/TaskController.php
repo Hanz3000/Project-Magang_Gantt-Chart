@@ -66,39 +66,41 @@ class TaskController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'duration' => 'required|integer|min:1',
-            'start' => 'required|date',
-            'parent_id' => 'nullable|exists:tasks,id',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'duration' => 'required|integer|min:1',
+        'start' => 'required|date',
+        'parent_id' => 'nullable|exists:tasks,id',
+        'description' => 'nullable|string', // Validasi deskripsi
+    ]);
 
-        $start = new Carbon($request->start);
-        $finish = (clone $start)->addDays($request->duration - 1);
+    $start = new Carbon($request->start);
+    $finish = (clone $start)->addDays($request->duration - 1);
 
-        $level = 0;
-        if ($request->parent_id) {
-            $parent = Task::find($request->parent_id);
-            $level = $parent ? $parent->level + 1 : 0;
-        }
-
-        // Tentukan order untuk tugas baru (misalnya, di akhir urutan)
-        $maxOrder = Task::max('order') ?? 0;
-
-        Task::create([
-            'name' => $request->name,
-            'parent_id' => $request->parent_id,
-            'duration' => $request->duration,
-            'start' => $request->start,
-            'finish' => $finish,
-            'progress' => 0,
-            'level' => $level,
-            'order' => $maxOrder + 1,
-        ]);
-
-        return redirect()->route('tasks.index')->with('success', 'Task berhasil ditambahkan!');
+    $level = 0;
+    if ($request->parent_id) {
+        $parent = Task::find($request->parent_id);
+        $level = $parent ? $parent->level + 1 : 0;
     }
+
+    // Tentukan order untuk tugas baru (misalnya, di akhir urutan)
+    $maxOrder = Task::max('order') ?? 0;
+
+    Task::create([
+        'name' => $request->name,
+        'parent_id' => $request->parent_id,
+        'duration' => $request->duration,
+        'start' => $request->start,
+        'finish' => $finish,
+        'progress' => 0,
+        'level' => $level,
+        'order' => $maxOrder + 1,
+        'description' => $request->description, // Simpan deskripsi
+    ]);
+
+    return redirect()->route('tasks.index')->with('success', 'Task berhasil ditambahkan!');
+}
 
     public function edit(Task $task)
     {
