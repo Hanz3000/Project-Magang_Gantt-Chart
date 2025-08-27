@@ -10,13 +10,11 @@ class TaskController extends Controller
 {
     public function index()
     {
-        // Ambil semua tugas dengan urutan berdasarkan kolom order
         $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order')
-                     ->whereNull('parent_id')
-                     ->orderBy('order')
-                     ->get();
+            ->whereNull('parent_id')
+            ->orderBy('order')
+            ->get();
 
-        // Ubah struktur data menjadi flat array untuk kemudahan rendering di Blade & JS
         $structuredTasks = $this->buildTaskTree($tasks);
 
         return view('projects.index', [
@@ -30,26 +28,24 @@ class TaskController extends Controller
     {
         $result = [];
         foreach ($tasks as $task) {
-            // Format tanggal agar konsisten
             $startDate = $task->start ? Carbon::parse($task->start)->format('Y-m-d') : null;
-            $endDate = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
+            $endDate   = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
 
             $result[] = [
-                'id' => $task->id,
-                'name' => $task->name,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'duration' => $task->duration,
-                'level' => $level,
-                'status' => $task->status ?? 'pending',
-                'progress' => $task->progress ?? 0,
-                'parent_id' => $task->parent_id,
-                'order' => $task->order ?? 0,
+                'id'          => $task->id,
+                'name'        => $task->name,
+                'startDate'   => $startDate,
+                'endDate'     => $endDate,
+                'duration'    => $task->duration,
+                'level'       => $level,
+                'status'      => $task->status ?? 'pending',
+                'progress'    => $task->progress ?? 0,
+                'parent_id'   => $task->parent_id,
+                'order'       => $task->order ?? 0,
                 'description' => $task->description ?? null,
-                'children' => []
+                'children'    => []
             ];
 
-            // Jika task memiliki children, panggil fungsi ini lagi untuk mereka
             if ($task->children->isNotEmpty()) {
                 $childTasks = $this->buildTaskTree($task->children, $level + 1);
                 $result[array_key_last($result)]['children'] = $childTasks;
@@ -76,31 +72,32 @@ class TaskController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $start = new Carbon($request->start, 'Asia/Jakarta');
-        $start = $start->startOfDay();
+        $start = Carbon::parse($request->start, 'Asia/Jakarta')->startOfDay();
 
         $finish = $request->finish
-            ? new Carbon($request->finish, 'Asia/Jakarta')
+            ? Carbon::parse($request->finish, 'Asia/Jakarta')->startOfDay()
             : $start->copy()->addDays($request->duration - 1);
-        $finish = $finish->startOfDay();
 
-        $duration = $request->duration ?: $start->diffInDays($finish) + 1;
+        $duration = $request->duration ?: intval($start->diffInDays($finish) + 1);
 
-        $level = 0;
-        $parent = null;
+        $level    = 0;
 
         if ($request->parent_id) {
             $parent = Task::find($request->parent_id);
-            $level  = $parent ? $parent->level + 1 : 0;
 
-            if ($start < new Carbon($parent->start, 'Asia/Jakarta')) {
-                $start  = new Carbon($parent->start, 'Asia/Jakarta');
-                $start  = $start->startOfDay();
-                $finish = $start->copy()->addDays($duration - 1);
-            }
+            if ($parent) {
+                $level = $parent->level + 1;
 
-            if ($finish > new Carbon($parent->finish, 'Asia/Jakarta')) {
-                $this->updateParentRecursively($parent, $finish);
+                $parentStart = Carbon::parse($parent->start, 'Asia/Jakarta')->startOfDay();
+                if ($start < $parentStart) {
+                    $start  = $parentStart;
+                    $finish = $start->copy()->addDays($duration - 1);
+                }
+
+                $parentFinish = Carbon::parse($parent->finish, 'Asia/Jakarta')->startOfDay();
+                if ($finish > $parentFinish) {
+                    $this->updateParentRecursively($parent, $finish);
+                }
             }
         }
 
@@ -118,8 +115,7 @@ class TaskController extends Controller
             'description' => $request->description,
         ]);
 
-        return redirect()
-            ->route('tasks.index')
+        return redirect()->route('tasks.index')
             ->with('success', 'Task berhasil ditambahkan!');
     }
 
@@ -129,17 +125,14 @@ class TaskController extends Controller
             return;
         }
 
-        $taskStart = new Carbon($task->start, 'Asia/Jakarta');
-        $taskStart = $taskStart->startOfDay();
-
-        $taskFinish = new Carbon($task->finish, 'Asia/Jakarta');
-        $taskFinish = $taskFinish->startOfDay();
-
+        $taskStart  = Carbon::parse($task->start, 'Asia/Jakarta')->startOfDay();
+        $taskFinish = Carbon::parse($task->finish, 'Asia/Jakarta')->startOfDay();
         $newFinish  = $newFinish->startOfDay();
 
         if ($newFinish > $taskFinish) {
             $task->finish   = $newFinish;
-            $task->duration = $taskStart->diffInDays($newFinish) + 1;
+            $task->duration = intval($taskStart->diffInDays($newFinish) + 1);
+
             $task->save();
 
             if ($task->parent_id) {
@@ -147,13 +140,13 @@ class TaskController extends Controller
                 $this->updateParentRecursively($parent, $newFinish);
             }
         }
-    }   
+    }
 
     public function edit(Task $task)
     {
         $parents = Task::where('id', '!=', $task->id)
-                       ->whereNotIn('id', $this->getDescendantIds($task))
-                       ->get();
+            ->whereNotIn('id', $this->getDescendantIds($task))
+            ->get();
 
         return view('projects.edit', compact('task', 'parents'));
     }
@@ -161,14 +154,13 @@ class TaskController extends Controller
     public function update(Request $request, Task $task)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'duration' => 'required|integer|min:1',
-            'start' => 'required|date',
-            'parent_id' => 'nullable|exists:tasks,id',
+            'name'        => 'required|string|max:255',
+            'duration'    => 'required|integer|min:1',
+            'start'       => 'required|date',
+            'parent_id'   => 'nullable|exists:tasks,id',
             'description' => 'nullable|string|max:1000'
         ]);
 
-        // Cek apakah parent_id valid (tidak boleh diri sendiri atau descendant)
         if ($request->parent_id) {
             $descendantIds = $this->getDescendantIds($task);
             if (in_array($request->parent_id, $descendantIds) || $request->parent_id == $task->id) {
@@ -178,48 +170,59 @@ class TaskController extends Controller
             }
         }
 
-        // Hitung finish berdasarkan start dan duration
-        $finish = Carbon::parse($request->start)->addDays($request->duration - 1);
+        $start    = Carbon::parse($request->start, 'Asia/Jakarta')->startOfDay();
+        $duration = $request->duration;
+        $finish   = $start->copy()->addDays($duration - 1);
+        $level    = 0;
 
-        // Update task
+        if ($request->parent_id) {
+            $parent = Task::find($request->parent_id);
+
+            if ($parent) {
+                $parentStart = Carbon::parse($parent->start, 'Asia/Jakarta')->startOfDay();
+                if ($start < $parentStart) {
+                    $start  = $parentStart;
+                    $finish = $start->copy()->addDays($duration - 1);
+                }
+
+                $level = $parent->level + 1;
+            }
+        }
+
         $task->update([
-            'name' => $request->name,
-            'duration' => $request->duration,
-            'start' => $request->start,
-            'parent_id' => $request->parent_id,
+            'name'        => $request->name,
+            'duration'    => $duration,
+            'start'       => $start,
+            'finish'      => $finish,
+            'parent_id'   => $request->parent_id,
             'description' => $request->description,
-            'finish' => $finish,
-            'level' => $request->parent_id ? (Task::find($request->parent_id)->level + 1) : 0,
+            'level'       => $level,
         ]);
 
-        // Jika task memiliki parent_id, periksa dan perbarui finish parent jika perlu
-        if ($task->parent_id) {
-            $parent = Task::find($task->parent_id);
+        if ($request->parent_id) {
+            $parent = Task::find($request->parent_id);
             if ($parent) {
-                // Ambil semua sub-task dari parent
-                $subTasks = $parent->children;
-                $maxFinish = $subTasks->max('finish');
+                $maxFinishStr = $parent->children()->max('finish');
+                $maxFinish    = $maxFinishStr ? Carbon::parse($maxFinishStr, 'Asia/Jakarta')->startOfDay() : null;
 
-                // Jika finish sub-task terjauh melebihi finish parent, perpanjang parent
-                if ($maxFinish && $maxFinish > $parent->finish) {
-                    $parent->update(['finish' => $maxFinish]);
+                if ($maxFinish) {
+                    $this->updateParentRecursively($parent, $maxFinish);
                 }
             }
         }
 
-        // Ambil ulang data tasks untuk update structuredTasks
         $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order')
-                     ->whereNull('parent_id')
-                     ->orderBy('order')
-                     ->get();
+            ->whereNull('parent_id')
+            ->orderBy('order')
+            ->get();
         $structuredTasks = $this->buildTaskTree($tasks);
 
         return redirect()->route('tasks.index')
-                        ->with([
-                            'success' => 'Task berhasil diupdate!',
-                            'structuredTasks' => $structuredTasks
-                        ]);
-    }  
+            ->with([
+                'success' => 'Task berhasil diupdate!',
+                'structuredTasks' => $structuredTasks
+            ]);
+    }
 
     private function structureTasks($tasks)
     {
@@ -228,21 +231,21 @@ class TaskController extends Controller
 
         foreach ($tasks as $task) {
             $startDate = $task->start ? Carbon::parse($task->start)->format('Y-m-d') : null;
-            $endDate = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
+            $endDate   = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
 
             $taskArray = [
-                'id' => $task->id,
-                'name' => $task->name,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-                'duration' => $task->duration,
-                'level' => $task->level,
-                'status' => $task->status ?? 'pending',
-                'progress' => $task->progress ?? 0,
-                'parent_id' => $task->parent_id,
-                'order' => $task->order ?? 0,
+                'id'          => $task->id,
+                'name'        => $task->name,
+                'startDate'   => $startDate,
+                'endDate'     => $endDate,
+                'duration'    => $task->duration,
+                'level'       => $task->level,
+                'status'      => $task->status ?? 'pending',
+                'progress'    => $task->progress ?? 0,
+                'parent_id'   => $task->parent_id,
+                'order'       => $task->order ?? 0,
                 'description' => $task->description ?? null,
-                'children' => []
+                'children'    => []
             ];
             $taskMap[$task->id] = $taskArray;
         }
