@@ -69,14 +69,16 @@ class TaskController extends Controller
 {
     $request->validate([
         'name' => 'required|string|max:255',
-        'duration' => 'required|integer|min:1',
-        'start' => 'required|date',
         'parent_id' => 'nullable|exists:tasks,id',
-        'description' => 'nullable|string', // Validasi deskripsi
+        'start' => 'required|date',
+        'finish' => 'required_if:duration,null|date|after_or_equal:start',
+        'duration' => 'nullable|integer|min:1',
+        'description' => 'nullable|string',
     ]);
 
     $start = new Carbon($request->start);
-    $finish = (clone $start)->addDays($request->duration - 1);
+    $finish = $request->finish ? new Carbon($request->finish) : $start->copy()->addDays($request->duration - 1);
+    $duration = $request->duration ?: $start->diffInDays($finish) + 1;
 
     $level = 0;
     if ($request->parent_id) {
@@ -84,19 +86,18 @@ class TaskController extends Controller
         $level = $parent ? $parent->level + 1 : 0;
     }
 
-    // Tentukan order untuk tugas baru (misalnya, di akhir urutan)
     $maxOrder = Task::max('order') ?? 0;
 
     Task::create([
         'name' => $request->name,
         'parent_id' => $request->parent_id,
-        'duration' => $request->duration,
+        'duration' => $duration,
         'start' => $request->start,
         'finish' => $finish,
         'progress' => 0,
         'level' => $level,
         'order' => $maxOrder + 1,
-        'description' => $request->description, // Simpan deskripsi
+        'description' => $request->description,
     ]);
 
     return redirect()->route('tasks.index')->with('success', 'Task berhasil ditambahkan!');
