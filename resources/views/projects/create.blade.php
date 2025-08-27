@@ -14,6 +14,8 @@
                 <option value="">-- Tidak ada (Task Baru) --</option>
                 @foreach($parents as $parent)
                     <option value="{{ $parent->id }}" 
+                            data-start="{{ $parent->start }}" 
+                            data-finish="{{ $parent->finish }}"
                             {{ old('parent_id') == $parent->id ? 'selected' : '' }}>
                         {{ $parent->name }}
                     </option>
@@ -22,6 +24,9 @@
             @error('parent_id')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
+            <p class="text-sm text-gray-600 mt-1" id="parentInfo" hidden>
+                Sub-task mulai 03-08-2025, selesai idealnya 17-08-2025. Melebihi, task utama diperpanjang.
+            </p>
         </div>
 
         <div class="mb-3">
@@ -111,74 +116,105 @@
 
         let lastChanged = ''; // Lacak field terakhir yang diubah
 
+        // Event listener untuk memperbarui pesan parent info
+        $('#parent_id').on('change', function() {
+            const parentId = $(this).val();
+            const parentInfo = $('#parentInfo');
+            if (parentId) {
+                parentInfo.show();
+                const start = $(this).find('option:selected').data('start');
+                const finish = $(this).find('option:selected').data('finish');
+                const startFormatted = new Date(start).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const finishFormatted = new Date(finish).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                parentInfo.text(`Sub-task mulai ${startFormatted}, selesai idealnya ${finishFormatted}. Melebihi, task utama diperpanjang.`);
+            } else {
+                parentInfo.hide();
+            }
+            lastChanged = 'parent';
+            updateDatePickers();
+        });
+
         // Event listener dengan tracking lastChanged
         $('#start').on('change', function() {
             lastChanged = 'start';
-            updateDates();
+            updateDatePickers();
         });
         $('#finish').on('change', function() {
             lastChanged = 'finish';
-            updateDates();
+            updateDatePickers();
         });
         $('#duration').on('change', function() {
             lastChanged = 'duration';
-            updateDates();
+            updateDatePickers();
         });
 
-        // Fungsi untuk memperbarui tanggal atau durasi berdasarkan lastChanged
-        function updateDates() {
+        // Fungsi untuk memperbarui date pickers
+        function updateDatePickers() {
             const startVal = $('#start').val();
             const finishVal = $('#finish').val();
             const durationVal = $('#duration').val();
+            const parentId = $('#parent_id').val();
+            let parentStart = null;
+            let parentFinish = null;
 
-            if (!startVal) return; // Butuh tanggal mulai untuk semua perhitungan
+            if (parentId) {
+                parentStart = $('#parent_id option:selected').data('start');
+                parentFinish = $('#parent_id option:selected').data('finish');
+            }
 
-            if (lastChanged === 'finish' && finishVal) {
-                // Hitung durasi jika terakhir ubah finish
+            // Set min untuk start berdasarkan parentStart jika ada
+            if (parentStart) {
+                $('#start').attr('min', parentStart);
+            } else {
+                $('#start').attr('min', '2025-08-03'); // Default ke 03-08-2025 jika tidak ada parent
+            }
+
+            // Set min untuk finish berdasarkan start
+            if (startVal) {
+                $('#finish').attr('min', startVal);
+            }
+
+            // Hitung finish jika duration diubah
+            if (lastChanged === 'duration' && durationVal && startVal) {
+                const start = new Date(startVal);
+                const finish = new Date(start);
+                finish.setDate(start.getDate() + parseInt(durationVal) - 1);
+                const newFinish = finish.toISOString().split('T')[0];
+                $('#finish').val(newFinish);
+                $('#finish').attr('min', startVal); // Pastikan finish tidak sebelum start
+            }
+
+            // Hitung duration jika finish diubah
+            if (lastChanged === 'finish' && finishVal && startVal) {
                 const start = new Date(startVal);
                 const finish = new Date(finishVal);
                 const diff = Math.ceil((finish - start) / (1000 * 60 * 60 * 24)) + 1;
                 if (diff > 0) {
                     $('#duration').val(diff);
-                } else {
-                    alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
-                    $('#finish').val('');
-                    $('#duration').val('');
-                }
-            } else if (lastChanged === 'duration' && durationVal) {
-                // Hitung finish jika terakhir ubah duration
-                const start = new Date(startVal);
-                const finish = new Date(start);
-                finish.setDate(start.getDate() + parseInt(durationVal) - 1);
-                $('#finish').val(finish.toISOString().split('T')[0]);
-            } else if (lastChanged === 'start') {
-                if (durationVal) {
-                    // Prioritaskan hitung finish berdasarkan duration jika ada
-                    const start = new Date(startVal);
-                    const finish = new Date(start);
-                    finish.setDate(start.getDate() + parseInt(durationVal) - 1);
-                    $('#finish').val(finish.toISOString().split('T')[0]);
-                } else if (finishVal) {
-                    // Hitung durasi berdasarkan finish jika duration kosong
-                    const start = new Date(startVal);
-                    const finish = new Date(finishVal);
-                    const diff = Math.ceil((finish - start) / (1000 * 60 * 60 * 24)) + 1;
-                    if (diff > 0) {
-                        $('#duration').val(diff);
-                    } else {
-                        alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
-                        $('#finish').val('');
-                        $('#duration').val('');
-                    }
                 }
             }
+
+            // Validasi terhadap parent (tanpa alert, hanya set ulang)
+            if (parentStart && startVal && new Date(startVal) < new Date(parentStart)) {
+                $('#start').val(parentStart);
+                updateDatePickers(); // Rekursif untuk menyesuaikan finish
+            }
+            if (parentFinish && finishVal && new Date(finishVal) > new Date(parentFinish)) {
+                // Tidak perlu blok, perpanjangan di backend
+            }
         }
+
+        // Panggil saat load untuk set initial min
+        updateDatePickers();
 
         // Validasi frontend sebelum submit
         $('#taskForm').on('submit', function(e) {
             const duration = $('#duration').val();
             const start = $('#start').val();
             const finish = $('#finish').val();
+            const parentId = $('#parent_id').val();
+            const parentStart = parentId ? $('#parent_id option:selected').data('start') : null;
+            const parentFinish = parentId ? $('#parent_id option:selected').data('finish') : null;
 
             if (!duration && (!start || !finish)) {
                 e.preventDefault();
@@ -191,6 +227,14 @@
                     alert('Tanggal Selesai harus setelah Tanggal Mulai!');
                     $('#finish').val('');
                     $('#duration').val('');
+                }
+                if (parentStart && new Date(start) < new Date(parentStart)) {
+                    e.preventDefault();
+                    alert('Tanggal Mulai sub-task tidak boleh sebelum Tanggal Mulai task utama!');
+                    $('#start').val(parentStart);
+                }
+                if (parentFinish && new Date(finish) > new Date(parentFinish)) {
+                    alert('Tanggal Selesai sub-task melebihi task utama. Task utama akan diperpanjang.');
                 }
             }
         });
