@@ -132,12 +132,14 @@
             }
             lastChanged = 'parent';
             updateDatePickers();
+            disableInvalidDates();
         });
 
         // Event listener dengan tracking lastChanged
         $('#start').on('change', function() {
             lastChanged = 'start';
             updateDatePickers();
+            disableInvalidDates();
         });
         $('#finish').on('change', function() {
             lastChanged = 'finish';
@@ -146,6 +148,7 @@
         $('#duration').on('change', function() {
             lastChanged = 'duration';
             updateDatePickers();
+            disableInvalidDates();
         });
 
         // Fungsi untuk memperbarui date pickers
@@ -162,16 +165,20 @@
                 parentFinish = $('#parent_id option:selected').data('finish');
             }
 
-            // Set min untuk start berdasarkan parentStart jika ada
+            // Set min untuk start berdasarkan parentStart jika ada, jika tidak biarkan bebas
             if (parentStart) {
                 $('#start').attr('min', parentStart);
             } else {
-                $('#start').attr('min', '2025-08-03'); // Default ke 03-08-2025 jika tidak ada parent
+                $('#start').removeAttr('min'); // Biarkan bebas tanpa batas minimum
             }
 
             // Set min untuk finish berdasarkan start
             if (startVal) {
                 $('#finish').attr('min', startVal);
+            } else if (parentStart) {
+                $('#finish').attr('min', parentStart); // Jika start belum diisi, gunakan parentStart
+            } else {
+                $('#finish').removeAttr('min'); // Biarkan bebas jika tidak ada batasan
             }
 
             // Hitung finish jika duration diubah
@@ -204,8 +211,44 @@
             }
         }
 
-        // Panggil saat load untuk set initial min
+        // Fungsi untuk menonaktifkan tanggal tidak valid di date picker
+        function disableInvalidDates() {
+            const parentId = $('#parent_id').val();
+            let minDate = null;
+
+            if (parentId) {
+                minDate = $('#parent_id option:selected').data('start');
+            } else {
+                minDate = null; // Tidak ada batas minimum jika tidak ada parent
+            }
+
+            const startInput = document.getElementById('start');
+            const startMin = startInput.min || minDate;
+
+            // Menonaktifkan tanggal sebelum minDate di date picker
+            const disableDates = function(input) {
+                const datePicker = input;
+                if (datePicker.type === 'date' && startMin) {
+                    const minDateObj = new Date(startMin);
+                    minDateObj.setDate(minDateObj.getDate()); // Pastikan tanggal minimum
+
+                    const picker = datePicker;
+                    picker.addEventListener('input', function() {
+                        const selectedDate = new Date(this.value);
+                        if (selectedDate < minDateObj) {
+                            this.value = startMin; // Set ulang ke min jika invalid
+                        }
+                    });
+                }
+            };
+
+            disableDates(document.getElementById('start'));
+            disableDates(document.getElementById('finish')); // Terapkan juga pada finish
+        }
+
+        // Panggil saat load untuk set initial min dan disable tanggal
         updateDatePickers();
+        disableInvalidDates();
 
         // Validasi frontend sebelum submit
         $('#taskForm').on('submit', function(e) {
