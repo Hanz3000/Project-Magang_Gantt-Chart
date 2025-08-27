@@ -168,6 +168,7 @@ class TaskController extends Controller
             'description' => 'nullable|string|max:1000'
         ]);
 
+        // Cek apakah parent_id valid (tidak boleh diri sendiri atau descendant)
         if ($request->parent_id) {
             $descendantIds = $this->getDescendantIds($task);
             if (in_array($request->parent_id, $descendantIds) || $request->parent_id == $task->id) {
@@ -177,16 +178,36 @@ class TaskController extends Controller
             }
         }
 
+        // Hitung finish berdasarkan start dan duration
+        $finish = Carbon::parse($request->start)->addDays($request->duration - 1);
+
+        // Update task
         $task->update([
             'name' => $request->name,
             'duration' => $request->duration,
             'start' => $request->start,
             'parent_id' => $request->parent_id,
             'description' => $request->description,
-            'finish' => Carbon::parse($request->start)->addDays($request->duration - 1),
+            'finish' => $finish,
             'level' => $request->parent_id ? (Task::find($request->parent_id)->level + 1) : 0,
         ]);
 
+        // Jika task memiliki parent_id, periksa dan perbarui finish parent jika perlu
+        if ($task->parent_id) {
+            $parent = Task::find($task->parent_id);
+            if ($parent) {
+                // Ambil semua sub-task dari parent
+                $subTasks = $parent->children;
+                $maxFinish = $subTasks->max('finish');
+
+                // Jika finish sub-task terjauh melebihi finish parent, perpanjang parent
+                if ($maxFinish && $maxFinish > $parent->finish) {
+                    $parent->update(['finish' => $maxFinish]);
+                }
+            }
+        }
+
+        // Ambil ulang data tasks untuk update structuredTasks
         $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order')
                      ->whereNull('parent_id')
                      ->orderBy('order')
@@ -198,7 +219,7 @@ class TaskController extends Controller
                             'success' => 'Task berhasil diupdate!',
                             'structuredTasks' => $structuredTasks
                         ]);
-    }
+    }  
 
     private function structureTasks($tasks)
     {
