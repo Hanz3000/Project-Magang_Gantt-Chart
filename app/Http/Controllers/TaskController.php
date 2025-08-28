@@ -9,20 +9,20 @@ use Carbon\Carbon;
 class TaskController extends Controller
 {
     public function index()
-    {
-        $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order')
-            ->whereNull('parent_id')
-            ->orderBy('order')
-            ->get();
+{
+    $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order,description')
+        ->whereNull('parent_id')
+        ->orderBy('order')
+        ->get();
 
-        $structuredTasks = $this->buildTaskTree($tasks);
+    $structuredTasks = $this->buildTaskTree($tasks);
 
-        return view('projects.index', [
-            'tasks' => $tasks,
-            'structuredTasks' => $structuredTasks,
-            'createRoute' => route('tasks.create')
-        ]);
-    }
+    return view('projects.index', [
+        'tasks' => $tasks,
+        'structuredTasks' => $structuredTasks,
+        'createRoute' => route('tasks.create')
+    ]);
+}
 
     private function buildTaskTree($tasks, $level = 0)
     {
