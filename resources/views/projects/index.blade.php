@@ -2,18 +2,19 @@
 
 @section('content')
 <style>
-      .gantt-container {
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 120px);
-    overflow-y: auto; /* Izinkan scroll vertikal */
-    overflow-x: hidden;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 100vw;
-    box-sizing: border-box;
-}
+    .gantt-container {
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 120px);
+        overflow-y: auto;
+        /* Izinkan scroll vertikal */
+        overflow-x: hidden;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
 
     .gantt-header {
         background: #f8f9fa;
@@ -74,12 +75,13 @@
     }
 
     .timeline-header-section {
-    overflow-x: hidden !important; /* Hilangkan scrollbar horizontal */
-    overflow-y: hidden;
-    width: 50%;
-    min-width: 50%;
-    max-width: 50%;
-}
+        overflow-x: hidden !important;
+        /* Hilangkan scrollbar horizontal */
+        overflow-y: hidden;
+        width: 50%;
+        min-width: 50%;
+        max-width: 50%;
+    }
 
     .timeline-header-section::-webkit-scrollbar {
         display: none;
@@ -127,31 +129,36 @@
         scrollbar-width: none;
         -ms-overflow-style: none;
         max-width: 100%;
-        width: fit-content; /* Lebar sesuai konten */
-    min-width: 100%;
+        width: fit-content;
+        /* Lebar sesuai konten */
+        min-width: 100%;
     }
 
     .timeline-header-container::-webkit-scrollbar {
         display: none;
     }
 
-  /* Pastikan gantt-content-container selalu memiliki scrollbar horizontal */
-.gantt-content-container {
-    overflow-x: auto !important; /* Selalu tampilkan scrollbar horizontal */
-    overflow-y: auto !important; /* Scroll vertikal tetap aktif */
-    max-height: none !important;
-    max-width: 100%;
-    scrollbar-width: thin; /* Untuk Firefox */
-    /* Tambahkan padding-bottom agar scrollbar selalu terlihat di bawah */
-    padding-bottom: 10px; /* Sesuaikan sesuai kebutuhan */
-}
+    /* Pastikan gantt-content-container selalu memiliki scrollbar horizontal */
+    .gantt-content-container {
+        overflow-x: auto !important;
+        /* Selalu tampilkan scrollbar horizontal */
+        overflow-y: auto !important;
+        /* Scroll vertikal tetap aktif */
+        max-height: none !important;
+        max-width: 100%;
+        scrollbar-width: thin;
+        /* Untuk Firefox */
+        /* Tambahkan padding-bottom agar scrollbar selalu terlihat di bawah */
+        padding-bottom: 10px;
+        /* Sesuaikan sesuai kebutuhan */
+    }
 
-   body.no-scroll {
-    overflow: hidden !important;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-}
+    body.no-scroll {
+        overflow: hidden !important;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
 
     /* Timeline Grid */
     .month-header {
@@ -310,13 +317,14 @@
         background-color: #f9fafb;
     }
 
-   .gantt-grid-cell.today {
-        background-color: #dbeafe; /* Biru muda, sama dengan timeline-day.today */
+    .gantt-grid-cell.today {
+        background-color: #dbeafe;
+        /* Biru muda, sama dengan timeline-day.today */
         border-left: 2px solid #1e40af;
         border-right: 2px solid #1e40af;
     }
 
-      /* Task Bars */
+    /* Task Bars */
     .gantt-bar {
         position: absolute;
         top: 6px;
@@ -444,14 +452,17 @@
     .toggle-collapse.rotate-90 {
         transform: rotate(90deg);
     }
-    
-    
-.gantt-rows-container {
-    width: fit-content; /* Lebar sesuai konten (jumlah hari di timeline) */
-    min-width: 100%; /* Mengisi parent */
-    overflow-x: visible; /* Cegah pemotongan */
-    display: block;
-}
+
+
+    .gantt-rows-container {
+        width: fit-content;
+        /* Lebar sesuai konten (jumlah hari di timeline) */
+        min-width: 100%;
+        /* Mengisi parent */
+        overflow-x: visible;
+        /* Cegah pemotongan */
+        display: block;
+    }
 
     /* Month Navigation Styles */
     .month-navigation {
@@ -613,7 +624,7 @@
         padding: 0 4px;
     }
 
-    
+
 
     /* Loading States */
     .gantt-bar.loading {
@@ -622,9 +633,12 @@
     }
 
     @keyframes pulse {
-        0%, 100% {
+
+        0%,
+        100% {
             opacity: 1;
         }
+
         50% {
             opacity: 0.7;
         }
@@ -663,6 +677,7 @@
     }
 
     @media (max-width: 1024px) {
+
         .task-list-container,
         .task-list-header-section {
             width: 45%;
@@ -686,6 +701,7 @@
     }
 
     @media (max-width: 768px) {
+
         .task-list-container,
         .task-list-header-section {
             width: 40%;
@@ -721,6 +737,16 @@
         .current-period {
             min-width: 120px;
             font-size: 12px;
+        }
+
+        /* Update responsive untuk date fields */
+        .date-fields-row {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .date-field {
+            flex: 1 1 100%;
         }
     }
 
@@ -799,41 +825,45 @@
 
     /* Enhanced Modal Styles with Smooth Animations - UPDATED */
     .modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    opacity: 0;
-    transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none; /* Nonaktifkan interaksi saat modal tidak terlihat */
-}
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+        opacity: 0;
+        transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        /* Nonaktifkan interaksi saat modal tidak terlihat */
+    }
+
     .modal.show {
         display: flex;
-    pointer-events: auto; /* Aktifkan interaksi saat modal ditampilkan */
-}
+        pointer-events: auto;
+        /* Aktifkan interaksi saat modal ditampilkan */
+    }
 
     .modal.opening {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
-    opacity: 1;
-    pointer-events: auto;
-}
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        opacity: 1;
+        pointer-events: auto;
+    }
 
-.modal.closing {
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    opacity: 0;
-    pointer-events: none; /* Nonaktifkan interaksi selama animasi penutupan */
-}
+    .modal.closing {
+        background-color: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+        opacity: 0;
+        pointer-events: none;
+        /* Nonaktifkan interaksi selama animasi penutupan */
+    }
 
     .modal-content {
         background-color: #ffffff;
@@ -946,7 +976,46 @@
         font-style: italic;
     }
 
-        .modal-footer {
+    /* CSS untuk date fields bersebelahan */
+    .date-fields-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .date-field {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .date-field .modal-field-label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .date-field .modal-field-value {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.6;
+        padding: 12px 16px;
+        background: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        min-height: 20px;
+        word-wrap: break-word;
+    }
+
+    .date-field .modal-field-value.empty {
+        color: #9ca3af;
+        font-style: italic;
+    }
+
+    .modal-footer {
         display: flex;
         justify-content: flex-end;
         gap: 12px;
@@ -1034,17 +1103,17 @@
             max-height: calc(100vh - 40px);
             border-radius: 16px;
         }
-        
+
         .modal-header,
         .modal-body,
         .modal-footer {
             padding: 16px 20px;
         }
-        
+
         .modal-footer {
             flex-direction: column-reverse;
         }
-        
+
         .modal-btn {
             width: 100%;
             justify-content: center;
@@ -1060,7 +1129,7 @@
             border-radius: 0;
             margin: 0;
         }
-        
+
         .modal {
             align-items: stretch;
         }
@@ -1100,55 +1169,62 @@
         background: #94a3b8;
     }
 
-/* Duration Badge Styles */
-.duration-badge {
-    transition: background-color 0.2s ease;
-}
+    /* Duration Badge Styles */
+    .duration-badge {
+        transition: background-color 0.2s ease;
+    }
 
-.duration-badge[data-level="0"] {
-    background-color: #0078d4; /* Blue */
-    color: white;
-    border: 1px solid #106ebe;
-}
+    .duration-badge[data-level="0"] {
+        background-color: #0078d4;
+        /* Blue */
+        color: white;
+        border: 1px solid #106ebe;
+    }
 
-.duration-badge[data-level="1"] {
-    background-color: #107c10; /* Green */
-    color: white;
-    border: 1px solid #0e6e0e;
-}
+    .duration-badge[data-level="1"] {
+        background-color: #107c10;
+        /* Green */
+        color: white;
+        border: 1px solid #0e6e0e;
+    }
 
-.duration-badge[data-level="2"] {
-    background-color: #881798; /* Purple */
-    color: white;
-    border: 1px solid #7a1589;
-}
+    .duration-badge[data-level="2"] {
+        background-color: #881798;
+        /* Purple */
+        color: white;
+        border: 1px solid #7a1589;
+    }
 
-.duration-badge[data-level="3"] {
-    background-color: #ff8c00; /* Orange */
-    color: white;
-    border: 1px solid #e67e00;
-}
+    .duration-badge[data-level="3"] {
+        background-color: #ff8c00;
+        /* Orange */
+        color: white;
+        border: 1px solid #e67e00;
+    }
 
-.duration-badge[data-level="4"] {
-    background-color: #e81123; /* Red */
-    color: white;
-    border: 1px solid #d10e20;
-}
+    .duration-badge[data-level="4"] {
+        background-color: #e81123;
+        /* Red */
+        color: white;
+        border: 1px solid #d10e20;
+    }
 
-.duration-badge[data-level="5"] {
-    background-color: #5c2d91; /* Dark Purple */
-    color: white;
-    border: 1px solid #522982;
-}
+    .duration-badge[data-level="5"] {
+        background-color: #5c2d91;
+        /* Dark Purple */
+        color: white;
+        border: 1px solid #522982;
+    }
 
-/* Default for other levels */
-.duration-badge:not([data-level]) {
-    background-color: #6b7280; /* Gray */
-    color: white;
-    border: 1px solid #4b5563;
-}
+    /* Default for other levels */
+    .duration-badge:not([data-level]) {
+        background-color: #6b7280;
+        /* Gray */
+        color: white;
+        border: 1px solid #4b5563;
+    }
 
- .timeline-day {
+    .timeline-day {
         width: 24px;
         min-width: 24px;
         max-width: 24px;
@@ -1170,7 +1246,8 @@
     /* Style untuk menampilkan hari dalam bahasa Indonesia */
     .timeline-day::after {
         content: attr(data-dayname);
-        font-size: 7px; /* Diperkecil sedikit */
+        font-size: 7px;
+        /* Diperkecil sedikit */
         font-weight: 400;
         color: #6b7280;
         position: absolute;
@@ -1181,12 +1258,15 @@
     }
 
     .timeline-day.weekend {
-        background-color: #fef2f2; /* Background lebih terang untuk hari libur */
-        color: #dc2626; /* Warna merah untuk angka */
+        background-color: #fef2f2;
+        /* Background lebih terang untuk hari libur */
+        color: #dc2626;
+        /* Warna merah untuk angka */
     }
 
     .timeline-day.weekend::after {
-        color: #dc2626; /* Warna merah untuk nama hari */
+        color: #dc2626;
+        /* Warna merah untuk nama hari */
         font-weight: 600;
     }
 
@@ -1274,29 +1354,31 @@
                 <h4 id="taskName">Task Details</h4>
                 <button class="modal-close-x" onclick="closeTaskModal()" aria-label="Close modal">&times;</button>
             </div>
-            
+
             <div class="modal-body">
                 <div class="modal-field">
                     <div class="modal-field-label">Duration</div>
                     <div class="modal-field-value" id="taskDuration">-</div>
                 </div>
-                                
-                <div class="modal-field">
-                    <div class="modal-field-label">Start Date</div>
-                    <div class="modal-field-value" id="taskStartDate">-</div>
+
+                <!-- Start Date dan Finish Date bersebelahan -->
+                <div class="date-fields-row">
+                    <div class="date-field">
+                        <div class="modal-field-label">Start Date</div>
+                        <div class="modal-field-value" id="taskStartDate">-</div>
+                    </div>
+                    <div class="date-field">
+                        <div class="modal-field-label">Finish Date</div>
+                        <div class="modal-field-value" id="taskFinishDate">-</div>
+                    </div>
                 </div>
-                
-                <div class="modal-field">
-                    <div class="modal-field-label">Finish Date</div>
-                    <div class="modal-field-value" id="taskFinishDate">-</div>
-                </div>
-                
+
                 <div class="modal-field">
                     <div class="modal-field-label">Description</div>
                     <div class="modal-field-value" id="taskDescription">No description available</div>
                 </div>
             </div>
-            
+
             <div class="modal-footer">
                 <button class="modal-btn modal-btn-secondary" onclick="closeTaskModal()">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1304,28 +1386,28 @@
                     </svg>
                     Close
                 </button>
-                
+
                 <a href="#" id="editTaskBtn" class="modal-btn modal-btn-primary">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                     </svg>
                     Edit
                 </a>
-                
-<a href="#" id="deleteTaskBtn" 
-   class="modal-btn modal-btn-danger flex items-center gap-2">
-    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M6.5 3a1 1 0 00-1 1v1H4a1 1 0 000 2h1v9a2 2 0 002 2h6a2 2 0 002-2V7h1a1 1 0 100-2h-1.5V4a1 1 0 00-1-1h-5zM7.5 5h5V4h-5v1zM7 7v8h6V7H7z" clip-rule="evenodd"></path>
-        <path d="M9 9v4M11 9v4"></path>
-    </svg>
-    <span>Hapus</span>
-</a>
 
-<!-- Form hapus task (hidden) -->
-<form id="deleteTaskForm" method="POST" style="display:none;">
-    @csrf
-    @method('DELETE')
-</form>
+                <a href="#" id="deleteTaskBtn"
+                    class="modal-btn modal-btn-danger flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6.5 3a1 1 0 00-1 1v1H4a1 1 0 000 2h1v9a2 2 0 002 2h6a2 2 0 002-2V7h1a1 1 0 100-2h-1.5V4a1 1 0 00-1-1h-5zM7.5 5h5V4h-5v1zM7 7v8h6V7H7z" clip-rule="evenodd"></path>
+                        <path d="M9 9v4M11 9v4"></path>
+                    </svg>
+                    <span>Hapus</span>
+                </a>
+
+                <!-- Form hapus task (hidden) -->
+                <form id="deleteTaskForm" method="POST" style="display:none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
             </div>
         </div>
     </div>
@@ -1393,9 +1475,9 @@
         <div class="task-list-container">
             <div class="task-list-body" id="taskListBody">
                 @if(isset($tasks) && $tasks->count() > 0)
-                    @foreach($tasks as $task)
-                        @include('partials.task-item', ['task' => $task, 'level' => 0])
-                    @endforeach
+                @foreach($tasks as $task)
+                @include('partials.task-item', ['task' => $task, 'level' => 0])
+                @endforeach
                 @else
                 <div class="p-8 text-center text-gray-500">
                     <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
@@ -1419,160 +1501,160 @@
 </div>
 
 <script>
-// Global variables for timeline management
-let currentDate = new Date();
-let timelinePeriod = 3; // months
-let currentZoom = 100;
-let timelineData = {
-    startDate: null,
-    endDate: null,
-    days: []
-};
+    // Global variables for timeline management
+    let currentDate = new Date();
+    let timelinePeriod = 3; // months
+    let currentZoom = 100;
+    let timelineData = {
+        startDate: null,
+        endDate: null,
+        days: []
+    };
 
-let tasksData = [];
-let collapsedTasks = new Set(); // Track collapsed tasks
-let isModalAnimating = false;
+    let tasksData = [];
+    let collapsedTasks = new Set(); // Track collapsed tasks
+    let isModalAnimating = false;
 
-@if(isset($structuredTasks) && count($structuredTasks) > 0)
-tasksData = @json($structuredTasks);
-@endif
+    @if(isset($structuredTasks) && count($structuredTasks) > 0)
+    tasksData = @json($structuredTasks);
+    @endif
 
-// Initialize the Gantt chart
-document.addEventListener('DOMContentLoaded', function() {
-    initializeTimeline();
-    setupScrollSynchronization();
-    updateGanttChart();
-    updateZoomButtons();
-});
+    // Initialize the Gantt chart
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeTimeline();
+        setupScrollSynchronization();
+        updateGanttChart();
+        updateZoomButtons();
+    });
 
-// Initialize timeline based on current date and period
-function initializeTimeline() {
-    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    timelineData.startDate = new Date(startOfMonth);
+    // Initialize timeline based on current date and period
+    function initializeTimeline() {
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        timelineData.startDate = new Date(startOfMonth);
 
-    const endDate = new Date(startOfMonth);
-    endDate.setMonth(endDate.getMonth() + timelinePeriod);
-    endDate.setDate(endDate.getDate() - 1);
-    timelineData.endDate = endDate;
+        const endDate = new Date(startOfMonth);
+        endDate.setMonth(endDate.getMonth() + timelinePeriod);
+        endDate.setDate(endDate.getDate() - 1);
+        timelineData.endDate = endDate;
 
-    generateTimelineDays();
-    updateCurrentPeriodDisplay();
-    renderTimelineHeaders();
-}
-
-// Generate array of days for the timeline
-function generateTimelineDays() {
-    timelineData.days = [];
-    const currentDay = new Date(timelineData.startDate);
-
-    while (currentDay <= timelineData.endDate) {
-        const dayInfo = {
-            date: new Date(currentDay),
-            dayOfWeek: currentDay.getDay(),
-            isWeekend: currentDay.getDay() === 0 || currentDay.getDay() === 6,
-            isHoliday: isHoliday(currentDay), // Tambahkan pengecekan hari libur
-            isToday: isToday(currentDay),
-            dayNumber: currentDay.getDate(),
-            monthYear: currentDay.toLocaleDateString('id-ID', {
-                month: 'short',
-                year: 'numeric'
-            })
-        };
-        timelineData.days.push(dayInfo);
-        currentDay.setDate(currentDay.getDate() + 1);
+        generateTimelineDays();
+        updateCurrentPeriodDisplay();
+        renderTimelineHeaders();
     }
-}
 
-// Check if date is today
-function isToday(date) {
-    const today = new Date();
-    return date.getDate() === today.getDate() &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear();
-}
+    // Generate array of days for the timeline
+    function generateTimelineDays() {
+        timelineData.days = [];
+        const currentDay = new Date(timelineData.startDate);
 
-// Update current period display
-function updateCurrentPeriodDisplay() {
-    const periodElement = document.getElementById('currentPeriod');
-    if (periodElement) {
-        const startMonth = timelineData.startDate.toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric'
-        });
-        const endMonth = timelineData.endDate.toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric'
-        });
-
-        if (timelinePeriod === 1) {
-            periodElement.textContent = startMonth;
-        } else {
-            periodElement.textContent = `${startMonth} - ${endMonth}`;
-        }
-    }
-}
-
-// Render timeline headers
-function renderTimelineHeaders() {
-    renderMonthHeaders();
-    renderDayHeaders();
-    updateGanttWidths();
-    setDefaultScrollPosition();
-}
-
-// Render month headers
-function renderMonthHeaders() {
-    const monthHeaderContainer = document.getElementById('monthHeaderContainer');
-    if (!monthHeaderContainer) return;
-
-    const monthGroups = {};
-    timelineData.days.forEach(day => {
-        const monthKey = `${day.date.getFullYear()}-${day.date.getMonth()}`;
-        if (!monthGroups[monthKey]) {
-            monthGroups[monthKey] = {
-                name: day.date.toLocaleDateString('en-US', {
+        while (currentDay <= timelineData.endDate) {
+            const dayInfo = {
+                date: new Date(currentDay),
+                dayOfWeek: currentDay.getDay(),
+                isWeekend: currentDay.getDay() === 0 || currentDay.getDay() === 6,
+                isHoliday: isHoliday(currentDay), // Tambahkan pengecekan hari libur
+                isToday: isToday(currentDay),
+                dayNumber: currentDay.getDate(),
+                monthYear: currentDay.toLocaleDateString('id-ID', {
                     month: 'short',
                     year: 'numeric'
-                }),
-                days: []
+                })
             };
+            timelineData.days.push(dayInfo);
+            currentDay.setDate(currentDay.getDate() + 1);
         }
-        monthGroups[monthKey].days.push(day);
-    });
+    }
 
-    let monthHeaderHTML = '<div class="month-header">';
-    Object.values(monthGroups).forEach(month => {
-        const dayWidth = getDayWidth();
-        const monthWidth = month.days.length * dayWidth;
-        monthHeaderHTML += `<div class="month-section" style="width: ${monthWidth}px;">${month.name}</div>`;
-    });
-    monthHeaderHTML += '</div>';
+    // Check if date is today
+    function isToday(date) {
+        const today = new Date();
+        return date.getDate() === today.getDate() &&
+            date.getMonth() === today.getMonth() &&
+            date.getFullYear() === today.getFullYear();
+    }
 
-    monthHeaderContainer.innerHTML = monthHeaderHTML;
-}
+    // Update current period display
+    function updateCurrentPeriodDisplay() {
+        const periodElement = document.getElementById('currentPeriod');
+        if (periodElement) {
+            const startMonth = timelineData.startDate.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric'
+            });
+            const endMonth = timelineData.endDate.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric'
+            });
 
-// Render day headers
-function renderDayHeaders() {
-    const dayHeaderContainer = document.getElementById('dayHeaderContainer');
-    if (!dayHeaderContainer) return;
-
-    // Nama hari dalam bahasa Indonesia format pendek
-    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    
-    let dayHeaderHTML = '<div class="day-header">';
-    timelineData.days.forEach(day => {
-        const classes = ['timeline-day'];
-        
-              
-        // Tandai khusus hari Minggu
-        if (day.dayOfWeek === 0) {
-            classes.push('sunday');
+            if (timelinePeriod === 1) {
+                periodElement.textContent = startMonth;
+            } else {
+                periodElement.textContent = `${startMonth} - ${endMonth}`;
+            }
         }
-        
-        if (day.isToday) classes.push('today');
+    }
 
-        const dayWidth = getDayWidth();
-        dayHeaderHTML += `
+    // Render timeline headers
+    function renderTimelineHeaders() {
+        renderMonthHeaders();
+        renderDayHeaders();
+        updateGanttWidths();
+        setDefaultScrollPosition();
+    }
+
+    // Render month headers
+    function renderMonthHeaders() {
+        const monthHeaderContainer = document.getElementById('monthHeaderContainer');
+        if (!monthHeaderContainer) return;
+
+        const monthGroups = {};
+        timelineData.days.forEach(day => {
+            const monthKey = `${day.date.getFullYear()}-${day.date.getMonth()}`;
+            if (!monthGroups[monthKey]) {
+                monthGroups[monthKey] = {
+                    name: day.date.toLocaleDateString('en-US', {
+                        month: 'short',
+                        year: 'numeric'
+                    }),
+                    days: []
+                };
+            }
+            monthGroups[monthKey].days.push(day);
+        });
+
+        let monthHeaderHTML = '<div class="month-header">';
+        Object.values(monthGroups).forEach(month => {
+            const dayWidth = getDayWidth();
+            const monthWidth = month.days.length * dayWidth;
+            monthHeaderHTML += `<div class="month-section" style="width: ${monthWidth}px;">${month.name}</div>`;
+        });
+        monthHeaderHTML += '</div>';
+
+        monthHeaderContainer.innerHTML = monthHeaderHTML;
+    }
+
+    // Render day headers
+    function renderDayHeaders() {
+        const dayHeaderContainer = document.getElementById('dayHeaderContainer');
+        if (!dayHeaderContainer) return;
+
+        // Nama hari dalam bahasa Indonesia format pendek
+        const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+        let dayHeaderHTML = '<div class="day-header">';
+        timelineData.days.forEach(day => {
+            const classes = ['timeline-day'];
+
+
+            // Tandai khusus hari Minggu
+            if (day.dayOfWeek === 0) {
+                classes.push('sunday');
+            }
+
+            if (day.isToday) classes.push('today');
+
+            const dayWidth = getDayWidth();
+            dayHeaderHTML += `
             <div class="${classes.join(' ')}" 
                  style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"
                  data-dayname="${dayNames[day.dayOfWeek]}"
@@ -1580,144 +1662,144 @@ function renderDayHeaders() {
                 ${day.dayNumber}
             </div>
         `;
-    });
-    dayHeaderHTML += '</div>';
+        });
+        dayHeaderHTML += '</div>';
 
-    dayHeaderContainer.innerHTML = dayHeaderHTML;
-}
-
-function getFullDayName(dayOfWeek) {
-    const fullDayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    return fullDayNames[dayOfWeek];
-}
-
-// Fungsi untuk menandai hari libur nasional (contoh implementasi)
-function isHoliday(date) {
-    // Daftar hari libur nasional Indonesia (contoh)
-    // Anda bisa menambahkan lebih banyak tanggal libur sesuai kebutuhan
-    const holidays = [
-        '2025-01-01', // Tahun Baru
-        '2025-03-03', // Hari Raya Nyepi
-        '2025-04-18', // Jumat Agung
-        '2025-05-01', // Hari Buruh
-        '2025-05-29', // Kenaikan Isa Almasih
-        '2025-06-01', // Hari Lahir Pancasila
-        '2025-06-29', // Idul Adha
-        '2025-08-17', // Hari Kemerdekaan
-        '2025-09-16', // Tahun Baru Islam
-        '2025-12-25', // Hari Natal
-    ];
-    
-    const dateString = date.toISOString().split('T')[0];
-    return holidays.includes(dateString);
-}
-
-
-// Get current day width based on zoom
-function getDayWidth() {
-    const baseWidth = 24;
-    return Math.round(baseWidth * (currentZoom / 100));
-}
-
-// Check if a task should be visible
-function isTaskVisible(task) {
-    if (!task.parent_id) {
-        return true;
+        dayHeaderContainer.innerHTML = dayHeaderHTML;
     }
 
-    const parent = tasksData.find(t => t.id === task.parent_id);
-    if (!parent) {
-        return false;
+    function getFullDayName(dayOfWeek) {
+        const fullDayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        return fullDayNames[dayOfWeek];
     }
 
-    const isParentCollapsed = collapsedTasks.has(parent.id.toString());
-    return isTaskVisible(parent) && !isParentCollapsed;
-}
+    // Fungsi untuk menandai hari libur nasional (contoh implementasi)
+    function isHoliday(date) {
+        // Daftar hari libur nasional Indonesia (contoh)
+        // Anda bisa menambahkan lebih banyak tanggal libur sesuai kebutuhan
+        const holidays = [
+            '2025-01-01', // Tahun Baru
+            '2025-03-03', // Hari Raya Nyepi
+            '2025-04-18', // Jumat Agung
+            '2025-05-01', // Hari Buruh
+            '2025-05-29', // Kenaikan Isa Almasih
+            '2025-06-01', // Hari Lahir Pancasila
+            '2025-06-29', // Idul Adha
+            '2025-08-17', // Hari Kemerdekaan
+            '2025-09-16', // Tahun Baru Islam
+            '2025-12-25', // Hari Natal
+        ];
 
-// Get visible tasks in hierarchical order
-function getVisibleTasks() {
-    const visibleTasks = [];
+        const dateString = date.toISOString().split('T')[0];
+        return holidays.includes(dateString);
+    }
 
-    function traverseTasks(tasks, parentId = null) {
-        tasks.forEach(task => {
-            if (task.parent_id === parentId) {
-                if (isTaskVisible(task)) {
-                    visibleTasks.push(task);
-                    if (!collapsedTasks.has(task.id.toString())) {
-                        traverseTasks(tasks, task.id);
+
+    // Get current day width based on zoom
+    function getDayWidth() {
+        const baseWidth = 24;
+        return Math.round(baseWidth * (currentZoom / 100));
+    }
+
+    // Check if a task should be visible
+    function isTaskVisible(task) {
+        if (!task.parent_id) {
+            return true;
+        }
+
+        const parent = tasksData.find(t => t.id === task.parent_id);
+        if (!parent) {
+            return false;
+        }
+
+        const isParentCollapsed = collapsedTasks.has(parent.id.toString());
+        return isTaskVisible(parent) && !isParentCollapsed;
+    }
+
+    // Get visible tasks in hierarchical order
+    function getVisibleTasks() {
+        const visibleTasks = [];
+
+        function traverseTasks(tasks, parentId = null) {
+            tasks.forEach(task => {
+                if (task.parent_id === parentId) {
+                    if (isTaskVisible(task)) {
+                        visibleTasks.push(task);
+                        if (!collapsedTasks.has(task.id.toString())) {
+                            traverseTasks(tasks, task.id);
+                        }
                     }
                 }
-            }
+            });
+        }
+
+        traverseTasks(tasksData, null);
+        return visibleTasks;
+    }
+
+    // Update Gantt chart bars
+    function updateGanttChart() {
+        const ganttRowsContainer = document.getElementById('ganttRowsContainer');
+        if (!ganttRowsContainer) return;
+
+        let ganttHTML = '';
+        const visibleTasks = getVisibleTasks();
+
+        if (visibleTasks.length > 0) {
+            visibleTasks.forEach(task => {
+                ganttHTML += generateGanttRow(task);
+            });
+        }
+
+        ganttRowsContainer.innerHTML = ganttHTML;
+        addTodayIndicator();
+        updateGanttWidths();
+    }
+
+    // Generate Gantt row for a task
+    function generateGanttRow(task) {
+        const dayWidth = getDayWidth();
+        const isHidden = !isTaskVisible(task);
+        let rowHTML = `<div class="gantt-row ${isHidden ? 'hidden-gantt-row' : ''}" data-task-id="${task.id}">`;
+
+        timelineData.days.forEach(day => {
+            const classes = ['gantt-grid-cell'];
+            if (day.isWeekend) classes.push('weekend');
+            if (day.isToday) classes.push('today');
+
+            rowHTML += `<div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"></div>`;
         });
+
+        const taskBar = generateTaskBar(task, dayWidth);
+        if (taskBar) {
+            rowHTML += taskBar;
+        }
+
+        rowHTML += '</div>';
+        return rowHTML;
     }
 
-    traverseTasks(tasksData, null);
-    return visibleTasks;
-}
+    // Generate task bar
+    function generateTaskBar(task, dayWidth) {
+        if (!task.start && !task.startDate) return null;
+        if (!task.finish && !task.endDate) return null;
 
-// Update Gantt chart bars
-function updateGanttChart() {
-    const ganttRowsContainer = document.getElementById('ganttRowsContainer');
-    if (!ganttRowsContainer) return;
+        const taskStart = new Date(task.start || task.startDate);
+        const taskEnd = new Date(task.finish || task.endDate);
 
-    let ganttHTML = '';
-    const visibleTasks = getVisibleTasks();
+        if (taskEnd < timelineData.startDate || taskStart > timelineData.endDate) {
+            return null;
+        }
 
-    if (visibleTasks.length > 0) {
-        visibleTasks.forEach(task => {
-            ganttHTML += generateGanttRow(task);
-        });
-    }
+        const timelineStart = timelineData.startDate;
+        const startDayOffset = Math.max(0, Math.floor((taskStart - timelineStart) / (24 * 60 * 60 * 1000)));
+        const endDayOffset = Math.min(timelineData.days.length - 1, Math.floor((taskEnd - timelineStart) / (24 * 60 * 60 * 1000)));
 
-    ganttRowsContainer.innerHTML = ganttHTML;
-    addTodayIndicator();
-    updateGanttWidths();
-}
+        const barLeft = startDayOffset * dayWidth;
+        const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
 
-// Generate Gantt row for a task
-function generateGanttRow(task) {
-    const dayWidth = getDayWidth();
-    const isHidden = !isTaskVisible(task);
-    let rowHTML = `<div class="gantt-row ${isHidden ? 'hidden-gantt-row' : ''}" data-task-id="${task.id}">`;
-
-    timelineData.days.forEach(day => {
-        const classes = ['gantt-grid-cell'];
-        if (day.isWeekend) classes.push('weekend');
-        if (day.isToday) classes.push('today');
-
-        rowHTML += `<div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"></div>`;
-    });
-
-    const taskBar = generateTaskBar(task, dayWidth);
-    if (taskBar) {
-        rowHTML += taskBar;
-    }
-
-    rowHTML += '</div>';
-    return rowHTML;
-}
-
-// Generate task bar
-function generateTaskBar(task, dayWidth) {
-    if (!task.start && !task.startDate) return null;
-    if (!task.finish && !task.endDate) return null;
-
-    const taskStart = new Date(task.start || task.startDate);
-    const taskEnd = new Date(task.finish || task.endDate);
-
-    if (taskEnd < timelineData.startDate || taskStart > timelineData.endDate) {
-        return null;
-    }
-
-    const timelineStart = timelineData.startDate;
-    const startDayOffset = Math.max(0, Math.floor((taskStart - timelineStart) / (24 * 60 * 60 * 1000)));
-    const endDayOffset = Math.min(timelineData.days.length - 1, Math.floor((taskEnd - timelineStart) / (24 * 60 * 60 * 1000)));
-
-    const barLeft = startDayOffset * dayWidth;
-    const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
-
-    const levelClass = `level-${(task.level || 0) % 6}`;
-    let taskBarHTML = `
+        const levelClass = `level-${(task.level || 0) % 6}`;
+        let taskBarHTML = `
         <div class="gantt-bar ${levelClass}" 
             style="left: ${barLeft}px; width: ${barWidth}px;"
             data-task-id="${task.id}"
@@ -1727,518 +1809,521 @@ function generateTaskBar(task, dayWidth) {
         </div>
     `;
 
-    return taskBarHTML;
-}
-
-// Add today indicator line
-function addTodayIndicator() {
-    const today = new Date();
-    const todayIndex = timelineData.days.findIndex(day =>
-        day.date.getDate() === today.getDate() &&
-        day.date.getMonth() === today.getMonth() &&
-        day.date.getFullYear() === today.getFullYear()
-    );
-
-    if (todayIndex !== -1) {
-        const dayWidth = getDayWidth();
-        const leftPosition = todayIndex * dayWidth + (dayWidth / 2);
-
-        const ganttRows = document.querySelectorAll('.gantt-row');
-        ganttRows.forEach(row => {
-            const existingIndicator = row.querySelector('.today-indicator');
-            if (existingIndicator) {
-                existingIndicator.remove();
-            }
-
-            const todayIndicator = document.createElement('div');
-            todayIndicator.className = 'today-indicator';
-            todayIndicator.style.left = leftPosition + 'px';
-            row.appendChild(todayIndicator);
-        });
-    }
-}
-
-// Navigation functions
-function navigateMonth(direction) {
-    currentDate.setMonth(currentDate.getMonth() + direction);
-    initializeTimeline();
-    updateGanttChart();
-}
-
-function changePeriod(months) {
-    timelinePeriod = parseInt(months);
-    initializeTimeline();
-    updateGanttChart();
-}
-
-function goToToday() {
-    currentDate = new Date();
-    initializeTimeline();
-    updateGanttChart();
-}
-
-// Zoom functions
-const minZoom = 50;
-const maxZoom = 200;
-const zoomStep = 25;
-
-function updateZoomLevel() {
-    const zoomLevelElement = document.getElementById('zoomLevel');
-    if (zoomLevelElement) {
-        zoomLevelElement.textContent = currentZoom + '%';
+        return taskBarHTML;
     }
 
-    updateZoomButtons();
-    renderTimelineHeaders();
-    updateGanttChart();
-}
+    // Add today indicator line
+    function addTodayIndicator() {
+        const today = new Date();
+        const todayIndex = timelineData.days.findIndex(day =>
+            day.date.getDate() === today.getDate() &&
+            day.date.getMonth() === today.getMonth() &&
+            day.date.getFullYear() === today.getFullYear()
+        );
 
-function updateZoomButtons() {
-    const zoomInBtn = document.getElementById('zoomInBtn');
-    const zoomOutBtn = document.getElementById('zoomOutBtn');
+        if (todayIndex !== -1) {
+            const dayWidth = getDayWidth();
+            const leftPosition = todayIndex * dayWidth + (dayWidth / 2);
 
-    if (zoomInBtn) {
-        zoomInBtn.disabled = currentZoom >= maxZoom;
-    }
+            const ganttRows = document.querySelectorAll('.gantt-row');
+            ganttRows.forEach(row => {
+                const existingIndicator = row.querySelector('.today-indicator');
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                }
 
-    if (zoomOutBtn) {
-        zoomOutBtn.disabled = currentZoom <= minZoom;
-    }
-}
-
-function zoomIn() {
-    if (currentZoom < maxZoom) {
-        currentZoom += zoomStep;
-        updateZoomLevel();
-    }
-}
-
-function zoomOut() {
-    if (currentZoom > minZoom) {
-        currentZoom -= zoomStep;
-        updateZoomLevel();
-    }
-}
-
-// Update Gantt widths
-function updateGanttWidths() {
-    const dayWidth = getDayWidth();
-    const totalWidth = timelineData.days.length * dayWidth;
-
-    const ganttRowsContainer = document.getElementById('ganttRowsContainer');
-    if (ganttRowsContainer) {
-        ganttRowsContainer.style.width = `${totalWidth}px`;
-        ganttRowsContainer.style.minWidth = `${totalWidth}px`;
-    }
-
-    const timelineHeaderContainer = document.querySelector('.timeline-header-container');
-    if (timelineHeaderContainer) {
-        timelineHeaderContainer.style.width = `${totalWidth}px`;
-        timelineHeaderContainer.style.minWidth = `${totalWidth}px`;
-    }
-}
-
-// Setup scroll synchronization
-function setupScrollSynchronization() {
-    const taskListBody = document.getElementById('taskListBody');
-    const ganttContent = document.getElementById('ganttContent');
-    const timelineHeaderSection = document.getElementById('timelineHeaderSection');
-
-    if (!taskListBody || !ganttContent || !timelineHeaderSection) return;
-
-    taskListBody.addEventListener('scroll', function() {
-        ganttContent.scrollTop = this.scrollTop;
-    });
-
-    ganttContent.addEventListener('scroll', function() {
-        taskListBody.scrollTop = this.scrollTop;
-        timelineHeaderSection.scrollLeft = this.scrollLeft;
-    });
-}
-
-// Set default scroll position
-function setDefaultScrollPosition() {
-    const ganttContent = document.getElementById('ganttContent');
-    if (ganttContent) {
-        const ganttRowsContainer = document.getElementById('ganttRowsContainer');
-        if (ganttRowsContainer) {
-            const containerWidth = ganttContent.clientWidth;
-            const contentWidth = ganttRowsContainer.scrollWidth;
-            if (contentWidth <= containerWidth) {
-                ganttContent.scrollLeft = contentWidth - containerWidth;
-            }
+                const todayIndicator = document.createElement('div');
+                todayIndicator.className = 'today-indicator';
+                todayIndicator.style.left = leftPosition + 'px';
+                row.appendChild(todayIndicator);
+            });
         }
     }
-}
 
-// Task collapse/expand functionality
-function toggleTaskCollapse(taskId) {
-    const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
-    const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
-
-    if (toggleIcon && childrenContainer) {
-        toggleIcon.classList.toggle('rotate-90');
-        childrenContainer.classList.toggle('collapsed');
-        
-        if (childrenContainer.classList.contains('collapsed')) {
-            collapsedTasks.add(taskId.toString());
-        } else {
-            collapsedTasks.delete(taskId.toString());
-        }
-        
+    // Navigation functions
+    function navigateMonth(direction) {
+        currentDate.setMonth(currentDate.getMonth() + direction);
+        initializeTimeline();
         updateGanttChart();
     }
-}
 
-// Event listeners for toggle buttons
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.toggle-collapse')) {
-        const taskId = e.target.closest('.toggle-collapse').getAttribute('data-task-id');
-        toggleTaskCollapse(taskId);
+    function changePeriod(months) {
+        timelinePeriod = parseInt(months);
+        initializeTimeline();
+        updateGanttChart();
     }
 
-    if (e.target.closest('.gantt-bar')) {
-        const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
-        handleTaskBarClick(taskId);
+    function goToToday() {
+        currentDate = new Date();
+        initializeTimeline();
+        updateGanttChart();
     }
-});
 
-// Handle task bar click
-function handleTaskBarClick(taskId) {
-    const task = tasksData.find(t => t.id == taskId);
-    if (task) {
-        openTaskModal(task);
-        document.dispatchEvent(new CustomEvent('taskSelected', {
-            detail: {
-                task: task
-            }
-        }));
-    }
-}
+    // Zoom functions
+    const minZoom = 50;
+    const maxZoom = 200;
+    const zoomStep = 25;
 
-// Expand/Collapse all functions
-function expandAll() {
-    document.querySelectorAll('.task-children').forEach(container => {
-        container.classList.remove('collapsed');
-    });
-    document.querySelectorAll('.toggle-collapse').forEach(icon => {
-        icon.classList.add('rotate-90');
-    });
-    
-    collapsedTasks.clear();
-    updateGanttChart();
-}
-
-function collapseAll() {
-    document.querySelectorAll('.task-children').forEach(container => {
-        container.classList.add('collapsed');
-        const parentId = container.getAttribute('data-parent-id');
-        if (parentId) {
-            collapsedTasks.add(parentId);
+    function updateZoomLevel() {
+        const zoomLevelElement = document.getElementById('zoomLevel');
+        if (zoomLevelElement) {
+            zoomLevelElement.textContent = currentZoom + '%';
         }
-    });
-    document.querySelectorAll('.toggle-collapse').forEach(icon => {
-        icon.classList.remove('rotate-90');
-    });
-    
-    updateGanttChart();
-}
 
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey || e.metaKey) {
-        if (e.key === '=' || e.key === '+') {
-            e.preventDefault();
-            zoomIn();
-        } else if (e.key === '-') {
-            e.preventDefault();
-            zoomOut();
-        }
-    }
-
-    if (e.altKey) {
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            navigateMonth(-1);
-        } else if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            navigateMonth(1);
-        } else if (e.key === 'Home') {
-            e.preventDefault();
-            goToToday();
-        }
-    }
-
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('taskModal');
-        if (modal.classList.contains('opening') && !isModalAnimating) {
-            closeTaskModal();
-        }
-        document.querySelectorAll('.gantt-bar.selected').forEach(bar => {
-            bar.classList.remove('selected');
-        });
-    }
-});
-
-// Utility functions
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear().toString().slice(-2);
-    return `${day}-${month}-${year}`;
-}
-
-function calculateDuration(startDate, endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const timeDiff = end.getTime() - start.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
-}
-
-// Responsive handling
-function handleResize() {
-    setTimeout(() => {
+        updateZoomButtons();
         renderTimelineHeaders();
         updateGanttChart();
-    }, 100);
-}
+    }
 
-window.addEventListener('resize', handleResize);
+    function updateZoomButtons() {
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
 
-// Public API for external integration
-window.GanttChart = {
-    navigateMonth,
-    changePeriod,
-    goToToday,
-    zoomIn,
-    zoomOut,
-    setZoom: function(level) {
-        if (level >= minZoom && level <= maxZoom) {
-            currentZoom = level;
+        if (zoomInBtn) {
+            zoomInBtn.disabled = currentZoom >= maxZoom;
+        }
+
+        if (zoomOutBtn) {
+            zoomOutBtn.disabled = currentZoom <= minZoom;
+        }
+    }
+
+    function zoomIn() {
+        if (currentZoom < maxZoom) {
+            currentZoom += zoomStep;
             updateZoomLevel();
         }
-    },
-    expandAll,
-    collapseAll,
-    updateGanttChart,
-    addTask: function(task) {
-        tasksData.push(task);
-        updateGanttChart();
-    },
-    removeTask: function(taskId) {
-        const index = tasksData.findIndex(task => task.id == taskId);
-        if (index > -1) {
-            tasksData.splice(index, 1);
-            updateGanttChart();
+    }
+
+    function zoomOut() {
+        if (currentZoom > minZoom) {
+            currentZoom -= zoomStep;
+            updateZoomLevel();
         }
-    },
-    updateTask: function(taskId, updates) {
-        const taskIndex = tasksData.findIndex(task => task.id == taskId);
-        if (taskIndex > -1) {
-            tasksData[taskIndex] = { ...tasksData[taskIndex], ...updates };
-            updateGanttChart();
+    }
+
+    // Update Gantt widths
+    function updateGanttWidths() {
+        const dayWidth = getDayWidth();
+        const totalWidth = timelineData.days.length * dayWidth;
+
+        const ganttRowsContainer = document.getElementById('ganttRowsContainer');
+        if (ganttRowsContainer) {
+            ganttRowsContainer.style.width = `${totalWidth}px`;
+            ganttRowsContainer.style.minWidth = `${totalWidth}px`;
         }
-    },
-    refreshData: function(newTasks) {
-        tasksData = newTasks;
-        updateGanttChart();
-    },
-    getCurrentPeriod: function() {
-        return {
-            startDate: timelineData.startDate,
-            endDate: timelineData.endDate,
-            period: timelinePeriod
-        };
-    },
-    getVisibleTasks: function() {
-        return getVisibleTasks().filter(task => {
-            const startDate = task.start || task.startDate;
-            const endDate = task.finish || task.endDate;
-            if (!startDate || !endDate) return false;
-            const taskStart = new Date(startDate);
-            const taskEnd = new Date(endDate);
-            return !(taskEnd < timelineData.startDate || taskStart > timelineData.endDate);
+
+        const timelineHeaderContainer = document.querySelector('.timeline-header-container');
+        if (timelineHeaderContainer) {
+            timelineHeaderContainer.style.width = `${totalWidth}px`;
+            timelineHeaderContainer.style.minWidth = `${totalWidth}px`;
+        }
+    }
+
+    // Setup scroll synchronization
+    function setupScrollSynchronization() {
+        const taskListBody = document.getElementById('taskListBody');
+        const ganttContent = document.getElementById('ganttContent');
+        const timelineHeaderSection = document.getElementById('timelineHeaderSection');
+
+        if (!taskListBody || !ganttContent || !timelineHeaderSection) return;
+
+        taskListBody.addEventListener('scroll', function() {
+            ganttContent.scrollTop = this.scrollTop;
+        });
+
+        ganttContent.addEventListener('scroll', function() {
+            taskListBody.scrollTop = this.scrollTop;
+            timelineHeaderSection.scrollLeft = this.scrollLeft;
         });
     }
-};
 
-// Event listeners for Laravel integration
-document.addEventListener('taskSelected', function(e) {
-    const task = e.detail.task;
-    console.log('Task selected:', task);
-});
-
-document.addEventListener('taskUpdated', function(e) {
-    const updatedTask = e.detail.task;
-    console.log('Task updated:', updatedTask);
-    updateGanttChart();
-});
-
-document.addEventListener('taskDeleted', function(e) {
-    const taskId = e.detail.taskId;
-    window.GanttChart.removeTask(taskId);
-});
-
-document.addEventListener('taskAdded', function(e) {
-    const newTask = e.detail.task;
-    window.GanttChart.addTask(newTask);
-});
-
-// Initialize collapse state from DOM
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.task-children.collapsed').forEach(container => {
-        const parentId = container.getAttribute('data-parent-id');
-        if (parentId) {
-            collapsedTasks.add(parentId);
-        }
-    });
-});
-
-// Enhanced modal functions
-function openTaskModal(task) {
-    if (isModalAnimating) return;
-    
-    const modal = document.getElementById('taskModal');
-    isModalAnimating = true;
-    
-    populateModalContent(task);
-    
-    document.body.classList.add('no-scroll');
-    const scrollY = window.scrollY;
-    document.body.style.top = `-${scrollY}px`;
-    document.body.dataset.scrollY = scrollY;
-    
-    modal.style.display = 'flex';
-    modal.offsetHeight;
-    modal.classList.add('opening');
-    
-    setTimeout(() => {
-        isModalAnimating = false;
-    }, 300);
-}
-
-function closeTaskModal() {
-    if (isModalAnimating) return;
-    
-    const modal = document.getElementById('taskModal');
-    isModalAnimating = true;
-    
-    modal.classList.remove('opening');
-    modal.classList.add('closing');
-    
-    document.body.classList.remove('no-scroll');
-    const scrollY = document.body.dataset.scrollY || 0;
-    document.body.style.top = '';
-    window.scrollTo(0, parseInt(scrollY));
-    
-    setTimeout(() => {
-        modal.classList.remove('closing');
-        modal.style.display = 'none';
-        isModalAnimating = false;
-    }, 300);
-}
-
-function populateModalContent(task) {
-    document.getElementById('taskName').textContent = task.name || 'Untitled Task';
-    
-    const durationEl = document.getElementById('taskDuration');
-    durationEl.textContent = task.duration ? `${task.duration} days` : 'Not specified';
-    durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
-    
-    const startDateEl = document.getElementById('taskStartDate');
-    startDateEl.textContent = task.start || task.startDate ? formatDate(task.start || task.startDate) : 'Not set';
-    startDateEl.className = (task.start || task.startDate) ? 'modal-field-value' : 'modal-field-value empty';
-    
-    const finishDateEl = document.getElementById('taskFinishDate');
-    finishDateEl.textContent = task.finish || task.endDate ? formatDate(task.finish || task.endDate) : 'Not set';
-    finishDateEl.className = (task.finish || task.endDate) ? 'modal-field-value' : 'modal-field-value empty';
-    
-    const descriptionEl = document.getElementById('taskDescription');
-    descriptionEl.textContent = task.description || 'No description available';
-    descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
-    
-    const editBtn = document.getElementById('editTaskBtn');
-    const deleteBtn = document.getElementById('deleteTaskBtn');
-    
-    if (editBtn && task.id) {
-        editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
-    }
-    
-    if (deleteBtn && task.id) {
-        deleteBtn.onclick = function(e) {
-            e.preventDefault();
-            if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
-                const form = document.getElementById('deleteTaskForm');
-                form.action = `/tasks/${task.id}`;
-                form.submit();
-            }
-        };
-    }
-}
-
-// Enhanced click handlers
-document.addEventListener('click', function(e) {
-    const modal = document.getElementById('taskModal');
-    if (e.target === modal && !isModalAnimating) {
-        closeTaskModal();
-    }
-
-    const taskNameCell = e.target.closest('.task-name-cell');
-    if (taskNameCell) {
-        const taskId = taskNameCell.getAttribute('data-task-id');
-        const task = tasksData.find(t => t.id == taskId);
-        if (task) {
-            openTaskModal(task);
-        }
-    }
-
-    if (e.target.closest('.gantt-bar')) {
-        const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
-        const task = tasksData.find(t => t.id == taskId);
-        if (task) {
-            openTaskModal(task);
-        }
-    }
-});
-
-// Prevent double-tap zoom on mobile
-document.addEventListener('touchend', function(e) {
-    if (e.target.closest('.modal-btn') || e.target.closest('.modal-close-x')) {
-        e.preventDefault();
-    }
-});
-
-// Add focus trap for accessibility
-function trapFocus(element) {
-    const focusableElements = element.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstFocusable = focusableElements[0];
-    const lastFocusable = focusableElements[focusableElements.length - 1];
-
-    element.addEventListener('keydown', function(e) {
-        if (e.key === 'Tab') {
-            if (e.shiftKey) {
-                if (document.activeElement === firstFocusable) {
-                    lastFocusable.focus();
-                    e.preventDefault();
+    // Set default scroll position
+    function setDefaultScrollPosition() {
+        const ganttContent = document.getElementById('ganttContent');
+        if (ganttContent) {
+            const ganttRowsContainer = document.getElementById('ganttRowsContainer');
+            if (ganttRowsContainer) {
+                const containerWidth = ganttContent.clientWidth;
+                const contentWidth = ganttRowsContainer.scrollWidth;
+                if (contentWidth <= containerWidth) {
+                    ganttContent.scrollLeft = contentWidth - containerWidth;
                 }
+            }
+        }
+    }
+
+    // Task collapse/expand functionality
+    function toggleTaskCollapse(taskId) {
+        const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
+        const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
+
+        if (toggleIcon && childrenContainer) {
+            toggleIcon.classList.toggle('rotate-90');
+            childrenContainer.classList.toggle('collapsed');
+
+            if (childrenContainer.classList.contains('collapsed')) {
+                collapsedTasks.add(taskId.toString());
             } else {
-                if (document.activeElement === lastFocusable) {
-                    firstFocusable.focus();
-                    e.preventDefault();
+                collapsedTasks.delete(taskId.toString());
+            }
+
+            updateGanttChart();
+        }
+    }
+
+    // Event listeners for toggle buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.toggle-collapse')) {
+            const taskId = e.target.closest('.toggle-collapse').getAttribute('data-task-id');
+            toggleTaskCollapse(taskId);
+        }
+
+        if (e.target.closest('.gantt-bar')) {
+            const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
+            handleTaskBarClick(taskId);
+        }
+    });
+
+    // Handle task bar click
+    function handleTaskBarClick(taskId) {
+        const task = tasksData.find(t => t.id == taskId);
+        if (task) {
+            openTaskModal(task);
+            document.dispatchEvent(new CustomEvent('taskSelected', {
+                detail: {
+                    task: task
                 }
+            }));
+        }
+    }
+
+    // Expand/Collapse all functions
+    function expandAll() {
+        document.querySelectorAll('.task-children').forEach(container => {
+            container.classList.remove('collapsed');
+        });
+        document.querySelectorAll('.toggle-collapse').forEach(icon => {
+            icon.classList.add('rotate-90');
+        });
+
+        collapsedTasks.clear();
+        updateGanttChart();
+    }
+
+    function collapseAll() {
+        document.querySelectorAll('.task-children').forEach(container => {
+            container.classList.add('collapsed');
+            const parentId = container.getAttribute('data-parent-id');
+            if (parentId) {
+                collapsedTasks.add(parentId);
+            }
+        });
+        document.querySelectorAll('.toggle-collapse').forEach(icon => {
+            icon.classList.remove('rotate-90');
+        });
+
+        updateGanttChart();
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === '=' || e.key === '+') {
+                e.preventDefault();
+                zoomIn();
+            } else if (e.key === '-') {
+                e.preventDefault();
+                zoomOut();
+            }
+        }
+
+        if (e.altKey) {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateMonth(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateMonth(1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                goToToday();
+            }
+        }
+
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('taskModal');
+            if (modal.classList.contains('opening') && !isModalAnimating) {
+                closeTaskModal();
+            }
+            document.querySelectorAll('.gantt-bar.selected').forEach(bar => {
+                bar.classList.remove('selected');
+            });
+        }
+    });
+
+    // Utility functions
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear().toString().slice(-2);
+        return `${day}-${month}-${year}`;
+    }
+
+    function calculateDuration(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const timeDiff = end.getTime() - start.getTime();
+        return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+    }
+
+    // Responsive handling
+    function handleResize() {
+        setTimeout(() => {
+            renderTimelineHeaders();
+            updateGanttChart();
+        }, 100);
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    // Public API for external integration
+    window.GanttChart = {
+        navigateMonth,
+        changePeriod,
+        goToToday,
+        zoomIn,
+        zoomOut,
+        setZoom: function(level) {
+            if (level >= minZoom && level <= maxZoom) {
+                currentZoom = level;
+                updateZoomLevel();
+            }
+        },
+        expandAll,
+        collapseAll,
+        updateGanttChart,
+        addTask: function(task) {
+            tasksData.push(task);
+            updateGanttChart();
+        },
+        removeTask: function(taskId) {
+            const index = tasksData.findIndex(task => task.id == taskId);
+            if (index > -1) {
+                tasksData.splice(index, 1);
+                updateGanttChart();
+            }
+        },
+        updateTask: function(taskId, updates) {
+            const taskIndex = tasksData.findIndex(task => task.id == taskId);
+            if (taskIndex > -1) {
+                tasksData[taskIndex] = {
+                    ...tasksData[taskIndex],
+                    ...updates
+                };
+                updateGanttChart();
+            }
+        },
+        refreshData: function(newTasks) {
+            tasksData = newTasks;
+            updateGanttChart();
+        },
+        getCurrentPeriod: function() {
+            return {
+                startDate: timelineData.startDate,
+                endDate: timelineData.endDate,
+                period: timelinePeriod
+            };
+        },
+        getVisibleTasks: function() {
+            return getVisibleTasks().filter(task => {
+                const startDate = task.start || task.startDate;
+                const endDate = task.finish || task.endDate;
+                if (!startDate || !endDate) return false;
+                const taskStart = new Date(startDate);
+                const taskEnd = new Date(endDate);
+                return !(taskEnd < timelineData.startDate || taskStart > timelineData.endDate);
+            });
+        }
+    };
+
+    // Event listeners for Laravel integration
+    document.addEventListener('taskSelected', function(e) {
+        const task = e.detail.task;
+        console.log('Task selected:', task);
+    });
+
+    document.addEventListener('taskUpdated', function(e) {
+        const updatedTask = e.detail.task;
+        console.log('Task updated:', updatedTask);
+        updateGanttChart();
+    });
+
+    document.addEventListener('taskDeleted', function(e) {
+        const taskId = e.detail.taskId;
+        window.GanttChart.removeTask(taskId);
+    });
+
+    document.addEventListener('taskAdded', function(e) {
+        const newTask = e.detail.task;
+        window.GanttChart.addTask(newTask);
+    });
+
+    // Initialize collapse state from DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.task-children.collapsed').forEach(container => {
+            const parentId = container.getAttribute('data-parent-id');
+            if (parentId) {
+                collapsedTasks.add(parentId);
+            }
+        });
+    });
+
+    // Enhanced modal functions
+    function openTaskModal(task) {
+        if (isModalAnimating) return;
+
+        const modal = document.getElementById('taskModal');
+        isModalAnimating = true;
+
+        populateModalContent(task);
+
+        document.body.classList.add('no-scroll');
+        const scrollY = window.scrollY;
+        document.body.style.top = `-${scrollY}px`;
+        document.body.dataset.scrollY = scrollY;
+
+        modal.style.display = 'flex';
+        modal.offsetHeight;
+        modal.classList.add('opening');
+
+        setTimeout(() => {
+            isModalAnimating = false;
+        }, 300);
+    }
+
+    function closeTaskModal() {
+        if (isModalAnimating) return;
+
+        const modal = document.getElementById('taskModal');
+        isModalAnimating = true;
+
+        modal.classList.remove('opening');
+        modal.classList.add('closing');
+
+        document.body.classList.remove('no-scroll');
+        const scrollY = document.body.dataset.scrollY || 0;
+        document.body.style.top = '';
+        window.scrollTo(0, parseInt(scrollY));
+
+        setTimeout(() => {
+            modal.classList.remove('closing');
+            modal.style.display = 'none';
+            isModalAnimating = false;
+        }, 300);
+    }
+
+    function populateModalContent(task) {
+        document.getElementById('taskName').textContent = task.name || 'Untitled Task';
+
+        const durationEl = document.getElementById('taskDuration');
+        durationEl.textContent = task.duration ? `${task.duration} days` : 'Not specified';
+        durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
+
+        const startDateEl = document.getElementById('taskStartDate');
+        startDateEl.textContent = task.start || task.startDate ? formatDate(task.start || task.startDate) : 'Not set';
+        startDateEl.className = (task.start || task.startDate) ? 'modal-field-value' : 'modal-field-value empty';
+
+        const finishDateEl = document.getElementById('taskFinishDate');
+        finishDateEl.textContent = task.finish || task.endDate ? formatDate(task.finish || task.endDate) : 'Not set';
+        finishDateEl.className = (task.finish || task.endDate) ? 'modal-field-value' : 'modal-field-value empty';
+
+        const descriptionEl = document.getElementById('taskDescription');
+        descriptionEl.textContent = task.description || 'No description available';
+        descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
+
+        const editBtn = document.getElementById('editTaskBtn');
+        const deleteBtn = document.getElementById('deleteTaskBtn');
+
+        if (editBtn && task.id) {
+            editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
+        }
+
+        if (deleteBtn && task.id) {
+            deleteBtn.onclick = function(e) {
+                e.preventDefault();
+                if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
+                    const form = document.getElementById('deleteTaskForm');
+                    form.action = `/tasks/${task.id}`;
+                    form.submit();
+                }
+            };
+        }
+    }
+
+    // Enhanced click handlers
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('taskModal');
+        if (e.target === modal && !isModalAnimating) {
+            closeTaskModal();
+        }
+
+        const taskNameCell = e.target.closest('.task-name-cell');
+        if (taskNameCell) {
+            const taskId = taskNameCell.getAttribute('data-task-id');
+            const task = tasksData.find(t => t.id == taskId);
+            if (task) {
+                openTaskModal(task);
+            }
+        }
+
+        if (e.target.closest('.gantt-bar')) {
+            const taskId = e.target.closest('.gantt-bar').getAttribute('data-task-id');
+            const task = tasksData.find(t => t.id == taskId);
+            if (task) {
+                openTaskModal(task);
             }
         }
     });
-}
 
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('taskModal');
-    if (modal) {
-        trapFocus(modal);
+    // Prevent double-tap zoom on mobile
+    document.addEventListener('touchend', function(e) {
+        if (e.target.closest('.modal-btn') || e.target.closest('.modal-close-x')) {
+            e.preventDefault();
+        }
+    });
+
+    // Add focus trap for accessibility
+    function trapFocus(element) {
+        const focusableElements = element.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        element.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                }
+            }
+        });
     }
-});
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('taskModal');
+        if (modal) {
+            trapFocus(modal);
+        }
+    });
 </script>
 @endsection
