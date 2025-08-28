@@ -1312,13 +1312,13 @@
                     Edit
                 </a>
                 
-               <!-- Tombol Delete di modal -->
-<a href="#" id="deleteTaskBtn" class="modal-btn modal-btn-danger">
+<a href="#" id="deleteTaskBtn" 
+   class="modal-btn modal-btn-danger flex items-center gap-2">
     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
-        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v4a1 1 0 11-2 0V7zM12 7a1 1 0 012 0v4a1 1 0 11-2 0V7z" clip-rule="evenodd"></path>
+        <path fill-rule="evenodd" d="M6.5 3a1 1 0 00-1 1v1H4a1 1 0 000 2h1v9a2 2 0 002 2h6a2 2 0 002-2V7h1a1 1 0 100-2h-1.5V4a1 1 0 00-1-1h-5zM7.5 5h5V4h-5v1zM7 7v8h6V7H7z" clip-rule="evenodd"></path>
+        <path d="M9 9v4M11 9v4"></path>
     </svg>
-    Delete
+    <span>Hapus</span>
 </a>
 
 <!-- Form hapus task (hidden) -->
