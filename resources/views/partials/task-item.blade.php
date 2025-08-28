@@ -62,14 +62,9 @@
     <!-- Duration Column -->
     <div class="task-cell w-20 text-center">
         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium duration-badge"
-              data-level="{{ $level }}"
-              @if($level === 0) class="bg-blue-500 text-white"
-              @elseif($level === 1) class="bg-green-500 text-white"
-              @elseif($level === 2) class="bg-purple-500 text-white"
-              @elseif($level === 3) class="bg-orange-500 text-white"
-              @elseif($level === 4) class="bg-red-500 text-white"
-              @else class="bg-gray-500 text-white"
-              @endif>
+              data-task-id="{{ $task->id }}"
+              data-parent-id="{{ $task->parent_id ?? '' }}"
+              id="duration-{{ $task->id }}">
             {{ $task->duration ?? 0 }}d
         </span>
     </div>
