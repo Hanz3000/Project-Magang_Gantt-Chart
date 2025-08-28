@@ -435,14 +435,19 @@
 }
     /* Duration Badges */
     .duration-badge {
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 10px;
-        font-weight: 500;
-        background-color: #f3f4f6;
-        color: #374151;
-        border: 1px solid #e5e7eb;
-    }
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;       /* Konsisten padding */
+    border-radius: 8px;      /* Biar lebih proporsional */
+    font-size: 12px;         /* Ukuran font seragam */
+    font-weight: 600;        /* Tebal konsisten */
+    min-width: 45px;         /* Supaya kotak lebar minimum sama */
+    text-align: center;
+    line-height: 1;          /* Hilangkan variasi tinggi font */
+    border: 1px solid #e5e7eb;
+    transition: background-color 0.2s ease;
+}
 
     /* Toggle Icons */
     .toggle-collapse {
