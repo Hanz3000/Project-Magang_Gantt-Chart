@@ -695,79 +695,129 @@
         }
     }
 
-    @media (max-width: 1024px) {
+   /* CSS untuk layout flexbox dan resizer */
+.task-list-container,
+.task-list-header-section {
+    flex: 0 0 50%; /* Lebar awal 50% */
+    min-width: 200px; /* Minimum lebar */
+    max-width: 80%; /* Maksimum lebar */
+    overflow: hidden;
+}
 
-        .task-list-container,
-        .task-list-header-section {
-            width: 45%;
-            min-width: 45%;
-            max-width: 45%;
-        }
+.gantt-view-container,
+.timeline-header-section {
+    flex: 1 1 auto; /* Mengisi sisa ruang */
+    min-width: 20%; /* Minimum untuk Gantt */
+    overflow: hidden;
+}
 
-        .gantt-view-container,
-        .timeline-header-section {
-            width: 55%;
-            min-width: 55%;
-            max-width: 55%;
-        }
+.resizer {
+    flex: 0 0 5px;
+    background-color: #d1d5db;
+    cursor: col-resize;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
 
-        .timeline-day,
-        .gantt-grid-cell {
-            width: 22px;
-            min-width: 22px;
-            max-width: 22px;
-        }
+.resizer:hover,
+.resizer.active {
+    background-color: #9ca3af;
+}
+
+.resizer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -5px;
+    width: 15px;
+    height: 100%;
+    background: transparent; /* Area hit lebih besar untuk drag */
+}
+
+.combined-header-container,
+.gantt-main-content {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Media Queries */
+@media (max-width: 1024px) {
+    .task-list-container,
+    .task-list-header-section {
+        flex: 0 0 45%; /* Lebar awal 45% */
+        min-width: 180px;
+        max-width: 70%;
     }
 
-    @media (max-width: 768px) {
-
-        .task-list-container,
-        .task-list-header-section {
-            width: 40%;
-            min-width: 40%;
-            max-width: 40%;
-        }
-
-        .gantt-view-container,
-        .timeline-header-section {
-            width: 60%;
-            min-width: 60%;
-            max-width: 60%;
-        }
-
-        .timeline-day,
-        .gantt-grid-cell {
-            width: 20px;
-            min-width: 20px;
-            max-width: 20px;
-        }
-
-        .month-navigation {
-            padding: 6px;
-            gap: 4px;
-        }
-
-        .nav-button,
-        .control-button {
-            padding: 4px 8px;
-            font-size: 11px;
-        }
-
-        .current-period {
-            min-width: 120px;
-            font-size: 12px;
-        }
-
-        /* Update responsive untuk date fields */
-        .date-fields-row {
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .date-field {
-            flex: 1 1 100%;
-        }
+    .gantt-view-container,
+    .timeline-header-section {
+        flex: 1 1 auto;
+        min-width: 30%;
     }
+
+    .timeline-day,
+    .gantt-grid-cell {
+        width: 22px;
+        min-width: 22px;
+        max-width: 22px;
+    }
+
+    .resizer {
+        flex: 0 0 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    .task-list-container,
+    .task-list-header-section {
+        flex: 0 0 40%; /* Lebar awal 40% */
+        min-width: 150px;
+        max-width: 60%;
+    }
+
+    .gantt-view-container,
+    .timeline-header-section {
+        flex: 1 1 auto;
+        min-width: 40%;
+    }
+
+    .timeline-day,
+    .gantt-grid-cell {
+        width: 20px;
+        min-width: 20px;
+        max-width: 20px;
+    }
+
+    .month-navigation {
+        padding: 6px;
+        gap: 4px;
+    }
+
+    .nav-button,
+    .control-button {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .current-period {
+        min-width: 120px;
+        font-size: 12px;
+    }
+
+    .date-fields-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .date-field {
+        flex: 1 1 100%;
+    }
+
+    .resizer {
+        flex: 0 0 5px;
+    }
+}
 
     /* Accessibility Improvements */
     .gantt-bar:focus {
@@ -1597,35 +1647,39 @@
     </div>
 </div>
 
-    <!-- Main Content -->
-    <div class="gantt-main-content">
-        <!-- Task List (50% width) -->
-        <div class="task-list-container">
-            <div class="task-list-body" id="taskListBody">
-                @if(isset($tasks) && $tasks->count() > 0)
+<!-- Main Content -->
+<div class="gantt-main-content">
+    <!-- Task List (50% width) -->
+    <div class="task-list-container">
+        <div class="task-list-body" id="taskListBody">
+            @if(isset($tasks) && $tasks->count() > 0)
                 @foreach($tasks as $task)
-                @include('partials.task-item', ['task' => $task, 'level' => 0])
+                    @include('partials.task-item', ['task' => $task, 'level' => 0])
                 @endforeach
-                @else
+            @else
                 <div class="p-8 text-center text-gray-500">
                     <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
                     </svg>
                     <p class="text-sm">Tidak ada tugas. Klik "Tambah Tugas" untuk memulai.</p>
                 </div>
-                @endif
-            </div>
-        </div>
-
-        <!-- Gantt View (50% width) -->
-        <div class="gantt-view-container">
-            <div class="gantt-content-container" id="ganttContent">
-                <div class="gantt-rows-container" id="ganttRowsContainer">
-                    <!-- Gantt bars will be generated by JavaScript -->
-                </div>
-            </div>
+            @endif
         </div>
     </div>
+
+    <!-- Resizer -->
+    <div class="resizer" id="resizer"></div>
+
+    <!-- Gantt View -->
+<div class="gantt-view-container">
+    <div class="gantt-content-container" id="ganttContent">
+        <div class="gantt-rows-container" id="ganttRowsContainer">
+            <!-- Gantt bars will be generated by JavaScript -->
+        </div>
+        <!-- Scale Handle untuk mengubah scale timeline -->
+        <div class="scale-handle" id="scaleHandle"></div>
+    </div>
+</div>
 </div>
 
 <script>
@@ -2499,10 +2553,97 @@ function setMonthYear(month, year) {
     // Update display currentPeriod
     updateCurrentPeriodDisplay();
 
-    // TODO: Jika nama fungsi refresh timeline berbeda di proyek Anda, ganti di sini.
-    // Contoh: jika ada fungsi custom seperti renderTimeline(currentDate, timelinePeriod), ganti ke itu.
     initializeTimeline(); // Panggil fungsi existing untuk update timeline
     updateGanttChart(); // Panggil fungsi existing untuk update Gantt bars
 }
+
+function initResizer() {
+    const resizer = document.getElementById('resizer');
+    if (!resizer) return;
+
+    const taskListContainer = resizer.previousElementSibling; // .task-list-container
+    const headerLeft = document.querySelector('.task-list-header-section');
+    let startX, startWidth;
+
+    // Load saved width dari localStorage
+    const savedWidth = localStorage.getItem('taskListWidth');
+    if (savedWidth) {
+        taskListContainer.style.flex = `0 0 ${savedWidth}`;
+        if (headerLeft) headerLeft.style.flex = `0 0 ${savedWidth}`;
+        updateGanttChart();
+        renderTimelineHeaders();
+    }
+
+    resizer.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        startX = e.clientX;
+        startWidth = taskListContainer.getBoundingClientRect().width;
+        resizer.classList.add('active');
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+
+    function onMouseMove(e) {
+        const dx = e.clientX - startX;
+        // Sesuaikan batasan berdasarkan media query
+        const maxWidth = window.matchMedia("(max-width: 1024px)").matches
+            ? window.innerWidth * 0.7 // Max 70% untuk layar <1024px
+            : window.innerWidth * 0.8; // Max 80% untuk layar besar
+        const newWidth = Math.max(180, Math.min(maxWidth, startWidth + dx)); // Min 180px
+        const newWidthPx = `${newWidth}px`;
+
+        taskListContainer.style.flex = `0 0 ${newWidthPx}`;
+        if (headerLeft) headerLeft.style.flex = `0 0 ${newWidthPx}`;
+
+        updateGanttChart();
+        renderTimelineHeaders();
+    }
+
+    function onMouseUp() {
+        resizer.classList.remove('active');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        localStorage.setItem('taskListWidth', taskListContainer.style.flex.split(' ')[2]);
+    }
+
+    // Support untuk touch devices
+    resizer.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        startX = e.touches[0].clientX;
+        startWidth = taskListContainer.getBoundingClientRect().width;
+        resizer.classList.add('active');
+
+        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchend', onTouchEnd);
+    });
+
+    function onTouchMove(e) {
+        const dx = e.touches[0].clientX - startX;
+        const maxWidth = window.matchMedia("(max-width: 1024px)").matches
+            ? window.innerWidth * 0.7
+            : window.innerWidth * 0.8;
+        const newWidth = Math.max(180, Math.min(maxWidth, startWidth + dx));
+        const newWidthPx = `${newWidth}px`;
+
+        taskListContainer.style.flex = `0 0 ${newWidthPx}`;
+        if (headerLeft) headerLeft.style.flex = `0 0 ${newWidthPx}`;
+
+        updateGanttChart();
+        renderTimelineHeaders();
+    }
+
+    function onTouchEnd() {
+        resizer.classList.remove('active');
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+
+        localStorage.setItem('taskListWidth', taskListContainer.style.flex.split(' ')[2]);
+    }
+}
+
+// Panggil initResizer setelah DOM ready
+document.addEventListener('DOMContentLoaded', initResizer);
 </script>
 @endsection
