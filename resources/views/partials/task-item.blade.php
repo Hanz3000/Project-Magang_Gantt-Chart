@@ -1,6 +1,10 @@
 @php
+    // Pastikan $level selalu didefinisikan, default ke 0 jika tidak ada
+    $level = $level ?? 0;
     $isParent = $task->children && $task->children->count() > 0;
     $indent = $level * 20; // Slightly increased for better hierarchy visibility
+    // Hitung padding berdasarkan level
+    $paddingLeft = $level > 0 ? ($indent - 12) : ($indent + 8);
 @endphp
 
 <!-- Task Row -->
@@ -10,7 +14,7 @@
      data-level="{{ $level }}"
      style="border-left: {{ $level > 0 ? '2px solid #e5e7eb' : 'none' }};">
 
-    <div class="task-cell flex items-center justify-center w-8">
+    <div class="task-cell flex items-center justify-center" style="width: 40px;">
         @if($isParent)
             <button class="toggle-collapse p-0.5 rounded hover:bg-gray-200 transition-colors duration-150"
                     data-task-id="{{ $task->id }}"
@@ -28,11 +32,10 @@
     </div>
 
     <!-- Task Name Column -->
-    <div class="task-name-cell flex-1 py-3 px-2"
+    <div class="task-name-cell py-3 px-2"
          data-task-id="{{ $task->id }}"
-         style="padding-left: {{ $level > 0 ? ($indent - 12) : $indent + 8 }}px;"> <!-- Mengurangi padding untuk subtask -->
-        
-        <div class="flex items-center {{ $level > 0 ? 'space-x-0.5' : 'space-x-1' }}"> <!-- Jarak lebih kecil untuk subtask -->
+         style="width: 250px; padding-left: {{ $paddingLeft }}px;">
+        <div class="flex items-center {{ $level > 0 ? 'space-x-0.5' : 'space-x-1' }}">
             @if($level > 0)
                 <!-- Subtask Icon -->
                 <div class="flex-shrink-0">
@@ -51,7 +54,6 @@
                     </div>
                 </div>
             @endif
-               
             <span class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors duration-200
                         @if($level === 0) text-base font-semibold @endif">
                 {{ $task->name }}
@@ -60,7 +62,7 @@
     </div>
 
     <!-- Duration Column -->
-    <div class="task-cell w-20 text-center">
+    <div class="task-cell shifted-right" style="width: 80px;">
         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium duration-badge"
               data-task-id="{{ $task->id }}"
               data-parent-id="{{ $task->parent_id ?? '' }}"
@@ -70,14 +72,14 @@
     </div>
 
     <!-- Start Date Column -->
-    <div class="task-cell w-24 text-center">
+    <div class="task-cell shifted-right" style="width: 100px;">
         <span class="text-sm text-gray-600 font-mono">
             {{ $task->start ? \Carbon\Carbon::parse($task->start)->format('j-n-y') : '-' }}
         </span>
     </div>
 
     <!-- Finish Date Column -->
-    <div class="task-cell w-24 text-center">
+    <div class="task-cell shifted-right" style="width: 100px;">
         <span class="text-sm text-gray-600 font-mono">
             {{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('j-n-y') : '-' }}
         </span>

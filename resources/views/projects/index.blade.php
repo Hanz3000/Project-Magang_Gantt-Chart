@@ -1310,6 +1310,84 @@
         color: #dc2626;
         font-weight: 700;
     }
+.task-header-row {
+    display: grid;
+    grid-template-columns: 40px 250px 80px 100px 100px;
+    height: 32px;
+    align-items: center;
+    padding: 0 8px;
+    border-bottom: 1px solid #d1d5db;
+    position: relative;
+}
+
+.task-header-cell {
+    padding: 4px 0;
+    text-align: center;
+    border-right: 1px solid #e5e7eb;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.task-header-cell:first-child {
+    text-align: left;
+}
+
+.shifted-right {
+    position: relative;
+    left: 150px; /* Geser ke kanan sebanyak 150px, sesuaikan sesuai kebutuhan */
+    transition: left 0.3s ease; /* Efek transisi untuk pergeseran */
+}
+
+.shifted {
+    position: relative;
+    left: 0; /* Kembali ke posisi awal (kiri) */
+    transition: left 0.3s ease; /* Tetap biarkan transisi untuk fleksibilitas */
+}
+
+.task-row {
+    display: grid;
+    grid-template-columns: 40px 250px 80px 100px 100px;
+    height: 32px;
+    align-items: center;
+    padding: 0 8px;
+    border-bottom: 1px solid #f1f5f9;
+    background: white;
+    font-size: 11px;
+    transition: background-color 0.1s ease;
+    max-width: 100%;
+    position: relative;
+}
+
+.task-cell {
+    padding: 2px 0;
+    text-align: center;
+    border-right: 1px solid #f1f5f9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.task-cell:first-child {
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+.task-name-cell {
+    text-align: left;
+    width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+
 </style>
 
 <div class="gantt-container">
@@ -1341,26 +1419,26 @@
                 </button>
             </div>
 
-            <button class="control-button" onclick="expandAll()" title="Expand All Tasks">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                </svg>
-                Expand
-            </button>
+<button class="control-button flex items-center gap-1" onclick="expandAll()" title="Perluas Semua Tugas">
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 111.08 1.04l-4.25 4.65a.75.75 0 01-1.08 0l-4.25-4.65a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+    </svg>
+    <span>Perluas</span>
+</button>
 
-            <button class="control-button" onclick="collapseAll()" title="Collapse All Tasks">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                </svg>
-                Collapse
-            </button>
 
+<button class="control-button" onclick="collapseAll()" title="Ciutkan Semua Tugas">
+    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+    </svg>
+    Ciutkan
+</button>
             @if(isset($createRoute))
-            <a href="{{ $createRoute }}" class="control-button primary" title="Add New Task">
+            <a href="{{ $createRoute }}" class="control-button primary" title="Tambah Tugas Baru">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
                 </svg>
-                Add Task
+                Tambah Tugas Baru
             </a>
             @endif
         </div>
@@ -1376,25 +1454,25 @@
 
             <div class="modal-body">
                 <div class="modal-field">
-                    <div class="modal-field-label">Duration</div>
+                    <div class="modal-field-label">Durasi</div>
                     <div class="modal-field-value" id="taskDuration">-</div>
                 </div>
 
                 <!-- Start Date dan Finish Date bersebelahan -->
                 <div class="date-fields-row">
                     <div class="date-field">
-                        <div class="modal-field-label">Start Date</div>
+                        <div class="modal-field-label">Tanggal Mulai</div>
                         <div class="modal-field-value" id="taskStartDate">-</div>
                     </div>
                     <div class="date-field">
-                        <div class="modal-field-label">Finish Date</div>
+                        <div class="modal-field-label">Tanggal Selesai</div>
                         <div class="modal-field-value" id="taskFinishDate">-</div>
                     </div>
                 </div>
 
                 <div class="modal-field">
-                    <div class="modal-field-label">Description</div>
-                    <div class="modal-field-value" id="taskDescription">No description available</div>
+                    <div class="modal-field-label">Deskripsi</div>
+                    <div class="modal-field-value" id="taskDescription">Tidak ada deskripsi tersedia</div>
                 </div>
             </div>
 
@@ -1431,62 +1509,62 @@
         </div>
     </div>
 
-    <!-- Month Navigation -->
-    <div class="month-navigation">
-        <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Previous Month (Alt + Left Arrow)">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            Previous
-        </button>
+   <!-- Navigasi Bulan -->
+<div class="month-navigation">
+    <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+        </svg>
+        Sebelumnya
+    </button>
 
-        <div class="current-period" id="currentPeriod">
-            January 2025
-        </div>
-
-        <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Next Month (Alt + Right Arrow)">
-            Next
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-        </button>
-
-        <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Select Timeline Period">
-            <option value="1">1 Month</option>
-            <option value="3" selected>3 Months</option>
-            <option value="6">6 Months</option>
-            <option value="12">1 Year</option>
-        </select>
-
-        <button class="nav-button" onclick="goToToday()" title="Go to Today (Alt + Home)">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-            </svg>
-            Hari ini
-        </button>
+    <div class="current-period" id="currentPeriod">
+        Januari 2025
     </div>
 
-    <!-- Combined Header -->
-    <div class="combined-header-container">
-        <!-- Task List Header Section -->
-        <div class="task-list-header-section">
-            <div class="task-header-row">
-                <div class="task-header-cell" style="width: 40px;"></div>
-                <div class="task-header-cell" style="text-align: left;">Task Name</div>
-                <div class="task-header-cell">Duration</div>
-                <div class="task-header-cell">Start</div>
-                <div class="task-header-cell">Finish</div>
-            </div>
-        </div>
+    <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya (Alt + Panah Kanan)">
+        Berikutnya
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+        </svg>
+    </button>
 
-        <!-- Timeline Header Section -->
-        <div class="timeline-header-section" id="timelineHeaderSection">
-            <div class="timeline-header-container">
-                <div id="monthHeaderContainer"></div>
-                <div id="dayHeaderContainer"></div>
-            </div>
+    <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Pilih Periode Timeline">
+        <option value="1">1 Bulan</option>
+        <option value="3" selected>3 Bulan</option>
+        <option value="6">6 Bulan</option>
+        <option value="12">1 Tahun</option>
+    </select>
+
+    <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini (Alt + Home)">
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+        </svg>
+        Hari Ini
+    </button>
+</div>
+
+   <!-- Combined Header -->
+<div class="combined-header-container">
+    <!-- Task List Header Section -->
+    <div class="task-list-header-section">
+        <div class="task-header-row">
+            <div class="task-header-cell" style="width: 40px;"></div>
+            <div class="task-header-cell shifted" style="width: 250px; text-align: left; padding: 0 8px;">Nama Tugas</div>
+            <div class="task-header-cell shifted-right" style="width: 80px; text-align: center; padding: 0 8px;">Durasi</div>
+            <div class="task-header-cell shifted-right" style="width: 100px; text-align: center; padding: 0 8px;">Mulai</div>
+            <div class="task-header-cell shifted-right" style="width: 100px; text-align: center; padding: 0 8px;">Selesai</div>
         </div>
     </div>
+
+    <!-- Timeline Header Section -->
+    <div class="timeline-header-section" id="timelineHeaderSection">
+        <div class="timeline-header-container">
+            <div id="monthHeaderContainer"></div>
+            <div id="dayHeaderContainer"></div>
+        </div>
+    </div>
+</div>
 
     <!-- Main Content -->
     <div class="gantt-main-content">
@@ -1502,7 +1580,7 @@
                     <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
                     </svg>
-                    <p class="text-sm">No tasks available. Click "Add Task" to get started.</p>
+                    <p class="text-sm">Tidak ada tugas. Klik "Tambah Tugas" untuk memulai.</p>
                 </div>
                 @endif
             </div>
@@ -2148,7 +2226,7 @@ function populateModalContent(task) {
 
     const descriptionEl = document.getElementById('taskDescription');
     if (descriptionEl) {
-        descriptionEl.textContent = task.description || 'No description available';
+        descriptionEl.textContent = task.description || 'Deskripsi tidak tersedia';
         descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
     } else console.error('taskDescription element not found!');
 
@@ -2183,10 +2261,10 @@ function populateModalContent(task) {
     colorPickerContainer.id = 'colorPickerContainer';
     colorPickerContainer.className = 'modal-field';
     colorPickerContainer.innerHTML = `
-        <label class="modal-field-label">Subtree Color for Level ${relLevel} (Affects only this family)</label>
+        <label class="modal-field-label">Ubah Warna Level ${relLevel}</label>
         <div style="display: flex; gap: 8px; align-items: center;">
             <input type="color" id="levelColorPicker" value="${bgColor}">
-            <button id="resetColorBtn" class="modal-btn modal-btn-secondary">Reset to Default</button>
+            <button id="resetColorBtn" class="modal-btn modal-btn-secondary">Reset Warna</button>
         </div>
     `;
     const modalBody = document.querySelector('.modal-body');
