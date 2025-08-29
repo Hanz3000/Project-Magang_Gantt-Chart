@@ -1387,6 +1387,16 @@
     align-items: center;
 }
 
+/* CSS kustom untuk transisi lebih halus */
+#dateModal.show {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    opacity: 1;
+}
+#dateModal.show > div {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
 
 </style>
 
@@ -1509,39 +1519,60 @@
         </div>
     </div>
 
-   <!-- Navigasi Bulan -->
-<div class="month-navigation">
-    <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
-        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-        </svg>
-        Sebelumnya
-    </button>
+    <!-- Navigasi Bulan -->
+    <div class="month-navigation">
+        <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            Sebelumnya
+        </button>
 
-    <div class="current-period" id="currentPeriod">
-        Januari 2025
+        <div class="current-period cursor-pointer bg-blue-100 border-blue-300 text-gray-800 font-semibold text-sm text-center px-4 py-2 rounded" id="currentPeriod" onclick="openDateModal()">
+            Januari 2025
+        </div>
+
+        <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya (Alt + Panah Kanan)">
+            Berikutnya
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+
+        <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Pilih Periode Timeline">
+            <option value="1">1 Bulan</option>
+            <option value="3" selected>3 Bulan</option>
+            <option value="6">6 Bulan</option>
+            <option value="12">1 Tahun</option>
+        </select>
+
+        <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini (Alt + Home)">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+            </svg>
+            Hari Ini
+        </button>
     </div>
 
-    <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya (Alt + Panah Kanan)">
-        Berikutnya
-        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-        </svg>
-    </button>
-
-    <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Pilih Periode Timeline">
-        <option value="1">1 Bulan</option>
-        <option value="3" selected>3 Bulan</option>
-        <option value="6">6 Bulan</option>
-        <option value="12">1 Tahun</option>
-    </select>
-
-    <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini (Alt + Home)">
-        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-        </svg>
-        Hari Ini
-    </button>
+    <!-- Modal Pemilih Bulan/Tahun -->
+<div id="dateModal" class="fixed inset-0 bg-black bg-opacity-0 backdrop-blur-none flex items-center justify-center z-[1000] transition-all duration-400 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle" style="display: none;">
+    <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform translate-y-10 scale-95 opacity-0 transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]">
+        <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
+            <h4 id="dateModalTitle" class="text-lg font-semibold">Pilih Bulan dan Tahun</h4>
+            <button class="text-2xl font-bold hover:bg-white/20 rounded p-1 transition" onclick="closeDateModal()" aria-label="Tutup modal">&times;</button>
+        </div>
+        <div class="p-4">
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(-1)" aria-label="Tahun sebelumnya">&lt;</button>
+                <input type="number" id="modalYearInput" class="w-20 text-center border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Tahun saat ini">
+                <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(1)" aria-label="Tahun berikutnya">&gt;</button>
+            </div>
+            <div id="modalMonthsGrid" class="grid grid-cols-3 gap-2 sm:grid-cols-2"></div>
+        </div>
+        <div class="bg-gray-50 p-4 text-right">
+            <button class="bg-gray-100 border border-gray-300 rounded px-4 py-2 hover:bg-gray-200 transition" onclick="closeDateModal()">Batal</button>
+        </div>
+    </div>
 </div>
 
    <!-- Combined Header -->
@@ -1607,10 +1638,11 @@ let timelineData = {
     endDate: null,
     days: []
 };
-
 let tasksData = [];
 let collapsedTasks = new Set(); // Track collapsed tasks
 let isModalAnimating = false;
+// Nama bulan dalam bahasa Indonesia
+const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
 @if(isset($structuredTasks) && count($structuredTasks) > 0)
 tasksData = @json($structuredTasks);
@@ -1618,6 +1650,12 @@ tasksData = @json($structuredTasks);
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Tasks data:', tasksData); // Debug log
+    const yearInput = document.getElementById('modalYearInput');
+    if (yearInput) {
+        yearInput.addEventListener('input', renderModalMonths);
+    }
+
+    
 
     // Load warna dari localStorage saat halaman dimuat
     for (let i = 0; i < 6; i++) {
@@ -2381,6 +2419,90 @@ function updateDurationBadgeColors() {
             durationElement.style.border = `1px solid ${borderColor}`;
         }
     });
+}
+
+// Fungsi buka modal
+function openDateModal() {
+    const modal = document.getElementById('dateModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('show'), 10); // Trigger animasi setelah display: flex
+
+    const yearInput = document.getElementById('modalYearInput');
+    yearInput.value = currentDate.getFullYear(); // Set tahun awal dari currentDate
+    renderModalMonths(); // Render grid bulan
+    yearInput.focus(); // Fokus ke input tahun untuk aksesibilitas
+
+    // Handler klik luar untuk tutup
+    modal.addEventListener('click', outsideClickHandler);
+    // Handler ESC
+    document.addEventListener('keydown', escKeyHandler);
+}
+
+// Fungsi tutup modal
+function closeDateModal() {
+    const modal = document.getElementById('dateModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    setTimeout(() => modal.style.display = 'none', 400); // Tunggu animasi selesai (400ms)
+
+    // Hapus listener
+    modal.removeEventListener('click', outsideClickHandler);
+    document.removeEventListener('keydown', escKeyHandler);
+}
+
+// Handler klik luar modal
+function outsideClickHandler(e) {
+    if (!e.target.closest('.bg-white') && e.target.id === 'dateModal') closeDateModal();
+}
+
+// Handler ESC key
+function escKeyHandler(e) {
+    if (e.key === 'Escape') closeDateModal();
+}
+
+// Render grid bulan di modal
+function renderModalMonths() {
+    const grid = document.getElementById('modalMonthsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    const modalYear = parseInt(document.getElementById('modalYearInput').value) || currentYear;
+
+    monthNames.forEach((name, index) => {
+        const btn = document.createElement('button');
+        btn.className = `p-3 rounded border border-gray-300 text-sm font-medium transition ${
+            index === currentMonth && modalYear === currentYear
+                ? 'bg-blue-600 text-white border-blue-700'
+                : 'bg-gray-50 hover:bg-gray-100'
+        }`;
+        btn.textContent = name;
+        btn.onclick = () => setMonthYear(index, modalYear);
+        grid.appendChild(btn);
+    });
+}
+
+// Ubah tahun di modal
+function changeModalYear(direction) {
+    const yearInput = document.getElementById('modalYearInput');
+    yearInput.value = parseInt(yearInput.value) + direction;
+    renderModalMonths(); // Re-render grid dengan tahun baru
+}
+
+// Set bulan/tahun terpilih, update currentDate, dan refresh timeline
+function setMonthYear(month, year) {
+    currentDate = new Date(year, month, 1); // Update global currentDate
+    closeDateModal(); // Tutup modal
+
+    // Update display currentPeriod
+    updateCurrentPeriodDisplay();
+
+    // TODO: Jika nama fungsi refresh timeline berbeda di proyek Anda, ganti di sini.
+    // Contoh: jika ada fungsi custom seperti renderTimeline(currentDate, timelinePeriod), ganti ke itu.
+    initializeTimeline(); // Panggil fungsi existing untuk update timeline
+    updateGanttChart(); // Panggil fungsi existing untuk update Gantt bars
 }
 </script>
 @endsection
