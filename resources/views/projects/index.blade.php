@@ -2207,16 +2207,16 @@ function populateModalContent(task) {
     if (taskNameEl) taskNameEl.textContent = task.name || 'Untitled Task';
 
     const durationEl = document.getElementById('taskDuration');
-    if (durationEl) {
-        durationEl.textContent = task.duration ? `${task.duration} days` : 'Not specified';
-        durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
-    } else console.error('taskDuration element not found!');
+if (durationEl) {
+    durationEl.textContent = task.duration ? `${task.duration} hari` : 'Tidak ditentukan';
+    durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
+} else console.error('Elemen taskDuration tidak ditemukan!');
 
-    const startDateEl = document.getElementById('taskStartDate');
-    if (startDateEl) {
-        startDateEl.textContent = task.startDate ? formatDate(task.startDate) : 'Not set';
-        startDateEl.className = task.startDate ? 'modal-field-value' : 'modal-field-value empty';
-    } else console.error('taskStartDate element not found!');
+const startDateEl = document.getElementById('taskStartDate');
+if (startDateEl) {
+    startDateEl.textContent = task.startDate ? formatDate(task.startDate) : 'Tidak diatur';
+    startDateEl.className = task.startDate ? 'modal-field-value' : 'modal-field-value empty';
+} else console.error('Elemen taskStartDate tidak ditemukan!');
 
     const finishDateEl = document.getElementById('taskFinishDate');
     if (finishDateEl) {
