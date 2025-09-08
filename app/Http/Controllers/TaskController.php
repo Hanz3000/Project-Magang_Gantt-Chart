@@ -4,25 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class TaskController extends Controller
 {
     public function index()
-{
-    $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order,description')
-        ->whereNull('parent_id')
-        ->orderBy('order')
-        ->get();
+    {
+        $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order,description,user_id')
+            ->whereNull('parent_id')
+            ->where('user_id', Auth::id()) // hanya tampilkan task user login
+            ->orderBy('order')
+            ->get();
 
-    $structuredTasks = $this->buildTaskTree($tasks);
+        $structuredTasks = $this->buildTaskTree($tasks);
 
-    return view('projects.index', [
-        'tasks' => $tasks,
-        'structuredTasks' => $structuredTasks,
-        'createRoute' => route('tasks.create')
-    ]);
-}
+        return view('projects.index', [
+            'tasks' => $tasks,
+            'structuredTasks' => $structuredTasks,
+            'createRoute' => route('tasks.create')
+        ]);
+    }
 
     private function buildTaskTree($tasks, $level = 0)
     {
@@ -57,7 +59,8 @@ class TaskController extends Controller
 
     public function create()
     {
-        $parents = Task::all();
+        // hanya ambil parent task milik user login
+        $parents = Task::where('user_id', Auth::id())->get();
         return view('projects.create', compact('parents'));
     }
 
@@ -83,7 +86,9 @@ class TaskController extends Controller
         $level    = 0;
 
         if ($request->parent_id) {
-            $parent = Task::find($request->parent_id);
+            $parent = Task::where('id', $request->parent_id)
+                ->where('user_id', Auth::id()) // parent juga harus milik user login
+                ->first();
 
             if ($parent) {
                 $level = $parent->level + 1;
@@ -101,7 +106,7 @@ class TaskController extends Controller
             }
         }
 
-        $maxOrder = Task::max('order') ?? 0;
+        $maxOrder = Task::where('user_id', Auth::id())->max('order') ?? 0;
 
         Task::create([
             'name'        => $request->name,
@@ -113,6 +118,7 @@ class TaskController extends Controller
             'level'       => $level,
             'order'       => $maxOrder + 1,
             'description' => $request->description,
+            'user_id'     => Auth::id(), // tambahkan user_id
         ]);
 
         return redirect()->route('tasks.index')
@@ -132,19 +138,26 @@ class TaskController extends Controller
         if ($newFinish > $taskFinish) {
             $task->finish   = $newFinish;
             $task->duration = intval($taskStart->diffInDays($newFinish) + 1);
-
             $task->save();
 
             if ($task->parent_id) {
                 $parent = Task::find($task->parent_id);
-                $this->updateParentRecursively($parent, $newFinish);
+                if ($parent && $parent->user_id === Auth::id()) {
+                    $this->updateParentRecursively($parent, $newFinish);
+                }
             }
         }
     }
 
     public function edit(Task $task)
     {
-        $parents = Task::where('id', '!=', $task->id)
+        // Pastikan hanya user pemilik task yang bisa edit
+        if ($task->user_id !== Auth::id()) {
+            return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak mengedit task ini.');
+        }
+
+        $parents = Task::where('user_id', Auth::id())
+            ->where('id', '!=', $task->id)
             ->whereNotIn('id', $this->getDescendantIds($task))
             ->get();
 
@@ -153,6 +166,10 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
+        if ($task->user_id !== Auth::id()) {
+            return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak mengupdate task ini.');
+        }
+
         $request->validate([
             'name'        => 'required|string|max:255',
             'duration'    => 'required|integer|min:1',
@@ -176,7 +193,9 @@ class TaskController extends Controller
         $level    = 0;
 
         if ($request->parent_id) {
-            $parent = Task::find($request->parent_id);
+            $parent = Task::where('id', $request->parent_id)
+                ->where('user_id', Auth::id())
+                ->first();
 
             if ($parent) {
                 $parentStart = Carbon::parse($parent->start, 'Asia/Jakarta')->startOfDay();
@@ -199,66 +218,17 @@ class TaskController extends Controller
             'level'       => $level,
         ]);
 
-        if ($request->parent_id) {
-            $parent = Task::find($request->parent_id);
-            if ($parent) {
-                $maxFinishStr = $parent->children()->max('finish');
-                $maxFinish    = $maxFinishStr ? Carbon::parse($maxFinishStr, 'Asia/Jakarta')->startOfDay() : null;
+        if ($request->parent_id && isset($parent)) {
+            $maxFinishStr = $parent->children()->max('finish');
+            $maxFinish    = $maxFinishStr ? Carbon::parse($maxFinishStr, 'Asia/Jakarta')->startOfDay() : null;
 
-                if ($maxFinish) {
-                    $this->updateParentRecursively($parent, $maxFinish);
-                }
+            if ($maxFinish) {
+                $this->updateParentRecursively($parent, $maxFinish);
             }
         }
-
-        $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order')
-            ->whereNull('parent_id')
-            ->orderBy('order')
-            ->get();
-        $structuredTasks = $this->buildTaskTree($tasks);
 
         return redirect()->route('tasks.index')
-            ->with([
-                'success' => 'Task berhasil diupdate!',
-                'structuredTasks' => $structuredTasks
-            ]);
-    }
-
-    private function structureTasks($tasks)
-    {
-        $structured = [];
-        $taskMap = [];
-
-        foreach ($tasks as $task) {
-            $startDate = $task->start ? Carbon::parse($task->start)->format('Y-m-d') : null;
-            $endDate   = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
-
-            $taskArray = [
-                'id'          => $task->id,
-                'name'        => $task->name,
-                'startDate'   => $startDate,
-                'endDate'     => $endDate,
-                'duration'    => $task->duration,
-                'level'       => $task->level,
-                'status'      => $task->status ?? 'pending',
-                'progress'    => $task->progress ?? 0,
-                'parent_id'   => $task->parent_id,
-                'order'       => $task->order ?? 0,
-                'description' => $task->description ?? null,
-                'children'    => []
-            ];
-            $taskMap[$task->id] = $taskArray;
-        }
-
-        foreach ($tasks as $task) {
-            if ($task->parent_id && isset($taskMap[$task->parent_id])) {
-                $taskMap[$task->parent_id]['children'][] = $taskMap[$task->id];
-            } else {
-                $structured[] = $taskMap[$task->id];
-            }
-        }
-
-        return $structured;
+            ->with('success', 'Task berhasil diupdate!');
     }
 
     private function getDescendantIds(Task $task)
@@ -278,9 +248,12 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
+        if ($task->user_id !== Auth::id()) {
+            return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak menghapus task ini.');
+        }
+
         try {
             if ($task->children()->count() > 0) {
-                // Menghapus tugas utama beserta sub-task dengan alert
                 $task->children()->delete();
                 $task->delete();
                 return redirect()->route('tasks.index')

@@ -28,7 +28,13 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Masuk</h2>
+       <!-- Tambahkan judul utama -->
+        <h1 class="text-3xl font-bold text-blue-600 text-center mb-2 uppercase tracking-wide">
+            Project MANAGEMENT
+        </h1>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">
+            Masuk
+        </h2>
 
         <!-- Menampilkan error validasi -->
         @if ($errors->any())

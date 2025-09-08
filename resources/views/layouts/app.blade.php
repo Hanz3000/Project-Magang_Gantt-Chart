@@ -13,9 +13,34 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
-    <nav class="bg-blue-600 text-white px-6 py-3">
-        <a href="{{ route('projects.index') }}" class="font-bold">Project Management</a>
-    </nav>
+    <!-- Navbar -->
+   <nav class="bg-blue-600 text-white px-6 py-3 flex justify-between items-center">
+    <a href="{{ route('projects.index') }}" class="font-bold text-lg">
+        Project Management
+    </a>
+
+    @auth
+        @if(Route::currentRouteName() === 'tasks.index')
+            <div class="flex items-center gap-4">
+                <span>Halo, <strong>{{ Auth::user()->name }}</strong></span>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        @endif
+    @endauth
+
+    @guest
+        <div class="flex items-center gap-4">
+            <a href="{{ route('login') }}" class="hover:underline">Login</a>
+            <a href="{{ route('register') }}" class="hover:underline">Register</a>
+        </div>
+    @endguest
+</nav>
+
 
     <!-- Main content fleksibel -->
     <main class="flex-1 p-6 overflow-visible">
