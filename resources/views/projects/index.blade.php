@@ -15,6 +15,7 @@
     --level-4-border: #d10e20;
     --level-5-bg: #5c2d91;
     --level-5-border: #522982;
+    --day-width: 24px; /* Fixed day width */
 }
 
     .gantt-container {
@@ -47,27 +48,27 @@
         overflow: hidden;
     }
 
-    /* Task List - 50% width */
+    /* Task List - Variable width with resizer */
     .task-list-container {
-        width: 50%;
-        min-width: 50%;
-        max-width: 50%;
+        width: 400px; /* Default fixed width in pixels */
+        min-width: 200px;
+        max-width: 80%;
         display: flex;
         flex-direction: column;
         border-right: 1px solid #d1d5db;
         background: #ffffff;
         overflow: hidden;
+        flex-shrink: 0; /* Prevent shrinking */
     }
 
-    /* Gantt View - 50% width */
+    /* Gantt View - Takes remaining space */
     .gantt-view-container {
-        width: 50%;
-        min-width: 50%;
-        max-width: 50%;
+        flex: 1; /* Takes all remaining space */
         display: flex;
         flex-direction: column;
         background: white;
         overflow: hidden;
+        min-width: 0; /* Allow shrinking */
     }
 
     /* Combined Header Container */
@@ -82,20 +83,19 @@
     }
 
     .task-list-header-section {
-        width: 50%;
-        min-width: 50%;
-        max-width: 50%;
+        width: 400px; /* Match task-list-container */
+        min-width: 200px;
+        max-width: 80%;
         border-right: 1px solid #d1d5db;
         overflow: hidden;
+        flex-shrink: 0;
     }
 
     .timeline-header-section {
+        flex: 1; /* Takes remaining space */
         overflow-x: hidden !important;
-        /* Hilangkan scrollbar horizontal */
         overflow-y: hidden;
-        width: 50%;
-        min-width: 50%;
-        max-width: 50%;
+        min-width: 0;
     }
 
     .timeline-header-section::-webkit-scrollbar {
@@ -104,15 +104,16 @@
 
     .task-header-row {
         display: grid;
-        grid-template-columns: 40px 1fr 80px 80px 80px;
+        grid-template-columns: 40px 250px 80px 100px 100px;
         height: 32px;
         align-items: center;
         padding: 0 8px;
         border-bottom: 1px solid #d1d5db;
+        position: relative;
     }
 
     .task-header-cell {
-        padding: 4px 8px;
+        padding: 4px 0;
         text-align: center;
         border-right: 1px solid #e5e7eb;
         font-size: 11px;
@@ -125,6 +126,18 @@
 
     .task-header-cell:first-child {
         text-align: left;
+    }
+
+    .shifted-right {
+        position: relative;
+        left: 150px;
+        transition: left 0.3s ease;
+    }
+
+    .shifted {
+        position: relative;
+        left: 0;
+        transition: left 0.3s ease;
     }
 
     /* Task List Body */
@@ -145,7 +158,6 @@
         -ms-overflow-style: none;
         max-width: 100%;
         width: fit-content;
-        /* Lebar sesuai konten */
         min-width: 100%;
     }
 
@@ -153,19 +165,13 @@
         display: none;
     }
 
-    /* Pastikan gantt-content-container selalu memiliki scrollbar horizontal */
     .gantt-content-container {
         overflow-x: auto !important;
-        /* Selalu tampilkan scrollbar horizontal */
         overflow-y: auto !important;
-        /* Scroll vertikal tetap aktif */
         max-height: none !important;
         max-width: 100%;
         scrollbar-width: thin;
-        /* Untuk Firefox */
-        /* Tambahkan padding-bottom agar scrollbar selalu terlihat di bawah */
         padding-bottom: 10px;
-        /* Sesuaikan sesuai kebutuhan */
     }
 
     body.no-scroll {
@@ -175,7 +181,7 @@
         height: 100%;
     }
 
-    /* Timeline Grid */
+    /* Timeline Grid - Fixed day width */
     .month-header {
         display: flex;
         border-bottom: 1px solid #d1d5db;
@@ -206,10 +212,11 @@
         min-width: fit-content;
     }
 
+    /* Fixed day width - always 24px regardless of zoom or resizer */
     .timeline-day {
-        width: 24px;
-        min-width: 24px;
-        max-width: 24px;
+        width: var(--day-width);
+        min-width: var(--day-width);
+        max-width: var(--day-width);
         flex-shrink: 0;
         text-align: center;
         border-right: 1px solid #e5e7eb;
@@ -221,11 +228,30 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .timeline-day::after {
+        content: attr(data-dayname);
+        font-size: 7px;
+        font-weight: 400;
+        color: #6b7280;
+        position: absolute;
+        bottom: 1px;
+        width: 100%;
+        text-align: center;
+        line-height: 1;
     }
 
     .timeline-day.weekend {
-        background-color: #f3f4f6;
-        color: #9ca3af;
+        background-color: #fef2f2;
+        color: #dc2626;
+    }
+
+    .timeline-day.weekend::after {
+        color: #dc2626;
+        font-weight: 600;
     }
 
     .timeline-day.today {
@@ -234,10 +260,25 @@
         font-weight: 700;
     }
 
+    .timeline-day.today::after {
+        color: #1e40af;
+        font-weight: 600;
+    }
+
+    .timeline-day.sunday {
+        background-color: #fef2f2;
+        color: #dc2626;
+    }
+
+    .timeline-day.sunday::after {
+        color: #dc2626;
+        font-weight: 700;
+    }
+
     /* Task Rows */
     .task-row {
         display: grid;
-        grid-template-columns: 40px 1fr 80px 80px 80px;
+        grid-template-columns: 40px 250px 80px 100px 100px;
         height: 32px;
         align-items: center;
         padding: 0 8px;
@@ -246,6 +287,7 @@
         font-size: 11px;
         transition: background-color 0.1s ease;
         max-width: 100%;
+        position: relative;
     }
 
     .task-row:nth-child(even) {
@@ -270,7 +312,7 @@
     }
 
     .task-cell {
-        padding: 2px 4px;
+        padding: 2px 0;
         text-align: center;
         border-right: 1px solid #f1f5f9;
         overflow: hidden;
@@ -286,9 +328,7 @@
 
     .task-name-cell {
         text-align: left;
-        padding-left: 4px;
-        font-weight: 500;
-        color: #374151;
+        width: 250px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -296,7 +336,7 @@
         align-items: center;
     }
 
-    /* Gantt Rows */
+    /* Gantt Rows - Fixed day width */
     .gantt-row {
         height: 32px;
         position: relative;
@@ -319,10 +359,11 @@
         display: none;
     }
 
+    /* Fixed grid cell width */
     .gantt-grid-cell {
-        width: 24px;
-        min-width: 24px;
-        max-width: 24px;
+        width: var(--day-width);
+        min-width: var(--day-width);
+        max-width: var(--day-width);
         height: 32px;
         border-right: 1px solid #f1f5f9;
         flex-shrink: 0;
@@ -334,7 +375,6 @@
 
     .gantt-grid-cell.today {
         background-color: #dbeafe;
-        /* Biru muda, sama dengan timeline-day.today */
         border-left: 2px solid #1e40af;
         border-right: 2px solid #1e40af;
     }
@@ -438,13 +478,13 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 4px 8px;       /* Konsisten padding */
-    border-radius: 8px;      /* Biar lebih proporsional */
-    font-size: 12px;         /* Ukuran font seragam */
-    font-weight: 600;        /* Tebal konsisten */
-    min-width: 45px;         /* Supaya kotak lebar minimum sama */
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 45px;
     text-align: center;
-    line-height: 1;          /* Hilangkan variasi tinggi font */
+    line-height: 1;
     border: 1px solid #e5e7eb;
     transition: background-color 0.2s ease;
 }
@@ -472,14 +512,10 @@
         transform: rotate(90deg);
     }
 
-
     .gantt-rows-container {
         width: fit-content;
-        /* Lebar sesuai konten (jumlah hari di timeline) */
         min-width: 100%;
-        /* Mengisi parent */
         overflow-x: visible;
-        /* Cegah pemotongan */
         display: block;
     }
 
@@ -643,8 +679,6 @@
         padding: 0 4px;
     }
 
-
-
     /* Loading States */
     .gantt-bar.loading {
         background: #e5e7eb !important;
@@ -652,15 +686,8 @@
     }
 
     @keyframes pulse {
-
-        0%,
-        100% {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.7;
-        }
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
     }
 
     /* Task Children Container */
@@ -670,6 +697,33 @@
 
     .task-children.collapsed {
         display: none;
+    }
+
+    /* Resizer Styles */
+    .resizer {
+        width: 5px;
+        background-color: #d1d5db;
+        cursor: col-resize;
+        position: relative;
+        transition: background-color 0.2s ease;
+        flex-shrink: 0;
+        border-left: 1px solid #e5e7eb;
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .resizer:hover,
+    .resizer.active {
+        background-color: #9ca3af;
+    }
+
+    .resizer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -5px;
+        width: 15px;
+        height: 100%;
+        background: transparent;
     }
 
     /* Responsive Design */
@@ -695,129 +749,56 @@
         }
     }
 
-   /* CSS untuk layout flexbox dan resizer */
-.task-list-container,
-.task-list-header-section {
-    flex: 0 0 50%; /* Lebar awal 50% */
-    min-width: 200px; /* Minimum lebar */
-    max-width: 80%; /* Maksimum lebar */
-    overflow: hidden;
-}
+    @media (max-width: 1024px) {
+        .task-list-container,
+        .task-list-header-section {
+            width: 350px;
+            min-width: 180px;
+            max-width: 70%;
+        }
 
-.gantt-view-container,
-.timeline-header-section {
-    flex: 1 1 auto; /* Mengisi sisa ruang */
-    min-width: 20%; /* Minimum untuk Gantt */
-    overflow: hidden;
-}
-
-.resizer {
-    flex: 0 0 5px;
-    background-color: #d1d5db;
-    cursor: col-resize;
-    position: relative;
-    transition: background-color 0.2s ease;
-}
-
-.resizer:hover,
-.resizer.active {
-    background-color: #9ca3af;
-}
-
-.resizer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -5px;
-    width: 15px;
-    height: 100%;
-    background: transparent; /* Area hit lebih besar untuk drag */
-}
-
-.combined-header-container,
-.gantt-main-content {
-    display: flex;
-    width: 100%;
-    overflow: hidden;
-}
-
-/* Media Queries */
-@media (max-width: 1024px) {
-    .task-list-container,
-    .task-list-header-section {
-        flex: 0 0 45%; /* Lebar awal 45% */
-        min-width: 180px;
-        max-width: 70%;
+        .resizer {
+            width: 5px;
+        }
     }
 
-    .gantt-view-container,
-    .timeline-header-section {
-        flex: 1 1 auto;
-        min-width: 30%;
-    }
+    @media (max-width: 768px) {
+        .task-list-container,
+        .task-list-header-section {
+            width: 300px;
+            min-width: 150px;
+            max-width: 60%;
+        }
 
-    .timeline-day,
-    .gantt-grid-cell {
-        width: 22px;
-        min-width: 22px;
-        max-width: 22px;
-    }
+        .month-navigation {
+            padding: 6px;
+            gap: 4px;
+        }
 
-    .resizer {
-        flex: 0 0 5px;
-    }
-}
+        .nav-button,
+        .control-button {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
 
-@media (max-width: 768px) {
-    .task-list-container,
-    .task-list-header-section {
-        flex: 0 0 40%; /* Lebar awal 40% */
-        min-width: 150px;
-        max-width: 60%;
-    }
+        .current-period {
+            min-width: 120px;
+            font-size: 12px;
+        }
 
-    .gantt-view-container,
-    .timeline-header-section {
-        flex: 1 1 auto;
-        min-width: 40%;
-    }
+        .date-fields-row {
+            flex-direction: column;
+            gap: 12px;
+        }
 
-    .timeline-day,
-    .gantt-grid-cell {
-        width: 20px;
-        min-width: 20px;
-        max-width: 20px;
-    }
+        .date-field {
+            flex: 1 1 100%;
+        }
 
-    .month-navigation {
-        padding: 6px;
-        gap: 4px;
+        .resizer {
+            width: 5px;
+        }
     }
-
-    .nav-button,
-    .control-button {
-        padding: 4px 8px;
-        font-size: 11px;
-    }
-
-    .current-period {
-        min-width: 120px;
-        font-size: 12px;
-    }
-
-    .date-fields-row {
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .date-field {
-        flex: 1 1 100%;
-    }
-
-    .resizer {
-        flex: 0 0 5px;
-    }
-}
 
     /* Accessibility Improvements */
     .gantt-bar:focus {
@@ -910,13 +891,11 @@
         align-items: center;
         justify-content: center;
         pointer-events: none;
-        /* Nonaktifkan interaksi saat modal tidak terlihat */
     }
 
     .modal.show {
         display: flex;
         pointer-events: auto;
-        /* Aktifkan interaksi saat modal ditampilkan */
     }
 
     .modal.opening {
@@ -931,7 +910,6 @@
         backdrop-filter: blur(0px);
         opacity: 0;
         pointer-events: none;
-        /* Nonaktifkan interaksi selama animasi penutupan */
     }
 
     .modal-content {
@@ -1245,209 +1223,56 @@
 
     .duration-badge[data-level="0"] {
         background-color: #0078d4;
-        /* Blue */
         color: white;
         border: 1px solid #106ebe;
     }
 
     .duration-badge[data-level="1"] {
         background-color: #107c10;
-        /* Green */
         color: white;
         border: 1px solid #0e6e0e;
     }
 
     .duration-badge[data-level="2"] {
         background-color: #881798;
-        /* Purple */
         color: white;
         border: 1px solid #7a1589;
     }
 
     .duration-badge[data-level="3"] {
         background-color: #ff8c00;
-        /* Orange */
         color: white;
         border: 1px solid #e67e00;
     }
 
     .duration-badge[data-level="4"] {
         background-color: #e81123;
-        /* Red */
         color: white;
         border: 1px solid #d10e20;
     }
 
     .duration-badge[data-level="5"] {
         background-color: #5c2d91;
-        /* Dark Purple */
         color: white;
         border: 1px solid #522982;
     }
 
-    /* Default for other levels */
     .duration-badge:not([data-level]) {
         background-color: #6b7280;
-        /* Gray */
         color: white;
         border: 1px solid #4b5563;
     }
 
-    .timeline-day {
-        width: 24px;
-        min-width: 24px;
-        max-width: 24px;
-        flex-shrink: 0;
-        text-align: center;
-        border-right: 1px solid #e5e7eb;
-        font-size: 10px;
-        font-weight: 500;
-        padding: 2px;
-        background: #f8f9fa;
-        color: #374151;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        position: relative;
+    /* CSS kustom untuk transisi lebih halus */
+    #dateModal.show {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        opacity: 1;
     }
-
-    /* Style untuk menampilkan hari dalam bahasa Indonesia */
-    .timeline-day::after {
-        content: attr(data-dayname);
-        font-size: 7px;
-        /* Diperkecil sedikit */
-        font-weight: 400;
-        color: #6b7280;
-        position: absolute;
-        bottom: 1px;
-        width: 100%;
-        text-align: center;
-        line-height: 1;
+    #dateModal.show > div {
+        transform: translateY(0) scale(1);
+        opacity: 1;
     }
-
-    .timeline-day.weekend {
-        background-color: #fef2f2;
-        /* Background lebih terang untuk hari libur */
-        color: #dc2626;
-        /* Warna merah untuk angka */
-    }
-
-    .timeline-day.weekend::after {
-        color: #dc2626;
-        /* Warna merah untuk nama hari */
-        font-weight: 600;
-    }
-
-    .timeline-day.today {
-        background-color: #dbeafe;
-        color: #1e40af;
-        font-weight: 700;
-    }
-
-    .timeline-day.today::after {
-        color: #1e40af;
-        font-weight: 600;
-    }
-
-    /* Style khusus untuk hari Minggu */
-    .timeline-day.sunday {
-        background-color: #fef2f2;
-        color: #dc2626;
-    }
-
-    .timeline-day.sunday::after {
-        color: #dc2626;
-        font-weight: 700;
-    }
-.task-header-row {
-    display: grid;
-    grid-template-columns: 40px 250px 80px 100px 100px;
-    height: 32px;
-    align-items: center;
-    padding: 0 8px;
-    border-bottom: 1px solid #d1d5db;
-    position: relative;
-}
-
-.task-header-cell {
-    padding: 4px 0;
-    text-align: center;
-    border-right: 1px solid #e5e7eb;
-    font-size: 11px;
-    font-weight: 600;
-    color: #6b7280;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.task-header-cell:first-child {
-    text-align: left;
-}
-
-.shifted-right {
-    position: relative;
-    left: 150px; /* Geser ke kanan sebanyak 150px, sesuaikan sesuai kebutuhan */
-    transition: left 0.3s ease; /* Efek transisi untuk pergeseran */
-}
-
-.shifted {
-    position: relative;
-    left: 0; /* Kembali ke posisi awal (kiri) */
-    transition: left 0.3s ease; /* Tetap biarkan transisi untuk fleksibilitas */
-}
-
-.task-row {
-    display: grid;
-    grid-template-columns: 40px 250px 80px 100px 100px;
-    height: 32px;
-    align-items: center;
-    padding: 0 8px;
-    border-bottom: 1px solid #f1f5f9;
-    background: white;
-    font-size: 11px;
-    transition: background-color 0.1s ease;
-    max-width: 100%;
-    position: relative;
-}
-
-.task-cell {
-    padding: 2px 0;
-    text-align: center;
-    border-right: 1px solid #f1f5f9;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.task-cell:first-child {
-    text-align: left;
-    display: flex;
-    align-items: center;
-}
-
-.task-name-cell {
-    text-align: left;
-    width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-}
-
-/* CSS kustom untuk transisi lebih halus */
-#dateModal.show {
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    opacity: 1;
-}
-#dateModal.show > div {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-}
-
 </style>
 
 <div class="gantt-container">
@@ -1485,7 +1310,6 @@
     </svg>
     <span>Perluas</span>
 </button>
-
 
 <button class="control-button" onclick="collapseAll()" title="Ciutkan Semua Tugas">
     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -1638,6 +1462,9 @@
         </div>
     </div>
 
+    <!-- Resizer -->
+    <div class="resizer" id="resizer"></div>
+
     <!-- Timeline Header Section -->
     <div class="timeline-header-section" id="timelineHeaderSection">
         <div class="timeline-header-container">
@@ -1649,7 +1476,7 @@
 
 <!-- Main Content -->
 <div class="gantt-main-content">
-    <!-- Task List (50% width) -->
+    <!-- Task List -->
     <div class="task-list-container">
         <div class="task-list-body" id="taskListBody">
             @if(isset($tasks) && $tasks->count() > 0)
@@ -1668,7 +1495,7 @@
     </div>
 
     <!-- Resizer -->
-    <div class="resizer" id="resizer"></div>
+    <div class="resizer" id="resizerMain"></div>
 
     <!-- Gantt View -->
 <div class="gantt-view-container">
@@ -1676,8 +1503,6 @@
         <div class="gantt-rows-container" id="ganttRowsContainer">
             <!-- Gantt bars will be generated by JavaScript -->
         </div>
-        <!-- Scale Handle untuk mengubah scale timeline -->
-        <div class="scale-handle" id="scaleHandle"></div>
     </div>
 </div>
 </div>
@@ -1686,7 +1511,7 @@
     // Global variables for timeline management
 let currentDate = new Date();
 let timelinePeriod = 3; // months
-let currentZoom = 100;
+let currentZoom = 100; // Note: zoom doesn't affect day width anymore
 let timelineData = {
     startDate: null,
     endDate: null,
@@ -1695,6 +1520,7 @@ let timelineData = {
 let tasksData = [];
 let collapsedTasks = new Set(); // Track collapsed tasks
 let isModalAnimating = false;
+
 // Nama bulan dalam bahasa Indonesia
 const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -1709,8 +1535,6 @@ document.addEventListener('DOMContentLoaded', function() {
         yearInput.addEventListener('input', renderModalMonths);
     }
 
-    
-
     // Load warna dari localStorage saat halaman dimuat
     for (let i = 0; i < 6; i++) {
         const bg = localStorage.getItem(`level-${i}-bg`);
@@ -1724,6 +1548,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupScrollSynchronization();
     updateGanttChart();
     updateZoomButtons();
+    initResizer();
 
     // Inisialisasi collapse state dari DOM
     document.querySelectorAll('.task-children.collapsed').forEach(container => {
@@ -1870,10 +1695,10 @@ function isHoliday(date) {
     return holidays.includes(dateString);
 }
 
-// Get current day width based on zoom
+// Get current day width - ALWAYS return fixed 24px
 function getDayWidth() {
-    const baseWidth = 24;
-    return Math.round(baseWidth * (currentZoom / 100));
+    // Return fixed 24px regardless of zoom level
+    return 24;
 }
 
 // Check if a task should be visible
@@ -2006,7 +1831,7 @@ function goToToday() {
     updateGanttChart();
 }
 
-// Zoom functions
+// Zoom functions (for UI consistency - doesn't affect day width)
 const minZoom = 50;
 const maxZoom = 200;
 const zoomStep = 25;
@@ -2015,8 +1840,7 @@ function updateZoomLevel() {
     const zoomLevelElement = document.getElementById('zoomLevel');
     if (zoomLevelElement) zoomLevelElement.textContent = `${currentZoom}%`;
     updateZoomButtons();
-    renderTimelineHeaders();
-    updateGanttChart();
+    // Note: We don't re-render headers or update chart since day width is fixed
 }
 
 function updateZoomButtons() {
@@ -2070,7 +1894,6 @@ function setupScrollSynchronization() {
     });
 }
 
-// Set default scroll position
 // Set default scroll position to the start of the timeline
 function setDefaultScrollPosition() {
     const ganttContent = document.getElementById('ganttContent');
@@ -2557,28 +2380,35 @@ function setMonthYear(month, year) {
     updateGanttChart(); // Panggil fungsi existing untuk update Gantt bars
 }
 
+// Initialize resizer functionality - UPDATED
 function initResizer() {
     const resizer = document.getElementById('resizer');
-    if (!resizer) return;
+    const resizerMain = document.getElementById('resizerMain');
+    
+    if (!resizer && !resizerMain) return;
 
-    const taskListContainer = resizer.previousElementSibling; // .task-list-container
+    const activeResizer = resizer || resizerMain;
+    const taskListContainer = document.querySelector('.task-list-container');
     const headerLeft = document.querySelector('.task-list-header-section');
+    
+    if (!taskListContainer || !headerLeft) return;
+
     let startX, startWidth;
 
     // Load saved width dari localStorage
     const savedWidth = localStorage.getItem('taskListWidth');
     if (savedWidth) {
-        taskListContainer.style.flex = `0 0 ${savedWidth}`;
-        if (headerLeft) headerLeft.style.flex = `0 0 ${savedWidth}`;
+        taskListContainer.style.width = savedWidth;
+        headerLeft.style.width = savedWidth;
         updateGanttChart();
         renderTimelineHeaders();
     }
 
-    resizer.addEventListener('mousedown', function(e) {
+    activeResizer.addEventListener('mousedown', function(e) {
         e.preventDefault();
         startX = e.clientX;
         startWidth = taskListContainer.getBoundingClientRect().width;
-        resizer.classList.add('active');
+        activeResizer.classList.add('active');
 
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
@@ -2586,34 +2416,40 @@ function initResizer() {
 
     function onMouseMove(e) {
         const dx = e.clientX - startX;
-        // Sesuaikan batasan berdasarkan media query
-        const maxWidth = window.matchMedia("(max-width: 1024px)").matches
-            ? window.innerWidth * 0.7 // Max 70% untuk layar <1024px
-            : window.innerWidth * 0.8; // Max 80% untuk layar besar
-        const newWidth = Math.max(180, Math.min(maxWidth, startWidth + dx)); // Min 180px
+        // Get responsive limits based on screen size
+        const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;
+        const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
+        const maxWidth = window.innerWidth * maxWidthPercent;
+        
+        const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + dx));
         const newWidthPx = `${newWidth}px`;
 
-        taskListContainer.style.flex = `0 0 ${newWidthPx}`;
-        if (headerLeft) headerLeft.style.flex = `0 0 ${newWidthPx}`;
+        taskListContainer.style.width = newWidthPx;
+        headerLeft.style.width = newWidthPx;
 
+        // No need to re-render timeline headers or update gantt chart during drag
+        // as day width is now fixed
+    }
+
+    function onMouseUp() {
+        activeResizer.classList.remove('active');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        // Save the new width to localStorage
+        localStorage.setItem('taskListWidth', taskListContainer.style.width);
+        
+        // Update gantt chart once at the end
         updateGanttChart();
         renderTimelineHeaders();
     }
 
-    function onMouseUp() {
-        resizer.classList.remove('active');
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-
-        localStorage.setItem('taskListWidth', taskListContainer.style.flex.split(' ')[2]);
-    }
-
     // Support untuk touch devices
-    resizer.addEventListener('touchstart', function(e) {
+    activeResizer.addEventListener('touchstart', function(e) {
         e.preventDefault();
         startX = e.touches[0].clientX;
         startWidth = taskListContainer.getBoundingClientRect().width;
-        resizer.classList.add('active');
+        activeResizer.classList.add('active');
 
         document.addEventListener('touchmove', onTouchMove);
         document.addEventListener('touchend', onTouchEnd);
@@ -2621,29 +2457,26 @@ function initResizer() {
 
     function onTouchMove(e) {
         const dx = e.touches[0].clientX - startX;
-        const maxWidth = window.matchMedia("(max-width: 1024px)").matches
-            ? window.innerWidth * 0.7
-            : window.innerWidth * 0.8;
-        const newWidth = Math.max(180, Math.min(maxWidth, startWidth + dx));
+        const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;
+        const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
+        const maxWidth = window.innerWidth * maxWidthPercent;
+        
+        const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + dx));
         const newWidthPx = `${newWidth}px`;
 
-        taskListContainer.style.flex = `0 0 ${newWidthPx}`;
-        if (headerLeft) headerLeft.style.flex = `0 0 ${newWidthPx}`;
-
-        updateGanttChart();
-        renderTimelineHeaders();
+        taskListContainer.style.width = newWidthPx;
+        headerLeft.style.width = newWidthPx;
     }
 
     function onTouchEnd() {
-        resizer.classList.remove('active');
+        activeResizer.classList.remove('active');
         document.removeEventListener('touchmove', onTouchMove);
         document.removeEventListener('touchend', onTouchEnd);
 
-        localStorage.setItem('taskListWidth', taskListContainer.style.flex.split(' ')[2]);
+        localStorage.setItem('taskListWidth', taskListContainer.style.width);
+        updateGanttChart();
+        renderTimelineHeaders();
     }
 }
-
-// Panggil initResizer setelah DOM ready
-document.addEventListener('DOMContentLoaded', initResizer);
 </script>
 @endsection
