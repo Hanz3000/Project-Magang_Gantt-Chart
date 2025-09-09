@@ -1698,7 +1698,7 @@ function isHoliday(date) {
 // Get current day width - ALWAYS return fixed 24px
 function getDayWidth() {
     // Return fixed 24px regardless of zoom level
-    return 24;
+    return 24 * (currentZoom / 100);
 }
 
 // Check if a task should be visible
@@ -1840,7 +1840,7 @@ function updateZoomLevel() {
     const zoomLevelElement = document.getElementById('zoomLevel');
     if (zoomLevelElement) zoomLevelElement.textContent = `${currentZoom}%`;
     updateZoomButtons();
-    // Note: We don't re-render headers or update chart since day width is fixed
+    
 }
 
 function updateZoomButtons() {
@@ -1850,10 +1850,13 @@ function updateZoomButtons() {
     if (zoomOutBtn) zoomOutBtn.disabled = currentZoom <= minZoom;
 }
 
+// ...existing code...
 function zoomIn() {
     if (currentZoom < maxZoom) {
         currentZoom += zoomStep;
         updateZoomLevel();
+        renderTimelineHeaders();
+        updateGanttChart();
     }
 }
 
@@ -1861,6 +1864,8 @@ function zoomOut() {
     if (currentZoom > minZoom) {
         currentZoom -= zoomStep;
         updateZoomLevel();
+        renderTimelineHeaders();
+        updateGanttChart();
     }
 }
 
@@ -2426,9 +2431,6 @@ function initResizer() {
 
         taskListContainer.style.width = newWidthPx;
         headerLeft.style.width = newWidthPx;
-
-        // No need to re-render timeline headers or update gantt chart during drag
-        // as day width is now fixed
     }
 
     function onMouseUp() {
