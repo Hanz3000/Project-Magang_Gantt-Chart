@@ -12,29 +12,43 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request) {
-        $credentials = $request->only('email', 'password');
-        if (Auth::attempt($credentials)) {
-            return redirect()->route('tasks.index');
-        }
-        return back()->withErrors(['email' => 'Email atau password salah']);
+    public function login(Request $request)
+{
+    $credentials = $request->validate([
+        'nip' => ['required', 'string'],
+        'password' => ['required', 'string'],
+    ]);
+
+    if (Auth::attempt(['nip' => $credentials['nip'], 'password' => $credentials['password']])) {
+        $request->session()->regenerate();
+
+        // Redirect ke index tasks
+        return redirect()->route('tasks.index');
     }
+
+    return back()->withErrors([
+        'nip' => 'NIP atau password salah',
+    ]);
+}
 
     public function showRegister() {
         return view('auth.register');
     }
 
     public function register(Request $request) {
+        // validasi registrasi
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6'
+            'name' => 'required|string|max:255',
+            'nip' => 'required|numeric|digits_between:1,8|unique:users,nip',
+            'password' => 'required|string|min:6',
         ]);
+
         User::create([
             'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'nip' => $request->nip,
+            'password' => Hash::make($request->password),
         ]);
+
         return redirect()->route('login')->with('success', 'Registrasi berhasil, silakan login.');
     }
 

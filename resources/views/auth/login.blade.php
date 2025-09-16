@@ -65,11 +65,12 @@
         <form method="POST" action="{{ route('login') }}" class="space-y-6">
             @csrf
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" id="email" 
-                       class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
-                       placeholder="Masukkan email Anda" required value="{{ old('email') }}">
-            </div>
+    <label for="nip" class="block text-sm font-medium text-gray-700">NIP</label>
+    <input type="text" name="nip" id="nip" 
+           class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+           placeholder="Masukkan NIP Anda" required value="{{ old('nip') }}">
+</div>
+
             <div class="password-container">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                 <input type="password" name="password" id="password" 

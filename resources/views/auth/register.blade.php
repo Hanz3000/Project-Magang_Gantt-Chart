@@ -57,11 +57,13 @@
                        placeholder="Masukkan nama lengkap Anda" required value="{{ old('name') }}">
             </div>
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" id="email"
-                       class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="Masukkan email Anda" required value="{{ old('email') }}">
-            </div>
+    <label for="nip" class="block text-sm font-medium text-gray-700">NIP</label>
+    <input type="text" name="nip" id="nip" maxlength="8" pattern="\d{1,8}"
+           oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);"
+           class="mt-1 block w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+           placeholder="Masukkan NIP" required value="{{ old('nip') }}">
+</div>
+
             <div class="password-container">
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                 <input type="password" name="password" id="password"
