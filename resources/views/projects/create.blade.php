@@ -352,14 +352,12 @@ $(document).ready(function() {
     });
 
     // Helper format yyyy-mm-dd -> dd-mm-yyyy
-function formatDate(dateStr) {
-    if (!dateStr) return "";
-    // ambil hanya bagian tanggal sebelum spasi
-    const cleanDate = dateStr.split(" ")[0]; 
-    const parts = cleanDate.split("-");
-    return `${parts[2]}-${parts[1]}-${parts[0]}`;
-}
-
+    function formatDate(dateStr) {
+        if (!dateStr) return "";
+        const cleanDate = dateStr.split(" ")[0]; 
+        const parts = cleanDate.split("-");
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
 
     // Update date pickers sesuai rules
     function updateDatePickers() {
@@ -372,7 +370,7 @@ function formatDate(dateStr) {
         let parentFinish = null;
 
         if (parentId) {
-            parentStart = $('#parent_id option:selected').data('start'); // yyyy-mm-dd
+            parentStart = $('#parent_id option:selected').data('start'); 
             parentFinish = $('#parent_id option:selected').data('finish');
         }
 
@@ -414,55 +412,71 @@ function formatDate(dateStr) {
         }
 
         // Validasi start < parentStart
-if (parentStart && startVal) {
-    const [sd, sm, sy] = startVal.split("-");
-    const startDate = new Date(sy, sm - 1, sd);
-    const parentDate = new Date(parentStart);
+        if (parentStart && startVal) {
+            const [sd, sm, sy] = startVal.split("-");
+            const startDate = new Date(sy, sm - 1, sd);
+            const parentDate = new Date(parentStart);
 
-    if (startDate < parentDate) {
-        // Set tanpa trigger onChange untuk hindari loop
-        startPicker.setDate(parentDate, false); 
-    }
-}
-
+            if (startDate < parentDate) {
+                startPicker.setDate(parentDate, false); 
+            }
+        }
     }
 
     // Validasi sebelum submit
     $('#taskForm').on('submit', function(e) {
-        const duration = $('#duration').val();
-        const start = $('#start').val();
-        const finish = $('#finish').val();
+        let duration = $('#duration').val();
+        let start = $('#start').val();
+        let finish = $('#finish').val();
         const parentId = $('#parent_id').val();
         const parentStart = parentId ? $('#parent_id option:selected').data('start') : null;
         const parentFinish = parentId ? $('#parent_id option:selected').data('finish') : null;
 
-        if (!duration && (!start || !finish)) {
+        if (!start) {
             e.preventDefault();
-            alert('Jika Durasi kosong, Tanggal Mulai dan Tanggal Selesai wajib diisi!');
-        } else if (finish && start) {
-            const [sd, sm, sy] = start.split("-");
-            const [fd, fm, fy] = finish.split("-");
-            const startDate = new Date(sy, sm - 1, sd);
-            const finishDate = new Date(fy, fm - 1, fd);
-
-            if (finishDate <= startDate) {
-                e.preventDefault();
-                alert('Tanggal Selesai harus setelah Tanggal Mulai!');
-                $('#finish').val('');
-                $('#duration').val('');
-            }
-            if (parentStart && startDate < new Date(parentStart)) {
-                e.preventDefault();
-                alert('Tanggal Mulai sub-task tidak boleh sebelum Tanggal Mulai task utama!');
-                startPicker.setDate(parentStart, true);
-            }
-            if (parentFinish && finishDate > new Date(parentFinish)) {
-    alert('Tanggal Selesai sub-task melebihi task utama. Task utama akan diperpanjang.');
-
-    // Update task utama agar ikut mundur
-    $('#parent_finish').val($('#finish').val());
-}
+            alert('Tanggal Mulai wajib diisi!');
+            return;
         }
+
+        // Jika finish kosong, otomatis set = start
+        if (!finish) {
+            finish = start;
+            $('#finish').val(finish);
+            if (!duration) {
+                duration = 1;
+                $('#duration').val(duration);
+            }
+        }
+
+        const [sd, sm, sy] = start.split("-");
+        const [fd, fm, fy] = finish.split("-");
+        const startDate = new Date(sy, sm - 1, sd);
+        const finishDate = new Date(fy, fm - 1, fd);
+
+        // Alert hanya jika finish < start
+        if (finishDate < startDate) {
+            e.preventDefault();
+            alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
+            $('#finish').val('');
+            $('#duration').val('');
+            return;
+        }
+
+        // Jika duration kosong, hitung otomatis
+        if (!duration) {
+            const diff = Math.ceil((finishDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            $('#duration').val(diff);
+        }
+
+        // Validasi parent
+        if (parentStart && startDate < new Date(parentStart)) {
+            e.preventDefault();
+            alert('Tanggal Mulai sub-task tidak boleh sebelum Tanggal Mulai task utama!');
+            startPicker.setDate(parentStart, true);
+            return;
+        }
+
+       
     });
 });
 </script>
