@@ -132,29 +132,83 @@ class TaskController extends Controller
             ->with('success', 'Task berhasil ditambahkan!');
     }
 
-    protected function updateParentRecursively($task, $newFinish)
-    {
-        if (!$task->start || !$task->finish) {
-            return;
-        }
+   protected function updateParentRecursively($task, $newFinish, $childLevel = null)
+{
+    if (!$task->start || !$task->finish) {
+        return;
+    }
 
-        $taskStart  = Carbon::parse($task->start, 'Asia/Jakarta')->startOfDay();
-        $taskFinish = Carbon::parse($task->finish, 'Asia/Jakarta')->startOfDay();
-        $newFinish  = $newFinish->startOfDay();
+    $taskStart  = Carbon::parse($task->start, 'Asia/Jakarta')->startOfDay();
+    $taskFinish = Carbon::parse($task->finish, 'Asia/Jakarta')->startOfDay();
+    $newFinish  = Carbon::parse($newFinish, 'Asia/Jakarta')->startOfDay();
 
-        if ($newFinish > $taskFinish) {
+    if ($childLevel === null) {
+        $childLevel = $task->level + 1; // Level anak adalah level task + 1
+    }
+
+    // Aturan update berdasarkan level anak
+    if ($newFinish > $taskFinish) {
+        // Jika anak adalah level 1 (anak langsung dari root)
+        if ($childLevel == 1) {
+            // Update task level 1 dan root (level 0)
             $task->finish   = $newFinish;
-            $task->duration = intval($taskStart->diffInDays($newFinish) + 1);
+            $task->duration = intval($taskStart->diffInDays($newFinish)) + 1;
             $task->save();
-
-            if ($task->parent_id) {
-                $parent = Task::find($task->parent_id);
-                if ($parent && $parent->user_id === Auth::id()) {
-                    $this->updateParentRecursively($parent, $newFinish);
+            
+            // Update root task jika ini bukan root
+            if ($task->level > 0 && $task->parent_id) {
+                $root = $this->getRootTask($task);
+                if ($root && $root->id !== $task->id) {
+                    $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
+                    $rootFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
+                    if ($newFinish > $rootFinish) {
+                        $root->finish   = $newFinish;
+                        $root->duration = intval($rootStart->diffInDays($newFinish)) + 1;
+                        $root->save();
+                    }
+                }
+            }
+        } 
+        // Jika anak adalah level 2+ (subtask dari level 1)
+        else if ($childLevel >= 2) {
+            // Hanya update root task (level 0), bukan task level 1
+            $root = $this->getRootTask($task);
+            if ($root && $root->id !== $task->id) {
+                $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
+                $rootFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
+                if ($newFinish > $rootFinish) {
+                    $root->finish   = $newFinish;
+                    $root->duration = intval($rootStart->diffInDays($newFinish)) + 1;
+                    $root->save();
                 }
             }
         }
+        // Jika anak adalah level 0 (root task sendiri)
+        else if ($childLevel == 0) {
+            // Hanya update dirinya sendiri
+            $task->finish   = $newFinish;
+            $task->duration = intval($taskStart->diffInDays($newFinish)) + 1;
+            $task->save();
+        }
     }
+
+    // Lanjut ke parent jika masih ada
+    if ($task->parent_id) {
+        $parent = Task::find($task->parent_id);
+        if ($parent && $parent->user_id === Auth::id()) {
+            $this->updateParentRecursively($parent, $newFinish, $childLevel);
+        }
+    }
+}
+protected function getRootTask($task)
+{
+    while ($task->parent_id) {
+        $task = Task::find($task->parent_id);
+    }
+    return $task;
+}
+
+
 
     public function edit(Task $task)
 {
