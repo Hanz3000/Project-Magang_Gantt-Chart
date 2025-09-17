@@ -58,11 +58,18 @@ class TaskController extends Controller
     }
 
     public function create()
-    {
-        // hanya ambil parent task milik user login
-        $parents = Task::where('user_id', Auth::id())->get();
-        return view('projects.create', compact('parents'));
-    }
+{
+    // hanya ambil parent task milik user login
+    $parents = Task::where('user_id', Auth::id())
+        ->get()
+        ->map(function($task) {
+            $task->start = $task->start ? \Carbon\Carbon::parse($task->start)->format('d-m-Y') : null;
+            $task->finish = $task->finish ? \Carbon\Carbon::parse($task->finish)->format('d-m-Y') : null;
+            return $task;
+        });
+
+    return view('projects.create', compact('parents'));
+}
 
     public function store(Request $request)
     {
@@ -150,19 +157,23 @@ class TaskController extends Controller
     }
 
     public function edit(Task $task)
-    {
-        // Pastikan hanya user pemilik task yang bisa edit
-        if ($task->user_id !== Auth::id()) {
-            return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak mengedit task ini.');
-        }
-
-        $parents = Task::where('user_id', Auth::id())
-            ->where('id', '!=', $task->id)
-            ->whereNotIn('id', $this->getDescendantIds($task))
-            ->get();
-
-        return view('projects.edit', compact('task', 'parents'));
+{
+    if ($task->user_id !== Auth::id()) {
+        return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak mengedit task ini.');
     }
+
+    $parents = Task::where('user_id', Auth::id())
+        ->where('id', '!=', $task->id)
+        ->whereNotIn('id', $this->getDescendantIds($task))
+        ->get()
+        ->map(function($task) {
+            $task->start = $task->start ? \Carbon\Carbon::parse($task->start)->format('d-m-Y') : null;
+            $task->finish = $task->finish ? \Carbon\Carbon::parse($task->finish)->format('d-m-Y') : null;
+            return $task;
+        });
+
+    return view('projects.edit', compact('task', 'parents'));
+}
 
     public function update(Request $request, Task $task)
     {

@@ -5,18 +5,18 @@
     <div class="max-w-7xl mx-auto">
         <!-- Header horizontal seperti gambar -->
         <div class="flex items-center mb-8">
-    <div class="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg mr-4">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                 d="M9 5h6M9 9h6m-7 4h8m-5 4h2M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z">
-            </path>
-        </svg>
-    </div>
-    <div>
-        <h1 class="text-2xl font-bold text-slate-900">Tambah Task Baru</h1>
-        <p class="text-slate-600">Kelola dan atur semua task pemasukan</p>
-    </div>
-</div>
+            <div class="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg mr-4">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5h6M9 9h6m-7 4h8m-5 4h2M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z">
+                    </path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">Tambah Task Baru</h1>
+                <p class="text-slate-600">Kelola dan atur semua task pemasukan</p>
+            </div>
+        </div>
 
 
         <!-- Main Form Card -->
@@ -34,20 +34,20 @@
                                 Nama Task <span class="text-red-500 text-sm ml-1">*</span>
                             </label>
                             <div class="relative">
-                                <input type="text" name="name" id="name" 
-                                       value="{{ old('name') }}" 
-                                       class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
+                                <input type="text" name="name" id="name"
+                                    value="{{ old('name') }}"
+                                    class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
                                               focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200
-                                              @error('name') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror" 
-                                       placeholder="Masukkan nama task..."
-                                       required>
+                                              @error('name') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror"
+                                    placeholder="Masukkan nama task..."
+                                    required>
                                 @error('name')
-                                    <div class="mt-2 flex items-center space-x-2 text-red-600">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        <span class="text-sm">{{ $message }}</span>
-                                    </div>
+                                <div class="mt-2 flex items-center space-x-2 text-red-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-sm">{{ $message }}</span>
+                                </div>
                                 @enderror
                             </div>
                         </div>
@@ -59,19 +59,19 @@
                                 Pilih Task Utama atau Sub Task
                             </label>
                             <div class="relative">
-                                <select name="parent_id" id="parent_id" 
-                                        class="w-full pl-4 pr-10 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 
+                                <select name="parent_id" id="parent_id"
+                                    class="w-full pl-4 pr-10 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 
                                                focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 
                                                transition-all duration-200 appearance-none
                                                @error('parent_id') border-red-300 focus:border-red-500 @else border-slate-200 @enderror">
                                     <option value="">-- Tidak ada (Task Baru) --</option>
                                     @foreach($parents as $parent)
-                                        <option value="{{ $parent->id }}" 
-                                                data-start="{{ $parent->start }}" 
-                                                data-finish="{{ $parent->finish }}"
-                                                {{ old('parent_id') == $parent->id ? 'selected' : '' }}>
-                                            {{ $parent->name }}
-                                        </option>
+                                    <option value="{{ $parent->id }}"
+                                        data-start="{{ \Carbon\Carbon::parse($parent->start)->format('d-m-Y') }}"
+                                        data-finish="{{ \Carbon\Carbon::parse($parent->finish)->format('d-m-Y') }}"
+                                        data-level="{{ $parent->level }}">
+                                        {{ $parent->name }}
+                                    </option>
                                     @endforeach
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
@@ -81,67 +81,69 @@
                                 </div>
                             </div>
                             @error('parent_id')
-                                <div class="mt-2 flex items-center space-x-2 text-red-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span class="text-sm">{{ $message }}</span>
-                                </div>
+                            <div class="mt-2 flex items-center space-x-2 text-red-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-sm">{{ $message }}</span>
+                            </div>
                             @enderror
                         </div>
                     </div>
 
                     <!-- Parent Info (Full Width) -->
                     <div class="mb-6">
-                        <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl" id="parentInfo" hidden>
-                            <div class="flex items-start space-x-3">
-                                <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <div class="text-sm text-blue-800">
-                                    <p class="font-medium">Informasi Task Utama</p>
-                                    <p id="parentInfoText">Sub-task mulai 03-08-2025, selesai idealnya 17-08-2025. Melebihi, task utama diperpanjang.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl" id="parentInfo" hidden>
+        <div class="flex items-start space-x-3">
+            <svg class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="text-sm text-blue-800">
+                <p class="font-medium">Informasi Task Utama</p>
+                <p id="parentInfoText">Pilih task utama untuk melihat detail tanggal mulai & selesai.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 
                     <!-- Row 2: Date Fields & Duration -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <!-- Start Date -->
                         <div class="space-y-3">
-    <label for="start" class="flex items-center text-sm font-semibold text-slate-700">
-        <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path>
-        </svg>
-        Tanggal Mulai <span class="text-red-500 text-sm ml-1">*</span>
-    </label>
-    <div class="relative">
-        <input type="text" name="start" id="start"
-               value="{{ old('start') }}"
-               class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900
+                            <label for="start" class="flex items-center text-sm font-semibold text-slate-700">
+                                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path>
+                                </svg>
+                                Tanggal Mulai <span class="text-red-500 text-sm ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="start" id="start"
+                                    value="{{ old('start') }}"
+                                    class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900
                       focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200"
-               required>
-    </div>
-</div>
+                                    required>
+                            </div>
+                        </div>
 
-<!-- End Date -->
-<div class="space-y-3">
-    <label for="finish" class="flex items-center text-sm font-semibold text-slate-700">
-        <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-        </svg>
-        Tanggal Selesai
-    </label>
-    <div class="relative">
-        <input type="text" name="finish" id="finish"
-               value="{{ old('finish') }}"
-               class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900
+                        <!-- End Date -->
+                        <div class="space-y-3">
+                            <label for="finish" class="flex items-center text-sm font-semibold text-slate-700">
+                                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Tanggal Selesai
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="finish" id="finish"
+                                    value="{{ old('finish') }}"
+                                    class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900
                       focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200">
-    </div>
-</div>
+                            </div>
+                        </div>
 
 
                         <!-- Duration -->
@@ -153,20 +155,20 @@
                                 Durasi
                             </label>
                             <div class="relative">
-                                <input type="number" name="duration" id="duration" 
-                                       value="{{ old('duration') }}" 
-                                       min="1"
-                                       class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
+                                <input type="number" name="duration" id="duration"
+                                    value="{{ old('duration') }}"
+                                    min="1"
+                                    class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
                                               focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200
-                                              @error('duration') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror" 
-                                       placeholder="Durasi (hari)...">
+                                              @error('duration') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror"
+                                    placeholder="Durasi (hari)...">
                                 @error('duration')
-                                    <div class="mt-2 flex items-center space-x-2 text-red-600">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        <span class="text-sm">{{ $message }}</span>
-                                    </div>
+                                <div class="mt-2 flex items-center space-x-2 text-red-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-sm">{{ $message }}</span>
+                                </div>
                                 @enderror
                             </div>
                         </div>
@@ -181,27 +183,27 @@
                                 </svg>
                                 Deskripsi <span class="text-slate-500 text-xs">(opsional)</span>
                             </label>
-                            <textarea name="description" id="description" 
-                                      rows="3"
-                                      class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
+                            <textarea name="description" id="description"
+                                rows="3"
+                                class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
                                              focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 resize-none
-                                             @error('description') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror" 
-                                      placeholder="Masukkan deskripsi task secara detail...">{{ old('description') }}</textarea>
+                                             @error('description') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror"
+                                placeholder="Masukkan deskripsi task secara detail...">{{ old('description') }}</textarea>
                             @error('description')
-                                <div class="mt-2 flex items-center space-x-2 text-red-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span class="text-sm">{{ $message }}</span>
-                                </div>
+                            <div class="mt-2 flex items-center space-x-2 text-red-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-sm">{{ $message }}</span>
+                            </div>
                             @enderror
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center sm:justify-end">
-                        <a href="{{ route('tasks.index') }}" 
-                           class="flex items-center justify-center px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 
+                        <a href="{{ route('tasks.index') }}"
+                            class="flex items-center justify-center px-8 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 
                                   font-semibold rounded-xl transition-all duration-200 hover:shadow-md border border-slate-200
                                   focus:outline-none focus:ring-4 focus:ring-slate-500/10">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,9 +211,9 @@
                             </svg>
                             Batal
                         </a>
-                        
-                        <button type="submit" 
-                                class="flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 
+
+                        <button type="submit"
+                            class="flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 
                                        hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-xl 
                                        transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25 
                                        focus:outline-none focus:ring-4 focus:ring-blue-500/20
@@ -240,55 +242,55 @@
 
 <!-- Custom Select2 Styling -->
 <style>
-.select2-container--default .select2-selection--single {
-    height: 48px !important;
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    background-color: #f8fafc !important;
-    padding: 0 16px !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #0f172a !important;
-    line-height: 48px !important;
-    padding: 0 !important;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 48px !important;
-    right: 16px !important;
-}
-
-.select2-container--default.select2-container--focus .select2-selection--single {
-    border-color: #3b82f6 !important;
-    background-color: white !important;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
-}
-
-.select2-dropdown {
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-}
-
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #3b82f6 !important;
-}
-
-.select2-container--default .select2-search--dropdown .select2-search__field {
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .grid-cols-3 {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
+    .select2-container--default .select2-selection--single {
+        height: 48px !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        background-color: #f8fafc !important;
+        padding: 0 16px !important;
+        display: flex !important;
+        align-items: center !important;
     }
-}
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #0f172a !important;
+        line-height: 48px !important;
+        padding: 0 !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 48px !important;
+        right: 16px !important;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #3b82f6 !important;
+        background-color: white !important;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .select2-dropdown {
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #3b82f6 !important;
+    }
+
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .grid-cols-3 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+    }
 </style>
 
 <script>
@@ -300,7 +302,8 @@ $(document).ready(function() {
         width: '100%'
     });
 
-    let lastChanged = ''; // track field terakhir diubah
+    let lastChanged = '';       // track field terakhir diubah
+    let programmatic = false;   // flag perubahan dari script
 
     // Inisialisasi Flatpickr Start & Finish
     const startPicker = flatpickr("#start", {
@@ -308,6 +311,7 @@ $(document).ready(function() {
         locale: "id",
         allowInput: true,
         onChange: function(selectedDates) {
+            if (programmatic) return;
             if (selectedDates.length) {
                 lastChanged = 'start';
                 updateDatePickers();
@@ -320,6 +324,7 @@ $(document).ready(function() {
         locale: "id",
         allowInput: true,
         onChange: function(selectedDates) {
+            if (programmatic) return;
             if (selectedDates.length) {
                 lastChanged = 'finish';
                 updateDatePickers();
@@ -328,35 +333,65 @@ $(document).ready(function() {
     });
 
     // Event duration
-    $('#duration').on('change', function() {
+    $('#duration').on('input change', function() {
         lastChanged = 'duration';
         updateDatePickers();
     });
 
     // Event parent
     $('#parent_id').on('change', function() {
-        const parentId = $(this).val();
-        const parentInfo = $('#parentInfo');
-        const parentInfoText = $('#parentInfoText');
+        const selected = $(this).find('option:selected');
+        const parentStart = selected.data('start');
+        const parentFinish = selected.data('finish');
+        const parentLevel = selected.data('level');
 
-        if (parentId) {
-            parentInfo.show();
-            const start = $(this).find('option:selected').data('start'); // format yyyy-mm-dd
-            const finish = $(this).find('option:selected').data('finish');
-            parentInfoText.text(`Sub-task mulai ${formatDate(start)}, selesai idealnya ${formatDate(finish)}. Jika melebihi, task utama akan diperpanjang otomatis.`);
+        if (parentStart && parentFinish) {
+            $('#parentInfo').prop('hidden', false);
+            $('#parentInfoText').text(
+                `Sub-task mulai ${formatDate(parentStart)}, selesai idealnya ${formatDate(parentFinish)}. Jika Melebihi, task utama akan diperpanjang.`
+            );
         } else {
-            parentInfo.hide();
+            $('#parentInfo').prop('hidden', true);
         }
-        lastChanged = 'parent';
-        updateDatePickers();
+
+        // Aturan isi otomatis start
+        if (parentLevel === 0) {
+            programmatic = true;
+            startPicker.setDate(formatDate(parentStart), true);
+            programmatic = false;
+            $('#start').prop('readonly', true);
+        } else {
+            programmatic = true;
+            startPicker.clear();
+            programmatic = false;
+            $('#start').prop('readonly', false);
+        }
     });
 
     // Helper format yyyy-mm-dd -> dd-mm-yyyy
     function formatDate(dateStr) {
         if (!dateStr) return "";
-        const cleanDate = dateStr.split(" ")[0]; 
-        const parts = cleanDate.split("-");
-        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        const cleanDate = dateStr.split(" ")[0];
+
+        // yyyy-mm-dd → dd-mm-yyyy
+        if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
+            const [y, m, d] = cleanDate.split("-");
+            return `${d}-${m}-${y}`;
+        }
+
+        // sudah dd-mm-yyyy
+        if (/^\d{2}-\d{2}-\d{4}$/.test(cleanDate)) {
+            return cleanDate;
+        }
+
+        return cleanDate;
+    }
+
+    // Parse dd-mm-yyyy → Date object
+    function parseDate(str) {
+        if (!str) return null;
+        const [d, m, y] = str.split("-");
+        return new Date(y, m - 1, d);
     }
 
     // Update date pickers sesuai rules
@@ -370,14 +405,15 @@ $(document).ready(function() {
         let parentFinish = null;
 
         if (parentId) {
-            parentStart = $('#parent_id option:selected').data('start'); 
-            parentFinish = $('#parent_id option:selected').data('finish');
+            parentStart = formatDate($('#parent_id option:selected').data('start'));
+            parentFinish = formatDate($('#parent_id option:selected').data('finish'));
         }
 
         // Atur minDate berdasarkan parent
         if (parentStart) {
-            startPicker.set('minDate', parentStart);
-            finishPicker.set('minDate', parentStart);
+            const pStart = parseDate(parentStart);
+            startPicker.set('minDate', pStart);
+            finishPicker.set('minDate', pStart);
         } else {
             startPicker.set('minDate', null);
             finishPicker.set('minDate', null);
@@ -385,26 +421,25 @@ $(document).ready(function() {
 
         // Jika start diisi, atur minDate finish = start
         if (startVal) {
-            const parts = startVal.split("-");
-            const startDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            const startDate = parseDate(startVal);
             finishPicker.set('minDate', startDate);
         }
 
         // Hitung finish dari duration
         if (lastChanged === 'duration' && durationVal && startVal) {
-            const parts = startVal.split("-");
-            const startDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            const startDate = parseDate(startVal);
             const finishDate = new Date(startDate);
             finishDate.setDate(startDate.getDate() + parseInt(durationVal) - 1);
+
+            programmatic = true;
             finishPicker.setDate(finishDate, true);
+            programmatic = false;
         }
 
         // Hitung duration dari finish
         if (lastChanged === 'finish' && finishVal && startVal) {
-            const [sd, sm, sy] = startVal.split("-");
-            const [fd, fm, fy] = finishVal.split("-");
-            const startDate = new Date(sy, sm - 1, sd);
-            const finishDate = new Date(fy, fm - 1, fd);
+            const startDate = parseDate(startVal);
+            const finishDate = parseDate(finishVal);
             const diff = Math.ceil((finishDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
             if (diff > 0) {
                 $('#duration').val(diff);
@@ -413,12 +448,12 @@ $(document).ready(function() {
 
         // Validasi start < parentStart
         if (parentStart && startVal) {
-            const [sd, sm, sy] = startVal.split("-");
-            const startDate = new Date(sy, sm - 1, sd);
-            const parentDate = new Date(parentStart);
-
+            const startDate = parseDate(startVal);
+            const parentDate = parseDate(parentStart);
             if (startDate < parentDate) {
-                startPicker.setDate(parentDate, false); 
+                programmatic = true;
+                startPicker.setDate(parentDate, false);
+                programmatic = false;
             }
         }
     }
@@ -429,8 +464,8 @@ $(document).ready(function() {
         let start = $('#start').val();
         let finish = $('#finish').val();
         const parentId = $('#parent_id').val();
-        const parentStart = parentId ? $('#parent_id option:selected').data('start') : null;
-        const parentFinish = parentId ? $('#parent_id option:selected').data('finish') : null;
+        const parentStart = parentId ? formatDate($('#parent_id option:selected').data('start')) : null;
+        const parentFinish = parentId ? formatDate($('#parent_id option:selected').data('finish')) : null;
 
         if (!start) {
             e.preventDefault();
@@ -448,10 +483,8 @@ $(document).ready(function() {
             }
         }
 
-        const [sd, sm, sy] = start.split("-");
-        const [fd, fm, fy] = finish.split("-");
-        const startDate = new Date(sy, sm - 1, sd);
-        const finishDate = new Date(fy, fm - 1, fd);
+        const startDate = parseDate(start);
+        const finishDate = parseDate(finish);
 
         // Alert hanya jika finish < start
         if (finishDate < startDate) {
@@ -469,14 +502,14 @@ $(document).ready(function() {
         }
 
         // Validasi parent
-        if (parentStart && startDate < new Date(parentStart)) {
+        if (parentStart && startDate < parseDate(parentStart)) {
             e.preventDefault();
             alert('Tanggal Mulai sub-task tidak boleh sebelum Tanggal Mulai task utama!');
-            startPicker.setDate(parentStart, true);
+            programmatic = true;
+            startPicker.setDate(parseDate(parentStart), true);
+            programmatic = false;
             return;
         }
-
-       
     });
 });
 </script>

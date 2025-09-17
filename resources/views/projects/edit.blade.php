@@ -475,10 +475,7 @@
                     alert('Tanggal Mulai sub-task tidak boleh sebelum Tanggal Mulai task utama!');
                     $('#start').val(parentStart);
                 }
-                if (parentFinish && new Date(finish) > new Date(parentFinish)) {
-                    alert('Tanggal Selesai sub-task melebihi task utama. Task utama akan diperpanjang.');
-                }
-            }
+                            }
         });
     });
 </script>
