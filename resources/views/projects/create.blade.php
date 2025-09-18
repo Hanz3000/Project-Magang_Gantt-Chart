@@ -366,11 +366,16 @@ $('#parent_id').on('change', function() {
         programmatic = false;
         $('#start').prop('readonly', true);
     } else if (parentLevel >= 1) {
-        // Level 1+ → ikut tanggal selesai parent
+    // Level 1+ → mulai sehari setelah tanggal selesai parent
+    const parentFinishDate = parseDate(formatDate(parentFinish));
+    if (parentFinishDate) {
+        parentFinishDate.setDate(parentFinishDate.getDate() + 1); // tambah 1 hari
         programmatic = true;
-        startPicker.setDate(formatDate(parentFinish), true);
+        startPicker.setDate(parentFinishDate, true);
         programmatic = false;
     }
+}
+
 });
 
     // Helper format yyyy-mm-dd -> dd-mm-yyyy
