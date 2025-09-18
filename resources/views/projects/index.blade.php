@@ -1764,7 +1764,15 @@ function generateGanttRow(task) {
 
 // Generate task bar
 function generateTaskBar(task, dayWidth) {
+    // Cek apakah task ini parent (punya anak)
+    const hasChildren = tasksData.some(t => t.parent_id == task.id);
+
+    // Jika dia parent TAPI tidak punya anak, JANGAN tampilkan Gantt bar
+    if (!hasChildren && task.parent_id == null) return null;
+
+    // Jika tidak punya tanggal, skip
     if (!task.startDate || !task.endDate) return null;
+
     const taskStart = new Date(task.startDate);
     const taskEnd = new Date(task.endDate);
     if (taskEnd < timelineData.startDate || taskStart > timelineData.endDate) return null;
