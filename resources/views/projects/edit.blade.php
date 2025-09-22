@@ -495,12 +495,7 @@
                     }
                 @endforeach
 
-                if (maxChildFinish && new Date(finish) < maxChildFinish) {
-                    e.preventDefault();
-                    alert('Task ini punya sub-task. Tanggal selesai tidak boleh sebelum sub-task terakhir selesai!');
-                    return false;
-                }
-            @endif
+                           @endif
         });
     });
 </script>

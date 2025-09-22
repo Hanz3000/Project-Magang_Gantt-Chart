@@ -1462,7 +1462,9 @@
         </div>
     </div>
 
-  
+    <!-- Resizer -->
+    <div class="resizer" id="resizer"></div>
+
     <!-- Timeline Header Section -->
     <div class="timeline-header-section" id="timelineHeaderSection">
         <div class="timeline-header-container">
@@ -1492,8 +1494,7 @@
         </div>
     </div>
 
-    <!-- Resizer -->
-    <div class="resizer" id="resizerMain"></div>
+   
 
     <!-- Gantt View -->
 <div class="gantt-view-container">
@@ -2393,16 +2394,20 @@ function setMonthYear(month, year) {
 
 // Initialize resizer functionality - UPDATED
 function initResizer() {
-    const resizer = document.getElementById('resizerMain');
+    const resizer = document.getElementById('resizer');
+    const resizerMain = document.getElementById('resizerMain');
+    
+    if (!resizer && !resizerMain) return;
+
+    const activeResizer = resizer || resizerMain;
     const taskListContainer = document.querySelector('.task-list-container');
     const headerLeft = document.querySelector('.task-list-header-section');
+    
+    if (!taskListContainer || !headerLeft) return;
 
-    if (!resizer || !taskListContainer || !headerLeft) {
-        console.error('Resizer initialization failed: Missing resizerMain, task-list-container, or task-list-header-section');
-        return;
-    }
+    let startX, startWidth;
 
-    // Load saved width from localStorage
+    // Load saved width dari localStorage
     const savedWidth = localStorage.getItem('taskListWidth');
     if (savedWidth) {
         taskListContainer.style.width = savedWidth;
@@ -2411,14 +2416,11 @@ function initResizer() {
         renderTimelineHeaders();
     }
 
-    let startX, startWidth;
-
-    // Mouse events
-    resizer.addEventListener('mousedown', function(e) {
+    activeResizer.addEventListener('mousedown', function(e) {
         e.preventDefault();
         startX = e.clientX;
         startWidth = taskListContainer.getBoundingClientRect().width;
-        resizer.classList.add('active');
+        activeResizer.classList.add('active');
 
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
@@ -2426,35 +2428,37 @@ function initResizer() {
 
     function onMouseMove(e) {
         const dx = e.clientX - startX;
+        // Get responsive limits based on screen size
         const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;
         const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
         const maxWidth = window.innerWidth * maxWidthPercent;
-
+        
         const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + dx));
         const newWidthPx = `${newWidth}px`;
 
         taskListContainer.style.width = newWidthPx;
         headerLeft.style.width = newWidthPx;
-        // Update Gantt chart and headers during resize for smoother experience
-        updateGanttChart();
-        renderTimelineHeaders();
     }
 
     function onMouseUp() {
-        resizer.classList.remove('active');
+        activeResizer.classList.remove('active');
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
 
         // Save the new width to localStorage
         localStorage.setItem('taskListWidth', taskListContainer.style.width);
+        
+        // Update gantt chart once at the end
+        updateGanttChart();
+        renderTimelineHeaders();
     }
 
-    // Touch events
-    resizer.addEventListener('touchstart', function(e) {
+    // Support untuk touch devices
+    activeResizer.addEventListener('touchstart', function(e) {
         e.preventDefault();
         startX = e.touches[0].clientX;
         startWidth = taskListContainer.getBoundingClientRect().width;
-        resizer.classList.add('active');
+        activeResizer.classList.add('active');
 
         document.addEventListener('touchmove', onTouchMove);
         document.addEventListener('touchend', onTouchEnd);
@@ -2465,40 +2469,23 @@ function initResizer() {
         const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;
         const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
         const maxWidth = window.innerWidth * maxWidthPercent;
-
+        
         const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + dx));
         const newWidthPx = `${newWidth}px`;
 
         taskListContainer.style.width = newWidthPx;
         headerLeft.style.width = newWidthPx;
-        // Update Gantt chart and headers during resize
-        updateGanttChart();
-        renderTimelineHeaders();
     }
 
     function onTouchEnd() {
-        resizer.classList.remove('active');
+        activeResizer.classList.remove('active');
         document.removeEventListener('touchmove', onTouchMove);
         document.removeEventListener('touchend', onTouchEnd);
 
-        // Save the new width to localStorage
-        localStorage.setItem('taskListWidth', taskListContainer.style.width);
-    }
-
-    // Handle window resize to ensure responsiveness
-    window.addEventListener('resize', () => {
-        const currentWidth = parseFloat(taskListContainer.style.width) || taskListContainer.getBoundingClientRect().width;
-        const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;
-        const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
-        const maxWidth = window.innerWidth * maxWidthPercent;
-
-        const adjustedWidth = Math.max(minWidth, Math.min(maxWidth, currentWidth));
-        taskListContainer.style.width = `${adjustedWidth}px`;
-        headerLeft.style.width = `${adjustedWidth}px`;
         localStorage.setItem('taskListWidth', taskListContainer.style.width);
         updateGanttChart();
         renderTimelineHeaders();
-    });
+    }
 }
 </script>
 @endsection
