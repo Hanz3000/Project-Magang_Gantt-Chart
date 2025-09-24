@@ -521,14 +521,16 @@
 
     /* Month Navigation Styles */
     .month-navigation {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: #f8f9fa;
-        padding: 8px 12px;
-        border-bottom: 1px solid #d1d5db;
-        flex-wrap: wrap;
-    }
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-bottom: none;         /* ✅ hilangkan garis bawah */
+    box-shadow: none;            /* ✅ pastikan tidak ada shadow */
+    flex-wrap: wrap;
+    border-radius: 6px;          /* opsional: biar lebih halus */
+}
 
     .nav-button {
         padding: 6px 12px;
@@ -638,46 +640,47 @@
     }
 
     .zoom-controls {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px;
-        border: 1px solid #e5e7eb;
-        border-radius: 4px;
-        background: #f9fafb;
-    }
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
 
-    .zoom-button {
-        padding: 4px 6px;
-        border: 1px solid #d1d5db;
-        background: white;
-        color: #374151;
-        cursor: pointer;
-        border-radius: 3px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.1s ease;
-    }
+.zoom-button {
+    width: 28px;                 /* ✅ kecilkan tombol */
+    height: 28px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #374151;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.15s ease;
+}
 
-    .zoom-button:hover:not(:disabled) {
-        background: #f3f4f6;
-        border-color: #9ca3af;
-    }
+.zoom-button:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
 
-    .zoom-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+.zoom-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
-    .zoom-level {
-        font-size: 11px;
-        font-weight: 600;
-        color: #374151;
-        min-width: 40px;
-        text-align: center;
-        padding: 0 4px;
-    }
+.zoom-level {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    min-width: 45px;             /* ✅ biar muat teks "100%" */
+    text-align: center;
+    padding: 2px 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
+}
 
     /* Loading States */
     .gantt-bar.loading {
@@ -1278,50 +1281,59 @@
 <div class="gantt-container">
     <!-- Toolbar -->
     <div class="toolbar">
-        <div class="toolbar-left">
-            <h5 class="text-sm font-semibold text-gray-800 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-                </svg>
-                Gantt Chart - Project Schedule
-            </h5>
+        <!-- Navigasi Bulan -->
+    <div class="month-navigation">
+        <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            Sebelumnya
+        </button>
+
+        <div class="current-period cursor-pointer bg-blue-100 border-blue-300 text-gray-800 font-semibold text-sm text-center px-4 py-2 rounded" id="currentPeriod" onclick="openDateModal()">
+            Januari 2025
         </div>
 
+        <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya (Alt + Panah Kanan)">
+            Berikutnya
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+
+        <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Pilih Periode Timeline">
+            <option value="1">1 Bulan</option>
+            <option value="3" selected>3 Bulan</option>
+            <option value="6">6 Bulan</option>
+            <option value="12">1 Tahun</option>
+        </select>
+
+        <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini (Alt + Home)">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+            </svg>
+            Hari Ini
+        </button>
+    </div>
+
         <div class="toolbar-right">
+            <!-- Zoom + Perluas + Ciutkan + Tambah Tugas -->
             <div class="zoom-controls">
-                <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out (Ctrl/Cmd + -)">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-
+                <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()">-</button>
                 <span class="zoom-level" id="zoomLevel">100%</span>
-
-                <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In (Ctrl/Cmd + +)">
-                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
+                <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()">+</button>
             </div>
 
-<button class="control-button flex items-center gap-1" onclick="expandAll()" title="Perluas Semua Tugas">
-    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 111.08 1.04l-4.25 4.65a.75.75 0 01-1.08 0l-4.25-4.65a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-    </svg>
-    <span>Perluas</span>
-</button>
+            <button class="control-button flex items-center gap-1" onclick="expandAll()">
+                Perluas
+            </button>
 
-<button class="control-button" onclick="collapseAll()" title="Ciutkan Semua Tugas">
-    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-    </svg>
-    Ciutkan
-</button>
+            <button class="control-button" onclick="collapseAll()">
+                Ciutkan
+            </button>
+
             @if(isset($createRoute))
-            <a href="{{ $createRoute }}" class="control-button primary" title="Tambah Tugas Baru">
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
-                </svg>
+            <a href="{{ $createRoute }}" class="control-button primary">
                 Tambah Tugas Baru
             </a>
             @endif
@@ -1393,40 +1405,7 @@
         </div>
     </div>
 
-    <!-- Navigasi Bulan -->
-    <div class="month-navigation">
-        <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            Sebelumnya
-        </button>
-
-        <div class="current-period cursor-pointer bg-blue-100 border-blue-300 text-gray-800 font-semibold text-sm text-center px-4 py-2 rounded" id="currentPeriod" onclick="openDateModal()">
-            Januari 2025
-        </div>
-
-        <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya (Alt + Panah Kanan)">
-            Berikutnya
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-        </button>
-
-        <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Pilih Periode Timeline">
-            <option value="1">1 Bulan</option>
-            <option value="3" selected>3 Bulan</option>
-            <option value="6">6 Bulan</option>
-            <option value="12">1 Tahun</option>
-        </select>
-
-        <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini (Alt + Home)">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-            </svg>
-            Hari Ini
-        </button>
-    </div>
+    
 
     <!-- Modal Pemilih Bulan/Tahun -->
 <div id="dateModal" class="fixed inset-0 bg-black bg-opacity-0 backdrop-blur-none flex items-center justify-center z-[1000] transition-all duration-400 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle" style="display: none;">
