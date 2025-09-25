@@ -236,10 +236,11 @@
       </svg>
     </div>
     <span class="font-bold text-lg sm:text-xl tracking-wide group-hover:text-blue-100 transition-colors duration-300">
-      Project Management
+      PROJECT MANAGEMENT
     </span>
   </div>
 </a>
+
 
 
         <!-- User Section -->
