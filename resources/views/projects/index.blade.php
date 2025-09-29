@@ -15,30 +15,183 @@
     --level-4-border: #d10e20;
     --level-5-bg: #5c2d91;
     --level-5-border: #522982;
-    --day-width: 24px; /* Fixed day width */
+    --day-width: 24px;
 }
 
+    /* ===== TASK LIST STYLING (GAMBAR STYLE) ===== */
+    .task-row {
+        display: grid;
+        grid-template-columns: 40px 1fr 110px 110px 90px;
+        height: 40px;
+        align-items: center;
+        padding: 0;
+        border-bottom: 1px solid #e0e0e0;
+        background: white;
+        font-size: 13px;
+        transition: background-color 0.15s ease;
+        max-width: 100%;
+        position: relative;
+    }
+
+    .task-row:hover {
+        background-color: #f5f5f5 !important;
+    }
+
+    .task-row.hidden-task {
+        display: none;
+    }
+
+    .task-row.task-child {
+        background: white;
+    }
+
+    .task-row.task-child:hover {
+        background-color: #f5f5f5 !important;
+    }
+
+    /* Task Cell Base */
+    .task-cell {
+        padding: 8px 12px;
+        border-right: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    /* Toggle Cell */
+    .task-toggle-cell {
+        justify-content: center;
+        padding: 0;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    .toggle-collapse {
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        color: #424242;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+    }
+
+    .toggle-collapse:hover {
+        background-color: #e0e0e0;
+    }
+
+    .toggle-collapse.rotate-90 {
+        transform: rotate(90deg);
+    }
+
+    /* Task Name Cell */
+    .task-name-cell {
+        text-align: left;
+        justify-content: flex-start;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    .task-name-text {
+        font-size: 14px;
+        color: #212121;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .task-row.task-child .task-name-text {
+        font-weight: 400;
+    }
+
+    /* Task Icon Square (seperti di gambar) */
+    .task-icon-square {
+        width: 16px;
+        height: 16px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    .task-icon-blue {
+        background-color: #1976d2;
+    }
+
+    .task-icon-green {
+        background-color: #388e3c;
+    }
+
+    /* Date Cell */
+    .task-date-cell {
+        justify-content: flex-start;
+        padding: 8px 12px;
+        border-right: 1px solid #e0e0e0;
+    }
+
+    .task-date-text {
+        font-size: 13px;
+        color: #424242;
+        font-weight: 400;
+    }
+
+    /* Duration Cell */
+    .task-duration-cell {
+        justify-content: center;
+        padding: 8px 12px;
+        border-right: none;
+    }
+
+    /* Duration Badge Modern (seperti di gambar) */
+    .duration-badge-modern {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        min-width: 45px;
+        text-align: center;
+        color: white;
+        transition: all 0.2s ease;
+    }
+
+    /* Duration badge akan di-color oleh JavaScript berdasarkan level */
+    .duration-badge,
+    .duration-badge-modern {
+        background-color: #1976d2;
+        color: white;
+    }
+
+    /* ===== GANTT CONTAINER ===== */
     .gantt-container {
         display: flex;
         flex-direction: column;
         min-height: calc(100vh - 120px);
         overflow-y: auto;
-        /* Izinkan scroll vertikal */
         overflow-x: hidden;
         background: #ffffff;
         border: 1px solid #d1d5db;
+        border-radius: 12px; /* Rounded corners */
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         max-width: 100vw;
         box-sizing: border-box;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     .gantt-header {
-        background: #f8f9fa;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-bottom: 1px solid #d1d5db;
-        padding: 8px 12px;
-        font-size: 14px;
+        padding: 12px 16px;
+        font-size: 16px;
         font-weight: 600;
-        color: #374151;
+        color: white;
+        border-radius: 12px 12px 0 0;
     }
 
     .gantt-main-content {
@@ -48,51 +201,51 @@
         overflow: hidden;
     }
 
-    /* Task List - Variable width with resizer */
+    /* Task List Container */
     .task-list-container {
-        width: 400px; /* Default fixed width in pixels */
-        min-width: 200px;
+        width: 550px; /* Lebih lebar untuk menampung kolom baru */
+        min-width: 400px;
         max-width: 80%;
         display: flex;
         flex-direction: column;
-        border-right: 1px solid #d1d5db;
+        border-right: 1px solid #e0e0e0;
         background: #ffffff;
         overflow: hidden;
-        flex-shrink: 0; /* Prevent shrinking */
+        flex-shrink: 0;
     }
 
-    /* Gantt View - Takes remaining space */
+    /* Gantt View Container */
     .gantt-view-container {
-        flex: 1; /* Takes all remaining space */
+        flex: 1;
         display: flex;
         flex-direction: column;
         background: white;
         overflow: hidden;
-        min-width: 0; /* Allow shrinking */
+        min-width: 0;
     }
 
     /* Combined Header Container */
     .combined-header-container {
         display: flex;
         width: 100%;
-        background: #f1f3f4;
-        border-bottom: 1px solid #d1d5db;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e5e7eb;
         position: sticky;
         top: 0;
         z-index: 20;
     }
 
     .task-list-header-section {
-        width: 400px; /* Match task-list-container */
-        min-width: 200px;
+        width: 550px; /* Match task-list-container */
+        min-width: 400px;
         max-width: 80%;
-        border-right: 1px solid #d1d5db;
+        border-right: 1px solid #e0e0e0;
         overflow: hidden;
         flex-shrink: 0;
     }
 
     .timeline-header-section {
-        flex: 1; /* Takes remaining space */
+        flex: 1;
         overflow-x: hidden !important;
         overflow-y: hidden;
         min-width: 0;
@@ -102,30 +255,47 @@
         display: none;
     }
 
+    /* Modern Task Header Row */
     .task-header-row {
         display: grid;
-        grid-template-columns: 40px 250px 80px 100px 100px;
-        height: 32px;
+        grid-template-columns: 40px 1fr 110px 110px 90px;
+        height: 40px;
         align-items: center;
-        padding: 0 8px;
-        border-bottom: 1px solid #d1d5db;
+        padding: 0;
+        border-bottom: 2px solid #bdbdbd;
         position: relative;
+        background: #fafafa;
     }
 
     .task-header-cell {
-        padding: 4px 0;
-        text-align: center;
-        border-right: 1px solid #e5e7eb;
-        font-size: 11px;
+        padding: 8px 12px;
+        text-align: left;
+        border-right: 1px solid #e0e0e0;
+        font-size: 12px;
         font-weight: 600;
-        color: #6b7280;
+        color: #616161;
+        text-transform: none;
+        letter-spacing: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        display: flex;
+        align-items: center;
+        height: 100%;
     }
 
     .task-header-cell:first-child {
-        text-align: left;
+        justify-content: center;
+    }
+
+    .task-header-cell:nth-child(4),
+    .task-header-cell:nth-child(5) {
+        justify-content: flex-start;
+    }
+
+    .task-header-cell:last-child {
+        justify-content: center;
+        border-right: none;
     }
 
     .shifted-right {
@@ -181,7 +351,7 @@
         height: 100%;
     }
 
-    /* Timeline Grid - Fixed day width */
+    /* Timeline Grid */
     .month-header {
         display: flex;
         border-bottom: 1px solid #d1d5db;
@@ -212,7 +382,6 @@
         min-width: fit-content;
     }
 
-    /* Fixed day width - always 24px regardless of zoom or resizer */
     .timeline-day {
         width: var(--day-width);
         min-width: var(--day-width);
@@ -275,70 +444,9 @@
         font-weight: 700;
     }
 
-    /* Task Rows */
-    .task-row {
-        display: grid;
-        grid-template-columns: 40px 250px 80px 100px 100px;
-        height: 32px;
-        align-items: center;
-        padding: 0 8px;
-        border-bottom: 1px solid #f1f5f9;
-        background: white;
-        font-size: 11px;
-        transition: background-color 0.1s ease;
-        max-width: 100%;
-        position: relative;
-    }
-
-    .task-row:nth-child(even) {
-        background: #fafbfc;
-    }
-
-    .task-row:hover {
-        background-color: #e3f2fd;
-    }
-
-    .task-row.hidden-task {
-        display: none;
-    }
-
-    .task-row.task-child {
-        background: #f8f9fa;
-        border-left: 3px solid #e5e7eb;
-    }
-
-    .task-row.task-child:hover {
-        background-color: #f0f9ff;
-    }
-
-    .task-cell {
-        padding: 2px 0;
-        text-align: center;
-        border-right: 1px solid #f1f5f9;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .task-cell:first-child {
-        text-align: left;
-        display: flex;
-        align-items: center;
-    }
-
-    .task-name-cell {
-        text-align: left;
-        width: 250px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: flex;
-        align-items: center;
-    }
-
-    /* Gantt Rows - Fixed day width */
+    /* Gantt Rows */
     .gantt-row {
-        height: 32px;
+        height: 36px; /* Match task row height */
         position: relative;
         border-bottom: 1px solid #f1f5f9;
         background: white;
@@ -352,19 +460,18 @@
     }
 
     .gantt-row:hover {
-        background: #e3f2fd;
+        background: #f0f7ff;
     }
 
     .gantt-row.hidden-gantt-row {
         display: none;
     }
 
-    /* Fixed grid cell width */
     .gantt-grid-cell {
         width: var(--day-width);
         min-width: var(--day-width);
         max-width: var(--day-width);
-        height: 32px;
+        height: 36px;
         border-right: 1px solid #f1f5f9;
         flex-shrink: 0;
     }
@@ -379,18 +486,18 @@
         border-right: 2px solid #1e40af;
     }
 
-    /* Task Bars */
+    /* Task Bars - Enhanced */
     .gantt-bar {
         position: absolute;
-        top: 6px;
+        top: 8px; /* Centered vertically */
         height: 20px;
-        border-radius: 2px;
+        border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        padding: 0 6px;
+        padding: 0 8px;
         font-size: 10px;
-        font-weight: 500;
+        font-weight: 600;
         color: white;
         cursor: pointer;
         transition: all 0.2s ease;
@@ -399,298 +506,106 @@
         text-overflow: ellipsis;
         min-width: 20px;
         z-index: 5;
-        border: 1px solid rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.15);
         box-sizing: border-box;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .gantt-bar:hover {
-        transform: translateY(-1px);
+        transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         z-index: 10;
     }
 
     /* Task Colors by Level */
-.level-0 {
-    background: var(--level-0-bg);
-    border-color: var(--level-0-border);
-}
+    .level-0 {
+        background: var(--level-0-bg);
+        border-color: var(--level-0-border);
+    }
 
-.level-1 {
-    background: var(--level-1-bg);
-    border-color: var(--level-1-border);
-}
+    .level-1 {
+        background: var(--level-1-bg);
+        border-color: var(--level-1-border);
+    }
 
-.level-2 {
-    background: var(--level-2-bg);
-    border-color: var(--level-2-border);
-}
+    .level-2 {
+        background: var(--level-2-bg);
+        border-color: var(--level-2-border);
+    }
 
-.level-3 {
-    background: var(--level-3-bg);
-    border-color: var(--level-3-border);
-}
+    .level-3 {
+        background: var(--level-3-bg);
+        border-color: var(--level-3-border);
+    }
 
-.level-4 {
-    background: var(--level-4-bg);
-    border-color: var(--level-4-border);
-}
+    .level-4 {
+        background: var(--level-4-bg);
+        border-color: var(--level-4-border);
+    }
 
-.level-5 {
-    background: var(--level-5-bg);
-    border-color: var(--level-5-border);
-}
+    .level-5 {
+        background: var(--level-5-bg);
+        border-color: var(--level-5-border);
+    }
 
-/* Task Indicators */
-.task-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    margin-right: 6px;
-    flex-shrink: 0;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.indicator-level-0 {
-    background: var(--level-0-bg);
-}
-
-.indicator-level-1 {
-    background: var(--level-1-bg);
-}
-
-.indicator-level-2 {
-    background: var(--level-2-bg);
-}
-
-.indicator-level-3 {
-    background: var(--level-3-bg);
-}
-
-.indicator-level-4 {
-    background: var(--level-4-bg);
-}
-
-.indicator-level-5 {
-    background: var(--level-5-bg);
-}
-    /* Duration Badges */
-    .duration-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    min-width: 45px;
-    text-align: center;
-    line-height: 1;
-    border: 1px solid #e5e7eb;
-    transition: background-color 0.2s ease;
-}
-
-    /* Toggle Icons */
-    .toggle-collapse {
-        cursor: pointer;
-        padding: 2px;
+    /* Task Indicators */
+    .task-indicator {
+        width: 12px;
+        height: 12px;
         border-radius: 2px;
-        transition: all 0.1s ease;
-        color: #6b7280;
-        width: 16px;
-        height: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        margin-right: 6px;
+        flex-shrink: 0;
+        border: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-    .toggle-collapse:hover {
-        background-color: #e5e7eb;
-        color: #374151;
-    }
+    .indicator-level-0 { background: var(--level-0-bg); }
+    .indicator-level-1 { background: var(--level-1-bg); }
+    .indicator-level-2 { background: var(--level-2-bg); }
+    .indicator-level-3 { background: var(--level-3-bg); }
+    .indicator-level-4 { background: var(--level-4-bg); }
+    .indicator-level-5 { background: var(--level-5-bg); }
 
-    .toggle-collapse.rotate-90 {
-        transform: rotate(90deg);
-    }
-
-    .gantt-rows-container {
-        width: fit-content;
-        min-width: 100%;
-        overflow-x: visible;
-        display: block;
-    }
-
-    /* Month Navigation Styles */
-    .month-navigation {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #f8f9fa;
-    padding: 8px 12px;
-    border-bottom: none;         /* ✅ hilangkan garis bawah */
-    box-shadow: none;            /* ✅ pastikan tidak ada shadow */
-    flex-wrap: wrap;
-    border-radius: 6px;          /* opsional: biar lebih halus */
-}
-
-    .nav-button {
-        padding: 6px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 4px;
-        background: white;
-        color: #374151;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.1s ease;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-weight: 500;
-    }
-
-    .nav-button:hover:not(:disabled) {
-        background: #f3f4f6;
-        border-color: #9ca3af;
-    }
-
-    .nav-button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .current-period {
-        font-weight: 600;
-        color: #374151;
-        font-size: 13px;
-        min-width: 180px;
-        text-align: center;
-        padding: 6px 12px;
-        background: #e3f2fd;
-        border-radius: 4px;
-        border: 1px solid #bbdefb;
-    }
-
-    .period-selector {
-        padding: 6px 8px;
-        border: 1px solid #d1d5db;
-        border-radius: 4px;
-        background: white;
-        color: #374151;
-        font-size: 12px;
-        cursor: pointer;
-        font-weight: 500;
-    }
-
-    /* Toolbar Styles */
-    .toolbar {
-        background: #f8f9fa;
-        border-bottom: 1px solid #d1d5db;
-        padding: 8px 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .toolbar-left {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .toolbar-right {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: white;
-        padding: 8px 12px;
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e5e7eb;
-    }
-
-    .control-button {
-        padding: 6px 10px;
-        border: 1px solid #d1d5db;
-        border-radius: 4px;
-        background: white;
-        color: #374151;
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.1s ease;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-weight: 500;
-    }
-
-    .control-button:hover {
-        background: #f3f4f6;
-        border-color: #9ca3af;
-    }
-
-    .control-button.primary {
-        background: #0078d4;
+    /* Duration Badges Colors */
+    .duration-badge[data-level="0"] {
+        background-color: #0078d4;
         color: white;
         border-color: #106ebe;
     }
 
-    .control-button.primary:hover {
-        background: #106ebe;
+    .duration-badge[data-level="1"] {
+        background-color: #107c10;
+        color: white;
+        border-color: #0e6e0e;
     }
 
-    .zoom-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.zoom-button {
-    width: 28px;                 /* ✅ kecilkan tombol */
-    height: 28px;
-    border: 1px solid #d1d5db;
-    background: #ffffff;
-    color: #374151;
-    cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    transition: all 0.15s ease;
-}
-
-.zoom-button:hover:not(:disabled) {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-}
-
-.zoom-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.zoom-level {
-    font-size: 12px;
-    font-weight: 600;
-    color: #374151;
-    min-width: 45px;             /* ✅ biar muat teks "100%" */
-    text-align: center;
-    padding: 2px 6px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    background: #fff;
-}
-
-    /* Loading States */
-    .gantt-bar.loading {
-        background: #e5e7eb !important;
-        animation: pulse 1.5s ease-in-out infinite;
+    .duration-badge[data-level="2"] {
+        background-color: #881798;
+        color: white;
+        border-color: #7a1589;
     }
 
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+    .duration-badge[data-level="3"] {
+        background-color: #ff8c00;
+        color: white;
+        border-color: #e67e00;
+    }
+
+    .duration-badge[data-level="4"] {
+        background-color: #e81123;
+        color: white;
+        border-color: #d10e20;
+    }
+
+    .duration-badge[data-level="5"] {
+        background-color: #5c2d91;
+        color: white;
+        border-color: #522982;
+    }
+
+    .duration-badge:not([data-level]) {
+        background-color: #6b7280;
+        color: white;
+        border-color: #4b5563;
     }
 
     /* Task Children Container */
@@ -729,154 +644,201 @@
         background: transparent;
     }
 
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-        .toolbar {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 8px;
-        }
-
-        .toolbar-left,
-        .toolbar-right {
-            justify-content: center;
-        }
-
-        .month-navigation {
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .current-period {
-            min-width: 150px;
-        }
+    /* Modern Toolbar */
+    .toolbar {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
     }
 
-    @media (max-width: 1024px) {
-        .task-list-container,
-        .task-list-header-section {
-            width: 350px;
-            min-width: 180px;
-            max-width: 70%;
-        }
-
-        .resizer {
-            width: 5px;
-        }
+    .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
-    @media (max-width: 768px) {
-        .task-list-container,
-        .task-list-header-section {
-            width: 300px;
-            min-width: 150px;
-            max-width: 60%;
-        }
-
-        .month-navigation {
-            padding: 6px;
-            gap: 4px;
-        }
-
-        .nav-button,
-        .control-button {
-            padding: 4px 8px;
-            font-size: 11px;
-        }
-
-        .current-period {
-            min-width: 120px;
-            font-size: 12px;
-        }
-
-        .date-fields-row {
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .date-field {
-            flex: 1 1 100%;
-        }
-
-        .resizer {
-            width: 5px;
-        }
+    .toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
     }
 
-    /* Accessibility Improvements */
-    .gantt-bar:focus {
-        outline: 2px solid #2563eb;
-        outline-offset: 1px;
+    /* Month Navigation */
+    .month-navigation {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8f9fa;
+        padding: 8px 12px;
+        border-bottom: none;
+        box-shadow: none;
+        flex-wrap: wrap;
+        border-radius: 8px;
     }
 
-    .nav-button:focus,
-    .control-button:focus,
-    .zoom-button:focus {
-        outline: 2px solid #2563eb;
-        outline-offset: 2px;
+    .nav-button {
+        padding: 8px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: white;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-        .gantt-bar {
-            border-width: 2px;
-            border-style: solid;
-        }
-
-        .gantt-grid-cell,
-        .timeline-day {
-            border-width: 1px;
-            border-color: #000;
-        }
+    .nav-button:hover:not(:disabled) {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+        transform: translateY(-1px);
     }
 
-    /* Reduced motion support */
-    @media (prefers-reduced-motion: reduce) {
-        .gantt-bar {
-            transition: none;
-        }
-
-        .gantt-bar:hover {
-            transform: none;
-        }
-
-        .toggle-collapse {
-            transition: none;
-        }
-
-        .gantt-bar.loading {
-            animation: none;
-        }
+    .nav-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
-    /* Print styles */
-    @media print {
-        .gantt-container {
-            height: auto !important;
-            min-height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
-        }
-
-        .task-list-body,
-        .gantt-content-container {
-            height: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
-        }
-
-        .toolbar,
-        .month-navigation {
-            display: none !important;
-        }
-
-        .gantt-bar {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
+    .current-period {
+        font-weight: 600;
+        color: #1e40af;
+        font-size: 13px;
+        min-width: 180px;
+        text-align: center;
+        padding: 8px 14px;
+        background: #dbeafe;
+        border-radius: 6px;
+        border: 1px solid #93c5fd;
+        cursor: pointer;
+        transition: all 0.15s ease;
     }
 
-    /* Enhanced Modal Styles with Smooth Animations - UPDATED */
+    .current-period:hover {
+        background: #bfdbfe;
+        border-color: #60a5fa;
+    }
+
+    .period-selector {
+        padding: 8px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: white;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .control-button {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: white;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        text-decoration: none;
+    }
+
+    .control-button:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+        transform: translateY(-1px);
+    }
+
+    .control-button.primary {
+        background: #0078d4;
+        color: white;
+        border-color: #106ebe;
+    }
+
+    .control-button.primary:hover {
+        background: #106ebe;
+    }
+
+    /* Zoom Controls */
+    .zoom-controls {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .zoom-button {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        color: #374151;
+        cursor: pointer;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.15s ease;
+    }
+
+    .zoom-button:hover:not(:disabled) {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+        transform: scale(1.05);
+    }
+
+    .zoom-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .zoom-level {
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        min-width: 50px;
+        text-align: center;
+        padding: 4px 8px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: #fff;
+    }
+
+    /* Loading States */
+    .gantt-bar.loading {
+        background: #e5e7eb !important;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .gantt-rows-container {
+        width: fit-content;
+        min-width: 100%;
+        overflow-x: visible;
+        display: block;
+    }
+
+    /* Enhanced Modal Styles with Smooth Animations */
     .modal {
         position: fixed;
         z-index: 1000;
@@ -1026,7 +988,6 @@
         font-style: italic;
     }
 
-    /* CSS untuk date fields bersebelahan */
     .date-fields-row {
         display: flex;
         gap: 16px;
@@ -1145,8 +1106,90 @@
         box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
     }
 
-    /* Responsive Design for Modal */
+    #dateModal.show {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        opacity: 1;
+    }
+    
+    #dateModal.show > div {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            justify-content: center;
+        }
+
+        .month-navigation {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .current-period {
+            min-width: 150px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .task-list-container,
+        .task-list-header-section {
+            width: 350px;
+            min-width: 180px;
+            max-width: 70%;
+        }
+
+        .resizer {
+            width: 5px;
+        }
+    }
+
     @media (max-width: 768px) {
+        .task-list-container,
+        .task-list-header-section {
+            width: 300px;
+            min-width: 150px;
+            max-width: 60%;
+        }
+
+        .month-navigation {
+            padding: 6px;
+            gap: 4px;
+        }
+
+        .nav-button,
+        .control-button {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        .current-period {
+            min-width: 120px;
+            font-size: 12px;
+        }
+
+        .date-fields-row {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .date-field {
+            flex: 1 1 100%;
+        }
+
+        .resizer {
+            width: 5px;
+        }
+
         .modal-content {
             width: 95%;
             margin: 20px auto;
@@ -1190,6 +1233,18 @@
     }
 
     /* Accessibility improvements */
+    .gantt-bar:focus {
+        outline: 2px solid #2563eb;
+        outline-offset: 1px;
+    }
+
+    .nav-button:focus,
+    .control-button:focus,
+    .zoom-button:focus {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+    }
+
     .modal-btn:focus {
         outline: 2px solid #2563eb;
         outline-offset: 2px;
@@ -1219,62 +1274,64 @@
         background: #94a3b8;
     }
 
-    /* Duration Badge Styles */
-    .duration-badge {
-        transition: background-color 0.2s ease;
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .gantt-bar {
+            border-width: 2px;
+            border-style: solid;
+        }
+
+        .gantt-grid-cell,
+        .timeline-day {
+            border-width: 1px;
+            border-color: #000;
+        }
     }
 
-    .duration-badge[data-level="0"] {
-        background-color: #0078d4;
-        color: white;
-        border: 1px solid #106ebe;
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        .gantt-bar,
+        .toggle-collapse,
+        .nav-button,
+        .control-button,
+        .modal-content {
+            transition: none;
+        }
+
+        .gantt-bar:hover {
+            transform: none;
+        }
+
+        .gantt-bar.loading {
+            animation: none;
+        }
     }
 
-    .duration-badge[data-level="1"] {
-        background-color: #107c10;
-        color: white;
-        border: 1px solid #0e6e0e;
-    }
+    /* Print styles */
+    @media print {
+        .gantt-container {
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+        }
 
-    .duration-badge[data-level="2"] {
-        background-color: #881798;
-        color: white;
-        border: 1px solid #7a1589;
-    }
+        .task-list-body,
+        .gantt-content-container {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+        }
 
-    .duration-badge[data-level="3"] {
-        background-color: #ff8c00;
-        color: white;
-        border: 1px solid #e67e00;
-    }
+        .toolbar,
+        .month-navigation {
+            display: none !important;
+        }
 
-    .duration-badge[data-level="4"] {
-        background-color: #e81123;
-        color: white;
-        border: 1px solid #d10e20;
-    }
-
-    .duration-badge[data-level="5"] {
-        background-color: #5c2d91;
-        color: white;
-        border: 1px solid #522982;
-    }
-
-    .duration-badge:not([data-level]) {
-        background-color: #6b7280;
-        color: white;
-        border: 1px solid #4b5563;
-    }
-
-    /* CSS kustom untuk transisi lebih halus */
-    #dateModal.show {
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-        opacity: 1;
-    }
-    #dateModal.show > div {
-        transform: translateY(0) scale(1);
-        opacity: 1;
+        .gantt-bar {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
     }
 </style>
 
@@ -1290,7 +1347,7 @@
             Sebelumnya
         </button>
 
-        <div class="current-period cursor-pointer bg-blue-100 border-blue-300 text-gray-800 font-semibold text-sm text-center px-4 py-2 rounded" id="currentPeriod" onclick="openDateModal()">
+        <div class="current-period" id="currentPeriod" onclick="openDateModal()" title="Klik untuk memilih bulan/tahun">
             Januari 2025
         </div>
 
@@ -1319,16 +1376,16 @@
         <div class="toolbar-right">
             <!-- Zoom + Perluas + Ciutkan + Tambah Tugas -->
             <div class="zoom-controls">
-                <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()">-</button>
+                <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out">-</button>
                 <span class="zoom-level" id="zoomLevel">100%</span>
-                <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()">+</button>
+                <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In">+</button>
             </div>
 
-            <button class="control-button flex items-center gap-1" onclick="expandAll()">
+            <button class="control-button" onclick="expandAll()" title="Perluas semua tugas">
                 Perluas
             </button>
 
-            <button class="control-button" onclick="collapseAll()">
+            <button class="control-button" onclick="collapseAll()" title="Ciutkan semua tugas">
                 Ciutkan
             </button>
 
@@ -1388,7 +1445,7 @@
                 </a>
 
                 <a href="#" id="deleteTaskBtn"
-                    class="modal-btn modal-btn-danger flex items-center gap-2">
+                    class="modal-btn modal-btn-danger">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M6.5 3a1 1 0 00-1 1v1H4a1 1 0 000 2h1v9a2 2 0 002 2h6a2 2 0 002-2V7h1a1 1 0 100-2h-1.5V4a1 1 0 00-1-1h-5zM7.5 5h5V4h-5v1zM7 7v8h6V7H7z" clip-rule="evenodd"></path>
                         <path d="M9 9v4M11 9v4"></path>
@@ -1404,8 +1461,6 @@
             </div>
         </div>
     </div>
-
-    
 
     <!-- Modal Pemilih Bulan/Tahun -->
 <div id="dateModal" class="fixed inset-0 bg-black bg-opacity-0 backdrop-blur-none flex items-center justify-center z-[1000] transition-all duration-400 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle" style="display: none;">
@@ -1433,15 +1488,14 @@
     <!-- Task List Header Section -->
     <div class="task-list-header-section">
         <div class="task-header-row">
-            <div class="task-header-cell" style="width: 40px;"></div>
-            <div class="task-header-cell shifted" style="width: 250px; text-align: left; padding: 0 8px;">Nama Tugas</div>
-            <div class="task-header-cell shifted-right" style="width: 80px; text-align: center; padding: 0 8px;">Durasi</div>
-            <div class="task-header-cell shifted-right" style="width: 100px; text-align: center; padding: 0 8px;">Mulai</div>
-            <div class="task-header-cell shifted-right" style="width: 100px; text-align: center; padding: 0 8px;">Selesai</div>
+            <div class="task-header-cell"></div>
+            <div class="task-header-cell">Task Name</div>
+            <div class="task-header-cell">Start Date</div>
+            <div class="task-header-cell">End Date</div>
+            <div class="task-header-cell">Duration</div>
         </div>
     </div>
 
-  
     <!-- Timeline Header Section -->
     <div class="timeline-header-section" id="timelineHeaderSection">
         <div class="timeline-header-container">
@@ -1485,20 +1539,19 @@
 </div>
 
 <script>
-    // Global variables for timeline management
+// Global variables for timeline management
 let currentDate = new Date();
 let timelinePeriod = 3; // months
-let currentZoom = 100; // Note: zoom doesn't affect day width anymore
+let currentZoom = 100;
 let timelineData = {
     startDate: null,
     endDate: null,
     days: []
 };
 let tasksData = [];
-let collapsedTasks = new Set(); // Track collapsed tasks
+let collapsedTasks = new Set();
 let isModalAnimating = false;
 
-// Nama bulan dalam bahasa Indonesia
 const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
 @if(isset($structuredTasks) && count($structuredTasks) > 0)
@@ -1506,13 +1559,12 @@ tasksData = @json($structuredTasks);
 @endif
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Tasks data:', tasksData); // Debug log
+    console.log('Tasks data:', tasksData);
     const yearInput = document.getElementById('modalYearInput');
     if (yearInput) {
         yearInput.addEventListener('input', renderModalMonths);
     }
 
-    // Load warna dari localStorage saat halaman dimuat
     for (let i = 0; i < 6; i++) {
         const bg = localStorage.getItem(`level-${i}-bg`);
         const border = localStorage.getItem(`level-${i}-border`);
@@ -1520,27 +1572,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (border) document.documentElement.style.setProperty(`--level-${i}-border`, border);
     }
 
-    // Inisialisasi Gantt chart
     initializeTimeline();
     setupScrollSynchronization();
     updateGanttChart();
     updateZoomButtons();
     initResizer();
 
-    // Inisialisasi collapse state dari DOM
     document.querySelectorAll('.task-children.collapsed').forEach(container => {
         const parentId = container.getAttribute('data-parent-id');
         if (parentId) collapsedTasks.add(parentId);
     });
 
-    // Inisialisasi trap focus untuk modal
     const modal = document.getElementById('taskModal');
     if (modal) trapFocus(modal);
 
     updateDurationBadgeColors();
 });
 
-// Initialize timeline based on current date and period
 function initializeTimeline() {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     timelineData.startDate = new Date(startOfMonth);
@@ -1555,7 +1603,6 @@ function initializeTimeline() {
     renderTimelineHeaders();
 }
 
-// Generate array of days for the timeline
 function generateTimelineDays() {
     timelineData.days = [];
     const currentDay = new Date(timelineData.startDate);
@@ -1575,7 +1622,6 @@ function generateTimelineDays() {
     }
 }
 
-// Check if date is today
 function isToday(date) {
     const today = new Date();
     return date.getDate() === today.getDate() &&
@@ -1583,7 +1629,6 @@ function isToday(date) {
            date.getFullYear() === today.getFullYear();
 }
 
-// Update current period display
 function updateCurrentPeriodDisplay() {
     const periodElement = document.getElementById('currentPeriod');
     if (periodElement) {
@@ -1593,7 +1638,6 @@ function updateCurrentPeriodDisplay() {
     }
 }
 
-// Render timeline headers
 function renderTimelineHeaders() {
     renderMonthHeaders();
     renderDayHeaders();
@@ -1601,7 +1645,6 @@ function renderTimelineHeaders() {
     setDefaultScrollPosition();
 }
 
-// Render month headers
 function renderMonthHeaders() {
     const monthHeaderContainer = document.getElementById('monthHeaderContainer');
     if (!monthHeaderContainer) return;
@@ -1629,7 +1672,6 @@ function renderMonthHeaders() {
     monthHeaderContainer.innerHTML = monthHeaderHTML;
 }
 
-// Render day headers
 function renderDayHeaders() {
     const dayHeaderContainer = document.getElementById('dayHeaderContainer');
     if (!dayHeaderContainer) return;
@@ -1662,7 +1704,6 @@ function getFullDayName(dayOfWeek) {
     return fullDayNames[dayOfWeek];
 }
 
-// Check if date is a holiday
 function isHoliday(date) {
     const holidays = [
         '2025-01-01', '2025-03-03', '2025-04-18', '2025-05-01', '2025-05-29',
@@ -1672,13 +1713,10 @@ function isHoliday(date) {
     return holidays.includes(dateString);
 }
 
-// Get current day width - ALWAYS return fixed 24px
 function getDayWidth() {
-    // Return fixed 24px regardless of zoom level
     return 24 * (currentZoom / 100);
 }
 
-// Check if a task should be visible
 function isTaskVisible(task) {
     if (!task.parent_id) return true;
     const parent = tasksData.find(t => t.id === task.parent_id);
@@ -1686,7 +1724,6 @@ function isTaskVisible(task) {
     return isTaskVisible(parent) && !collapsedTasks.has(parent.id.toString());
 }
 
-// Get visible tasks in hierarchical order
 function getVisibleTasks() {
     const visibleTasks = [];
     function traverseTasks(tasks, parentId = null) {
@@ -1705,7 +1742,6 @@ function getVisibleTasks() {
     return visibleTasks;
 }
 
-// Update Gantt chart bars
 function updateGanttChart() {
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (!ganttRowsContainer) return;
@@ -1722,7 +1758,6 @@ function updateGanttChart() {
     updateGanttWidths();
 }
 
-// Generate Gantt row for a task
 function generateGanttRow(task) {
     const dayWidth = getDayWidth();
     const isHidden = !isTaskVisible(task);
@@ -1739,15 +1774,9 @@ function generateGanttRow(task) {
     return rowHTML;
 }
 
-// Generate task bar
 function generateTaskBar(task, dayWidth) {
-    // Cek apakah task ini parent (punya anak)
     const hasChildren = tasksData.some(t => t.parent_id == task.id);
-
-    // Jika dia parent TAPI tidak punya anak, JANGAN tampilkan Gantt bar
     if (!hasChildren && task.parent_id == null) return null;
-
-    // Jika tidak punya tanggal, skip
     if (!task.startDate || !task.endDate) return null;
 
     const taskStart = new Date(task.startDate);
@@ -1775,7 +1804,6 @@ function generateTaskBar(task, dayWidth) {
     `;
 }
 
-// Add today indicator line
 function addTodayIndicator() {
     const today = new Date();
     const todayIndex = timelineData.days.findIndex(day =>
@@ -1797,7 +1825,6 @@ function addTodayIndicator() {
     }
 }
 
-// Navigation functions
 function navigateMonth(direction) {
     currentDate.setMonth(currentDate.getMonth() + direction);
     initializeTimeline();
@@ -1816,7 +1843,6 @@ function goToToday() {
     updateGanttChart();
 }
 
-// Zoom functions (for UI consistency - doesn't affect day width)
 const minZoom = 50;
 const maxZoom = 200;
 const zoomStep = 25;
@@ -1825,7 +1851,6 @@ function updateZoomLevel() {
     const zoomLevelElement = document.getElementById('zoomLevel');
     if (zoomLevelElement) zoomLevelElement.textContent = `${currentZoom}%`;
     updateZoomButtons();
-    
 }
 
 function updateZoomButtons() {
@@ -1835,7 +1860,6 @@ function updateZoomButtons() {
     if (zoomOutBtn) zoomOutBtn.disabled = currentZoom <= minZoom;
 }
 
-// ...existing code...
 function zoomIn() {
     if (currentZoom < maxZoom) {
         currentZoom += zoomStep;
@@ -1854,7 +1878,6 @@ function zoomOut() {
     }
 }
 
-// Update Gantt widths
 function updateGanttWidths() {
     const dayWidth = getDayWidth();
     const totalWidth = timelineData.days.length * dayWidth;
@@ -1870,7 +1893,6 @@ function updateGanttWidths() {
     }
 }
 
-// Setup scroll synchronization
 function setupScrollSynchronization() {
     const taskListBody = document.getElementById('taskListBody');
     const ganttContent = document.getElementById('ganttContent');
@@ -1884,15 +1906,13 @@ function setupScrollSynchronization() {
     });
 }
 
-// Set default scroll position to the start of the timeline
 function setDefaultScrollPosition() {
     const ganttContent = document.getElementById('ganttContent');
     if (ganttContent) {
-        ganttContent.scrollLeft = 0; // Set scroll ke awal (kiri)
+        ganttContent.scrollLeft = 0;
     }
 }
 
-// Task collapse/expand functionality
 function toggleTaskCollapse(taskId) {
     const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
     const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
@@ -1905,7 +1925,6 @@ function toggleTaskCollapse(taskId) {
     }
 }
 
-// Event listeners for toggle buttons and task interactions
 document.addEventListener('click', function(e) {
     if (e.target.closest('.toggle-collapse')) {
         const taskId = e.target.closest('.toggle-collapse').getAttribute('data-task-id');
@@ -1919,7 +1938,7 @@ document.addEventListener('click', function(e) {
         const taskId = e.target.closest('.task-name-cell').getAttribute('data-task-id');
         const task = tasksData.find(t => t.id == taskId);
         if (task) {
-            console.log('Task from name cell:', task); // Debug log
+            console.log('Task from name cell:', task);
             openTaskModal(task);
         }
     }
@@ -1928,17 +1947,15 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Handle task bar click
 function handleTaskBarClick(taskId) {
     const task = tasksData.find(t => t.id == taskId);
     if (task) {
-        console.log('Task from gantt bar:', task); // Debug log
+        console.log('Task from gantt bar:', task);
         openTaskModal(task);
         document.dispatchEvent(new CustomEvent('taskSelected', { detail: { task } }));
     }
 }
 
-// Expand/Collapse all functions
 function expandAll() {
     document.querySelectorAll('.task-children').forEach(container => container.classList.remove('collapsed'));
     document.querySelectorAll('.toggle-collapse').forEach(icon => icon.classList.add('rotate-90'));
@@ -1956,7 +1973,6 @@ function collapseAll() {
     updateGanttChart();
 }
 
-// Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey || e.metaKey) {
         if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); }
@@ -1974,7 +1990,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Utility functions
 function formatDate(dateString) {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -1990,7 +2005,6 @@ function calculateDuration(startDate, endDate) {
     return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
 }
 
-// Responsive handling
 function handleResize() {
     setTimeout(() => {
         renderTimelineHeaders();
@@ -1999,12 +2013,10 @@ function handleResize() {
 }
 window.addEventListener('resize', handleResize);
 
-// Prevent double-tap zoom on mobile
 document.addEventListener('touchend', function(e) {
     if (e.target.closest('.modal-btn') || e.target.closest('.modal-close-x')) e.preventDefault();
 });
 
-// Public API for external integration
 window.GanttChart = {
     navigateMonth,
     changePeriod,
@@ -2054,7 +2066,6 @@ window.GanttChart = {
     }
 };
 
-// Event listeners for Laravel integration
 document.addEventListener('taskSelected', function(e) {
     console.log('Task selected:', e.detail.task);
 });
@@ -2069,7 +2080,6 @@ document.addEventListener('taskAdded', function(e) {
     window.GanttChart.addTask(e.detail.task);
 });
 
-// Enhanced modal functions
 function openTaskModal(task) {
     if (isModalAnimating) return;
     const modal = document.getElementById('taskModal');
@@ -2080,7 +2090,7 @@ function openTaskModal(task) {
     document.body.style.top = `-${scrollY}px`;
     document.body.dataset.scrollY = scrollY;
     modal.style.display = 'flex';
-    modal.offsetHeight; // Force reflow
+    modal.offsetHeight;
     modal.classList.add('opening');
     setTimeout(() => { isModalAnimating = false; }, 300);
 }
@@ -2106,34 +2116,33 @@ function closeTaskModal() {
 
 function populateModalContent(task) {
     console.log('Populating modal with task:', task);
-    console.log('taskDuration element:', document.getElementById('taskDuration'));
 
     const taskNameEl = document.getElementById('taskName');
     if (taskNameEl) taskNameEl.textContent = task.name || 'Untitled Task';
 
     const durationEl = document.getElementById('taskDuration');
-if (durationEl) {
-    durationEl.textContent = task.duration ? `${task.duration} hari` : 'Tidak ditentukan';
-    durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
-} else console.error('Elemen taskDuration tidak ditemukan!');
+    if (durationEl) {
+        durationEl.textContent = task.duration ? `${task.duration} hari` : 'Tidak ditentukan';
+        durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
+    }
 
-const startDateEl = document.getElementById('taskStartDate');
-if (startDateEl) {
-    startDateEl.textContent = task.startDate ? formatDate(task.startDate) : 'Tidak diatur';
-    startDateEl.className = task.startDate ? 'modal-field-value' : 'modal-field-value empty';
-} else console.error('Elemen taskStartDate tidak ditemukan!');
+    const startDateEl = document.getElementById('taskStartDate');
+    if (startDateEl) {
+        startDateEl.textContent = task.startDate ? formatDate(task.startDate) : 'Tidak diatur';
+        startDateEl.className = task.startDate ? 'modal-field-value' : 'modal-field-value empty';
+    }
 
     const finishDateEl = document.getElementById('taskFinishDate');
     if (finishDateEl) {
         finishDateEl.textContent = task.endDate ? formatDate(task.endDate) : 'Not set';
         finishDateEl.className = task.endDate ? 'modal-field-value' : 'modal-field-value empty';
-    } else console.error('taskFinishDate element not found!');
+    }
 
     const descriptionEl = document.getElementById('taskDescription');
     if (descriptionEl) {
         descriptionEl.textContent = task.description || 'Deskripsi tidak tersedia';
         descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
-    } else console.error('taskDescription element not found!');
+    }
 
     const editBtn = document.getElementById('editTaskBtn');
     const deleteBtn = document.getElementById('deleteTaskBtn');
@@ -2146,7 +2155,7 @@ if (startDateEl) {
                 if (form) {
                     form.action = `/tasks/${task.id}`;
                     form.submit();
-                } else console.error('deleteTaskForm not found!');
+                }
             }
         };
     }
@@ -2174,7 +2183,6 @@ if (startDateEl) {
     `;
     const modalBody = document.querySelector('.modal-body');
     if (modalBody) modalBody.appendChild(colorPickerContainer);
-    else console.error('modal-body not found!');
 
     const colorPicker = document.getElementById('levelColorPicker');
     if (colorPicker) {
@@ -2204,7 +2212,6 @@ if (startDateEl) {
     }
 }
 
-// Add focus trap for accessibility
 function trapFocus(element) {
     const focusableElements = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
     const firstFocusable = focusableElements[0];
@@ -2223,7 +2230,6 @@ function trapFocus(element) {
     });
 }
 
-// Darken color function
 function darkenColor(color, amount = 0.1) {
     let [r, g, b] = color.match(/\w\w/g).map(x => parseInt(x, 16));
     r = Math.max(0, Math.round(r * (1 - amount)));
@@ -2232,17 +2238,15 @@ function darkenColor(color, amount = 0.1) {
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-// Default colors array
 const defaultColors = [
-    { bg: '#0078d4', border: '#106ebe' }, // relLevel 0
-    { bg: '#107c10', border: '#0e6e0e' }, // 1
-    { bg: '#881798', border: '#7a1589' }, // 2
-    { bg: '#ff8c00', border: '#e67e00' }, // 3
-    { bg: '#e81123', border: '#d10e20' }, // 4
-    { bg: '#5c2d91', border: '#522982' }  // 5
+    { bg: '#0078d4', border: '#106ebe' },
+    { bg: '#107c10', border: '#0e6e0e' },
+    { bg: '#881798', border: '#7a1589' },
+    { bg: '#ff8c00', border: '#e67e00' },
+    { bg: '#e81123', border: '#d10e20' },
+    { bg: '#5c2d91', border: '#522982' }
 ];
 
-// Get root ID of a task
 function getRootId(task) {
     let current = task;
     while (current.parent_id) {
@@ -2251,7 +2255,6 @@ function getRootId(task) {
     return current.id;
 }
 
-// Get relative level (depth from root)
 function getRelativeLevel(task) {
     let level = 0;
     let current = task;
@@ -2262,7 +2265,6 @@ function getRelativeLevel(task) {
     return level;
 }
 
-// Get color for root and level
 function getColorForRootAndLevel(rootId, relLevel) {
     const bgKey = `color-root-${rootId}-rellevel-${relLevel}-bg`;
     const borderKey = `color-root-${rootId}-rellevel-${relLevel}-border`;
@@ -2271,7 +2273,6 @@ function getColorForRootAndLevel(rootId, relLevel) {
     return { bg, border };
 }
 
-// Update duration badge colors
 function updateDurationBadgeColors() {
     tasksData.forEach(task => {
         const rootId = getRootId(task);
@@ -2288,47 +2289,39 @@ function updateDurationBadgeColors() {
     });
 }
 
-// Fungsi buka modal
 function openDateModal() {
     const modal = document.getElementById('dateModal');
     if (!modal) return;
     modal.style.display = 'flex';
-    setTimeout(() => modal.classList.add('show'), 10); // Trigger animasi setelah display: flex
+    setTimeout(() => modal.classList.add('show'), 10);
 
     const yearInput = document.getElementById('modalYearInput');
-    yearInput.value = currentDate.getFullYear(); // Set tahun awal dari currentDate
-    renderModalMonths(); // Render grid bulan
-    yearInput.focus(); // Fokus ke input tahun untuk aksesibilitas
+    yearInput.value = currentDate.getFullYear();
+    renderModalMonths();
+    yearInput.focus();
 
-    // Handler klik luar untuk tutup
     modal.addEventListener('click', outsideClickHandler);
-    // Handler ESC
     document.addEventListener('keydown', escKeyHandler);
 }
 
-// Fungsi tutup modal
 function closeDateModal() {
     const modal = document.getElementById('dateModal');
     if (!modal) return;
     modal.classList.remove('show');
-    setTimeout(() => modal.style.display = 'none', 400); // Tunggu animasi selesai (400ms)
+    setTimeout(() => modal.style.display = 'none', 400);
 
-    // Hapus listener
     modal.removeEventListener('click', outsideClickHandler);
     document.removeEventListener('keydown', escKeyHandler);
 }
 
-// Handler klik luar modal
 function outsideClickHandler(e) {
     if (!e.target.closest('.bg-white') && e.target.id === 'dateModal') closeDateModal();
 }
 
-// Handler ESC key
 function escKeyHandler(e) {
     if (e.key === 'Escape') closeDateModal();
 }
 
-// Render grid bulan di modal
 function renderModalMonths() {
     const grid = document.getElementById('modalMonthsGrid');
     if (!grid) return;
@@ -2351,37 +2344,30 @@ function renderModalMonths() {
     });
 }
 
-// Ubah tahun di modal
 function changeModalYear(direction) {
     const yearInput = document.getElementById('modalYearInput');
     yearInput.value = parseInt(yearInput.value) + direction;
-    renderModalMonths(); // Re-render grid dengan tahun baru
+    renderModalMonths();
 }
 
-// Set bulan/tahun terpilih, update currentDate, dan refresh timeline
 function setMonthYear(month, year) {
-    currentDate = new Date(year, month, 1); // Update global currentDate
-    closeDateModal(); // Tutup modal
-
-    // Update display currentPeriod
+    currentDate = new Date(year, month, 1);
+    closeDateModal();
     updateCurrentPeriodDisplay();
-
-    initializeTimeline(); // Panggil fungsi existing untuk update timeline
-    updateGanttChart(); // Panggil fungsi existing untuk update Gantt bars
+    initializeTimeline();
+    updateGanttChart();
 }
 
-// Initialize resizer functionality - UPDATED
 function initResizer() {
     const resizer = document.getElementById('resizerMain');
     const taskListContainer = document.querySelector('.task-list-container');
     const headerLeft = document.querySelector('.task-list-header-section');
 
     if (!resizer || !taskListContainer || !headerLeft) {
-        console.error('Resizer initialization failed: Missing resizerMain, task-list-container, or task-list-header-section');
+        console.error('Resizer initialization failed: Missing elements');
         return;
     }
 
-    // Load saved width from localStorage
     const savedWidth = localStorage.getItem('taskListWidth');
     if (savedWidth) {
         taskListContainer.style.width = savedWidth;
@@ -2392,7 +2378,6 @@ function initResizer() {
 
     let startX, startWidth;
 
-    // Mouse events
     resizer.addEventListener('mousedown', function(e) {
         e.preventDefault();
         startX = e.clientX;
@@ -2414,7 +2399,6 @@ function initResizer() {
 
         taskListContainer.style.width = newWidthPx;
         headerLeft.style.width = newWidthPx;
-        // Update Gantt chart and headers during resize for smoother experience
         updateGanttChart();
         renderTimelineHeaders();
     }
@@ -2423,12 +2407,9 @@ function initResizer() {
         resizer.classList.remove('active');
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
-
-        // Save the new width to localStorage
         localStorage.setItem('taskListWidth', taskListContainer.style.width);
     }
 
-    // Touch events
     resizer.addEventListener('touchstart', function(e) {
         e.preventDefault();
         startX = e.touches[0].clientX;
@@ -2450,7 +2431,6 @@ function initResizer() {
 
         taskListContainer.style.width = newWidthPx;
         headerLeft.style.width = newWidthPx;
-        // Update Gantt chart and headers during resize
         updateGanttChart();
         renderTimelineHeaders();
     }
@@ -2459,12 +2439,9 @@ function initResizer() {
         resizer.classList.remove('active');
         document.removeEventListener('touchmove', onTouchMove);
         document.removeEventListener('touchend', onTouchEnd);
-
-        // Save the new width to localStorage
         localStorage.setItem('taskListWidth', taskListContainer.style.width);
     }
 
-    // Handle window resize to ensure responsiveness
     window.addEventListener('resize', () => {
         const currentWidth = parseFloat(taskListContainer.style.width) || taskListContainer.getBoundingClientRect().width;
         const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;

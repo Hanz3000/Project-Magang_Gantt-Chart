@@ -1,87 +1,71 @@
 @php
-    // Pastikan $level selalu didefinisikan, default ke 0 jika tidak ada
     $level = $level ?? 0;
     $isParent = $task->children && $task->children->count() > 0;
-    $indent = $level * 20; // Slightly increased for better hierarchy visibility
-    // Hitung padding berdasarkan level
-    $paddingLeft = $level > 0 ? ($indent - 12) : ($indent + 8);
+    $paddingLeft = $level > 0 ? 32 : 8;
 @endphp
 
 <!-- Task Row -->
-<div class="task-row group hover:bg-gray-50 transition-colors duration-200"
+<div class="task-row group transition-colors duration-200 {{ $level > 0 ? 'task-child' : '' }}"
      data-task-id="{{ $task->id }}"
      data-parent-id="{{ $task->parent_id ?? '' }}"
-     data-level="{{ $level }}"
-     style="border-left: {{ $level > 0 ? '2px solid #e5e7eb' : 'none' }};">
+     data-level="{{ $level }}">
 
-    <div class="task-cell flex items-center justify-center" style="width: 40px;">
+    <!-- Toggle Column (40px) -->
+    <div class="task-cell task-toggle-cell">
         @if($isParent)
-            <button class="toggle-collapse p-0.5 rounded hover:bg-gray-200 transition-colors duration-150"
+            <button class="toggle-collapse rotate-90"
                     data-task-id="{{ $task->id }}"
                     aria-label="Toggle subtasks">
-                <svg class="w-3.5 h-3.5 text-gray-600 transform transition-transform duration-200"
+                <svg class="w-3 h-3 text-gray-700 transform transition-transform duration-200"
                      fill="none"
                      stroke="currentColor"
                      viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
                 </svg>
             </button>
-        @else
-            <!-- Kosongkan kolom ini, hanya biarkan ruang kosong -->
         @endif
     </div>
 
-    <!-- Task Name Column -->
-    <div class="task-name-cell py-3 px-2"
+    <!-- Task Name Column (dengan icon dan indentasi) -->
+    <div class="task-cell task-name-cell cursor-pointer"
          data-task-id="{{ $task->id }}"
-         style="width: 250px; padding-left: {{ $paddingLeft }}px;">
-        <div class="flex items-center {{ $level > 0 ? 'space-x-0.5' : 'space-x-1' }}">
+         style="padding-left: {{ $paddingLeft }}px;">
+        <div class="flex items-center gap-2">
             @if($level > 0)
-                <!-- Subtask Icon -->
-                <div class="flex-shrink-0">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                </div>
+                <!-- Child Task: Square Green Icon -->
+                <div class="task-icon-square task-icon-green"></div>
             @else
-                <!-- Parent Task Icon -->
-                <div class="flex-shrink-0">
-                    <div class="w-4 h-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded flex items-center justify-center">
-                        <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
-                        </svg>
-                    </div>
-                </div>
+                <!-- Parent Task: Square Blue Icon -->
+                <div class="task-icon-square task-icon-blue"></div>
             @endif
-            <span class="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors duration-200
-                        @if($level === 0) text-base font-semibold @endif">
+            <span class="task-name-text {{ $level === 0 ? 'font-semibold' : 'font-medium' }}">
                 {{ $task->name }}
             </span>
         </div>
     </div>
 
+    <!-- Start Date Column -->
+    <div class="task-cell task-date-cell">
+        <span class="task-date-text">
+            {{ $task->start ? \Carbon\Carbon::parse($task->start)->format('M j, Y') : '-' }}
+        </span>
+    </div>
+
+    <!-- End Date Column -->
+    <div class="task-cell task-date-cell">
+        <span class="task-date-text">
+            {{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('M j, Y') : '-' }}
+        </span>
+    </div>
+
     <!-- Duration Column -->
-    <div class="task-cell shifted-right" style="width: 80px;">
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium duration-badge"
+    <div class="task-cell task-duration-cell">
+        <span class="duration-badge-modern"
               data-task-id="{{ $task->id }}"
               data-parent-id="{{ $task->parent_id ?? '' }}"
+              data-level="{{ $level }}"
               id="duration-{{ $task->id }}">
             {{ $task->duration ?? 0 }}d
-        </span>
-    </div>
-
-    <!-- Start Date Column -->
-    <div class="task-cell shifted-right" style="width: 100px;">
-        <span class="text-sm text-gray-600 font-mono">
-            {{ $task->start ? \Carbon\Carbon::parse($task->start)->format('j-n-y') : '-' }}
-        </span>
-    </div>
-
-    <!-- Finish Date Column -->
-    <div class="task-cell shifted-right" style="width: 100px;">
-        <span class="text-sm text-gray-600 font-mono">
-            {{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('j-n-y') : '-' }}
         </span>
     </div>
 </div>
