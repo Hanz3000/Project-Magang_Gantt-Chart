@@ -8,18 +8,18 @@
         </span>
         @endif
     </div>
-    <div class="task-name-cell" style="{{ isset($level) ? 'padding-left: ' . ($level * 16) . 'px;' : '' }}">
+    <div class="task-name-cell" style="{{ isset($level) ? 'padding-left: ' . ($level * 16) . 'px;' : '' }}" data-task-id="{{ $task->id }}">
         <span class="task-indicator indicator-level-{{ ($task->level ?? $level ?? 0) % 6 }}"></span>
-        {{ $task->name }}
+        <span class="task-name-text">{{ $task->name }}</span>
     </div>
-    <div class="task-cell">
-        <span class="duration-badge">{{ $task->duration ?? 0 }}d</span>
+    <div class="task-date-cell">
+        <span class="task-date-text">{{ isset($task->start) && $task->start ? \Carbon\Carbon::parse($task->start)->format('m/d/y') : '-' }}</span>
     </div>
-    <div class="task-cell">
-        {{ isset($task->start) && $task->start ? \Carbon\Carbon::parse($task->start)->format('m/d/y') : '-' }}
+    <div class="task-date-cell">
+        <span class="task-date-text">{{ isset($task->finish) && $task->finish ? \Carbon\Carbon::parse($task->finish)->format('m/d/y') : '-' }}</span>
     </div>
-    <div class="task-cell">
-        {{ isset($task->finish) && $task->finish ? \Carbon\Carbon::parse($task->finish)->format('m/d/y') : '-' }}
+    <div class="task-duration-cell">
+        <span class="duration-badge-modern">{{ $task->duration ?? 0 }}d</span>
     </div>
 </div>
 

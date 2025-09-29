@@ -19,19 +19,19 @@
 }
 
     /* ===== TASK LIST STYLING (GAMBAR STYLE) ===== */
-    .task-row {
-        display: grid;
-        grid-template-columns: 40px 1fr 110px 110px 90px;
-        height: 40px;
-        align-items: center;
-        padding: 0;
-        border-bottom: 1px solid #e0e0e0;
-        background: white;
-        font-size: 13px;
-        transition: background-color 0.15s ease;
-        max-width: 100%;
-        position: relative;
-    }
+   .task-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 150px 110px 110px; /* Increased Durasi column to 150px */
+    height: 40px;
+    align-items: center; /* Center content vertically */
+    padding: 0;
+    border-bottom: 1px solid #e0e0e0;
+    background: white;
+    font-size: 13px;
+    transition: background-color 0.15s ease;
+    max-width: 100%;
+    position: relative;
+}
 
     .task-row:hover {
         background-color: #f5f5f5 !important;
@@ -50,20 +50,22 @@
     }
 
     /* Task Cell Base */
-    .task-cell {
-        padding: 8px 12px;
-        border-right: 1px solid #e0e0e0;
-        display: flex;
-        align-items: center;
-        height: 100%;
-    }
+   .task-cell {
+    padding: 8px 12px;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center; /* Center content vertically */
+    height: 100%;
+}
 
-    /* Toggle Cell */
-    .task-toggle-cell {
-        justify-content: center;
-        padding: 0;
-        border-right: 1px solid #e0e0e0;
-    }
+    /* Task Toggle Cell */
+.task-toggle-cell {
+    justify-content: center;
+    padding: 0;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center; /* Center content vertically */
+}
 
     .toggle-collapse {
         cursor: pointer;
@@ -90,12 +92,16 @@
 
     /* Task Name Cell */
     .task-name-cell {
-        text-align: left;
-        justify-content: flex-start;
-        padding: 8px 12px;
-        cursor: pointer;
-        border-right: 1px solid #e0e0e0;
-    }
+    text-align: left;
+    justify-content: flex-start;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center; /* Center content vertically */
+    gap: 8px;
+    position: relative;
+}
 
     .task-name-text {
         font-size: 14px;
@@ -110,62 +116,88 @@
         font-weight: 400;
     }
 
-    /* Task Icon Square (seperti di gambar) */
+    /* Task Icon Square (akan berubah warna sesuai level) */
     .task-icon-square {
         width: 16px;
         height: 16px;
-        border-radius: 2px;
+        border-radius: 3px;
         flex-shrink: 0;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
     }
 
-    .task-icon-blue {
-        background-color: #1976d2;
-    }
-
-    .task-icon-green {
-        background-color: #388e3c;
+    /* Task Indicator - digunakan di partial yang ada */
+    .task-indicator {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        margin-right: 8px;
     }
 
     /* Date Cell */
     .task-date-cell {
-        justify-content: flex-start;
-        padding: 8px 12px;
-        border-right: 1px solid #e0e0e0;
-    }
+    justify-content: flex-start;
+    padding: 8px 12px;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center; /* Center content vertically */
+}
 
     .task-date-text {
         font-size: 13px;
         color: #424242;
         font-weight: 400;
     }
+    
+    /* Task Duration Cell */
+.task-duration-cell {
+    justify-content: center;
+    padding: 8px 12px;
+    border-right: none;
+    display: flex;
+    align-items: center; /* Center content vertically */
+}
 
-    /* Duration Cell */
-    .task-duration-cell {
-        justify-content: center;
-        padding: 8px 12px;
-        border-right: none;
-    }
-
-    /* Duration Badge Modern (seperti di gambar) */
+    /* Duration Badge Modern - Dibuat netral tanpa warna dinamis */
     .duration-badge-modern {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 4px 12px;
-        border-radius: 12px;
+        padding: 4px 8px;
+        border-radius: 4px;
         font-size: 12px;
-        font-weight: 600;
-        min-width: 45px;
+        font-weight: 500;
+        min-width: 35px;
         text-align: center;
-        color: white;
+        color: #6b7280;
+        background: transparent;
+        border: 1px solid #e5e7eb;
         transition: all 0.2s ease;
     }
 
-    /* Duration badge akan di-color oleh JavaScript berdasarkan level */
-    .duration-badge,
-    .duration-badge-modern {
-        background-color: #1976d2;
-        color: white;
+    .duration-badge-modern:hover {
+        background: #f9fafb;
+        border-color: #d1d5db;
+    }
+
+    /* Duration Badge Simple (tetap untuk backward compatibility) */
+    .duration-badge-simple {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        min-width: 35px;
+        text-align: center;
+        color: #6b7280;
+        background: transparent;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
     }
 
     /* ===== GANTT CONTAINER ===== */
@@ -256,16 +288,16 @@
     }
 
     /* Modern Task Header Row */
-    .task-header-row {
-        display: grid;
-        grid-template-columns: 40px 1fr 110px 110px 90px;
-        height: 40px;
-        align-items: center;
-        padding: 0;
-        border-bottom: 2px solid #bdbdbd;
-        position: relative;
-        background: #fafafa;
-    }
+.task-header-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 150px 110px 110px; /* Increased Durasi column to 150px */
+    height: 40px;
+    align-items: center;
+    padding: 0;
+    border-bottom: 2px solid #bdbdbd;
+    position: relative;
+    background: #fafafa;
+}
 
     .task-header-cell {
         padding: 8px 12px;
@@ -446,7 +478,7 @@
 
     /* Gantt Rows */
     .gantt-row {
-        height: 36px; /* Match task row height */
+        height: 40px; /* Match task row height exactly */
         position: relative;
         border-bottom: 1px solid #f1f5f9;
         background: white;
@@ -471,7 +503,7 @@
         width: var(--day-width);
         min-width: var(--day-width);
         max-width: var(--day-width);
-        height: 36px;
+        height: 40px; /* Match exact height */
         border-right: 1px solid #f1f5f9;
         flex-shrink: 0;
     }
@@ -564,49 +596,6 @@
     .indicator-level-3 { background: var(--level-3-bg); }
     .indicator-level-4 { background: var(--level-4-bg); }
     .indicator-level-5 { background: var(--level-5-bg); }
-
-    /* Duration Badges Colors */
-    .duration-badge[data-level="0"] {
-        background-color: #0078d4;
-        color: white;
-        border-color: #106ebe;
-    }
-
-    .duration-badge[data-level="1"] {
-        background-color: #107c10;
-        color: white;
-        border-color: #0e6e0e;
-    }
-
-    .duration-badge[data-level="2"] {
-        background-color: #881798;
-        color: white;
-        border-color: #7a1589;
-    }
-
-    .duration-badge[data-level="3"] {
-        background-color: #ff8c00;
-        color: white;
-        border-color: #e67e00;
-    }
-
-    .duration-badge[data-level="4"] {
-        background-color: #e81123;
-        color: white;
-        border-color: #d10e20;
-    }
-
-    .duration-badge[data-level="5"] {
-        background-color: #5c2d91;
-        color: white;
-        border-color: #522982;
-    }
-
-    .duration-badge:not([data-level]) {
-        background-color: #6b7280;
-        color: white;
-        border-color: #4b5563;
-    }
 
     /* Task Children Container */
     .task-children {
@@ -1489,10 +1478,10 @@
     <div class="task-list-header-section">
         <div class="task-header-row">
             <div class="task-header-cell"></div>
-            <div class="task-header-cell">Task Name</div>
-            <div class="task-header-cell">Start Date</div>
-            <div class="task-header-cell">End Date</div>
-            <div class="task-header-cell">Duration</div>
+            <div class="task-header-cell">Nama Task</div>
+            <div class="task-header-cell">Durasi</div>
+            <div class="task-header-cell">Mulai</div>
+            <div class="task-header-cell">Selesai</div>
         </div>
     </div>
 
@@ -1565,6 +1554,7 @@ document.addEventListener('DOMContentLoaded', function() {
         yearInput.addEventListener('input', renderModalMonths);
     }
 
+    // Load saved colors from localStorage
     for (let i = 0; i < 6; i++) {
         const bg = localStorage.getItem(`level-${i}-bg`);
         const border = localStorage.getItem(`level-${i}-border`);
@@ -1586,7 +1576,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('taskModal');
     if (modal) trapFocus(modal);
 
-    updateDurationBadgeColors();
+    // Initialize task icon colors after page load
+    setTimeout(() => {
+        initializeTaskIconColors();
+        updateTaskIconColors();
+    }, 100);
 });
 
 function initializeTimeline() {
@@ -2193,7 +2187,7 @@ function populateModalContent(task) {
             localStorage.setItem(`${colorKey}-border`, newBorder);
             if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${newBg} 0%, ${newBorder} 100%)`;
             updateGanttChart();
-            updateDurationBadgeColors();
+            updateTaskIconColors(); // Update icon colors instead of badges
         });
     }
 
@@ -2207,7 +2201,7 @@ function populateModalContent(task) {
             if (colorPicker) colorPicker.value = defaultBg;
             if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${defaultBg} 0%, ${defaultBorder} 100%)`;
             updateGanttChart();
-            updateDurationBadgeColors();
+            updateTaskIconColors(); // Update icon colors instead of badges
         });
     }
 }
@@ -2273,18 +2267,47 @@ function getColorForRootAndLevel(rootId, relLevel) {
     return { bg, border };
 }
 
-function updateDurationBadgeColors() {
+// Initialize task icon colors on page load to match gantt chart colors
+function initializeTaskIconColors() {
+    // Loop through all task rows and set initial colors based on task data
+    document.querySelectorAll('.task-row').forEach(taskRow => {
+        const taskId = taskRow.getAttribute('data-task-id');
+        const task = tasksData.find(t => t.id == taskId);
+        
+        if (task) {
+            const rootId = getRootId(task);
+            const relLevel = getRelativeLevel(task);
+            const { bg, border } = getColorForRootAndLevel(rootId, relLevel);
+            
+            // Find the icon within this task row
+            const iconElement = taskRow.querySelector('.task-icon-square');
+            if (iconElement) {
+                iconElement.style.backgroundColor = bg;
+                iconElement.style.borderColor = border;
+                // Remove default color classes
+                iconElement.classList.remove('task-icon-blue', 'task-icon-green');
+            }
+        }
+    });
+}
+
+// Update task icon colors instead of duration badges
+function updateTaskIconColors() {
     tasksData.forEach(task => {
         const rootId = getRootId(task);
         const relLevel = getRelativeLevel(task);
         const colorKey = `color-root-${rootId}-rellevel-${relLevel}`;
         const bgColor = localStorage.getItem(`${colorKey}-bg`) || defaultColors[relLevel % 6].bg;
-        const borderColor = localStorage.getItem(`${colorKey}-border`) || defaultColors[relLevel % 6].border;
-        const durationElement = document.getElementById(`duration-${task.id}`);
-        if (durationElement) {
-            durationElement.style.backgroundColor = bgColor;
-            durationElement.style.color = '#ffffff';
-            durationElement.style.border = `1px solid ${borderColor}`;
+        
+        // Update the task icon square color by finding the task row first
+        const taskRow = document.querySelector(`[data-task-id="${task.id}"].task-row`);
+        if (taskRow) {
+            const iconElement = taskRow.querySelector('.task-icon-square');
+            if (iconElement) {
+                iconElement.style.backgroundColor = bgColor;
+                iconElement.style.borderColor = darkenColor(bgColor);
+                iconElement.classList.remove('task-icon-blue', 'task-icon-green');
+            }
         }
     });
 }
