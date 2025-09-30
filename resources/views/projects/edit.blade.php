@@ -339,19 +339,21 @@
                     `Sub-task mulai ${startFormatted}, selesai idealnya ${finishFormatted}. 
                      Melebihi, task utama diperpanjang.`
                 );
+                // Autofit tanggal mulai ke parent_start jika kosong
+                if (!$('#start').val()) {
+                    $('#start').val(start);
+                }
             } else {
                 parentInfo.hide();
             }
             lastChanged = 'parent';
             updateDatePickers();
-            disableInvalidDates();
         });
 
         // Tracking perubahan field
         $('#start').on('change', function() {
             lastChanged = 'start';
             updateDatePickers();
-            disableInvalidDates();
         });
         $('#finish').on('change', function() {
             lastChanged = 'finish';
@@ -360,7 +362,6 @@
         $('#duration').on('change', function() {
             lastChanged = 'duration';
             updateDatePickers();
-            disableInvalidDates();
         });
 
         // Fungsi update date picker
@@ -377,18 +378,12 @@
                 parentFinish = $('#parent_id option:selected').data('finish');
             }
 
-            // Min start mengikuti parent jika ada
-            if (parentStart) {
-                $('#start').attr('min', parentStart);
-            } else {
-                $('#start').removeAttr('min');
-            }
+            // Hapus batasan min untuk start (izinkan semua tanggal)
+            $('#start').removeAttr('min');
 
-            // Min finish mengikuti start atau parentStart
+            // Atur min finish berdasarkan start (tetap pertahankan validasi ini)
             if (startVal) {
                 $('#finish').attr('min', startVal);
-            } else if (parentStart) {
-                $('#finish').attr('min', parentStart);
             } else {
                 $('#finish').removeAttr('min');
             }
@@ -408,16 +403,10 @@
                 const diff = Math.ceil((finish - start) / (1000 * 60 * 60 * 24)) + 1;
                 if (diff > 0) $('#duration').val(diff);
             }
-
-            // Validasi start < parentStart
-            if (parentStart && startVal && new Date(startVal) < new Date(parentStart)) {
-                $('#start').val(parentStart);
-                updateDatePickers();
-            }
         }
 
-        // Disable tanggal invalid
-        function disableInvalidDates() {
+        // Validasi tanggal saat input
+        function validateDateInputs() {
             const parentId = $('#parent_id').val();
             let minDate = null;
 
@@ -425,36 +414,30 @@
                 minDate = $('#parent_id option:selected').data('start');
             }
 
-            const startInput = document.getElementById('start');
-            const startMin = startInput.min || minDate;
-
-            const disableDates = function(input) {
-                if (input.type === 'date' && startMin) {
-                    const minDateObj = new Date(startMin);
-                    input.addEventListener('input', function() {
-                        const selectedDate = new Date(this.value);
-                        if (selectedDate < minDateObj) {
-                            this.value = startMin;
-                        }
-                    });
+            // Validasi input finish (pastikan tidak sebelum start)
+            $('#finish').off('input').on('input', function() {
+                const startVal = $('#start').val();
+                if (startVal) {
+                    const minDateObj = new Date(startVal);
+                    const selectedDate = new Date(this.value);
+                    if (selectedDate < minDateObj) {
+                        this.value = startVal;
+                        alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
+                        updateDatePickers();
+                    }
                 }
-            };
-
-            disableDates(document.getElementById('start'));
-            disableDates(document.getElementById('finish'));
+            });
         }
 
         // Jalankan awal
         updateDatePickers();
-        disableInvalidDates();
+        validateDateInputs();
 
         // Validasi sebelum submit
         $('#taskForm').on('submit', function(e) {
             const duration = $('#duration').val();
             const start = $('#start').val();
             const finish = $('#finish').val();
-            const parentId = $('#parent_id').val();
-            const parentStart = parentId ? $('#parent_id option:selected').data('start') : null;
 
             // Validasi dasar
             if (!duration && (!start || !finish)) {
@@ -462,28 +445,21 @@
                 alert('Jika Durasi kosong, Tanggal Mulai dan Tanggal Selesai wajib diisi!');
                 return false;
             }
+
             if (finish && start) {
                 const startDate = new Date(start);
                 const finishDate = new Date(finish);
 
                 if (finishDate < startDate) {
-    e.preventDefault();
-    alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
-    $('#finish').val('');
-    $('#duration').val('');
-    return false;
-}
-
-
-                if (parentStart && new Date(start) < new Date(parentStart)) {
                     e.preventDefault();
-                    alert('Tanggal Mulai sub-task tidak boleh sebelum Tanggal Mulai task utama!');
-                    $('#start').val(parentStart);
+                    alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
+                    $('#finish').val('');
+                    $('#duration').val('');
                     return false;
                 }
             }
 
-            // ✅ Validasi tambahan: jika task punya anak, finish parent tidak boleh < max child finish
+            // Validasi tambahan: jika task punya anak, finish parent tidak boleh < max child finish
             @if($task->children && $task->children->count() > 0)
                 let maxChildFinish = null;
                 @foreach($task->children as $child)
@@ -494,8 +470,12 @@
                         }
                     }
                 @endforeach
-
-                           @endif
+                if (finish && maxChildFinish && new Date(finish) < maxChildFinish) {
+                    e.preventDefault();
+                    alert('Tanggal Selesai task utama tidak boleh sebelum tanggal selesai sub-task terakhir!');
+                    return false;
+                }
+            @endif
         });
     });
 </script>

@@ -1479,9 +1479,9 @@
         <div class="task-header-row">
             <div class="task-header-cell"></div>
             <div class="task-header-cell">Nama Task</div>
+            <div class="task-header-cell">Tanggal Mulai </div>
+            <div class="task-header-cell">Tangal Selesai</div>
             <div class="task-header-cell">Durasi</div>
-            <div class="task-header-cell">Mulai</div>
-            <div class="task-header-cell">Selesai</div>
         </div>
     </div>
 
