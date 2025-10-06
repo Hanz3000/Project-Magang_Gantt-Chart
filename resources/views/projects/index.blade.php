@@ -1322,6 +1322,44 @@
             print-color-adjust: exact;
         }
     }
+/* Ganti CSS highlight yang lama dengan yang ini */
+
+/* Highlight untuk task row - Biru sangat soft */
+.task-row.row-highlighted {
+    background-color: #eff6ff !important;
+    transition: background-color 0.2s ease;
+}
+
+.task-row.row-highlighted .task-cell {
+    background-color: #eff6ff !important;
+}
+
+/* Highlight untuk gantt row - Biru sangat soft */
+.gantt-row.row-highlighted .gantt-grid-cell {
+    background-color: #eff6ff !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Highlight untuk gantt bar - Shadow biru halus */
+.gantt-row.row-highlighted .gantt-bar {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+/* Highlight untuk task name - Biru sedikit lebih gelap */
+.task-row.row-highlighted .task-name-text {
+    color: #1e40af;
+    font-weight: 600;
+}
+
+/* Highlight untuk duration badge */
+.task-row.row-highlighted .duration-badge-modern {
+    background: #dbeafe !important;
+    border-color: #93c5fd !important;
+    color: #1e40af !important;
+}
 </style>
 
 <div class="gantt-container">
@@ -1571,6 +1609,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateGanttChart();
     updateZoomButtons();
     initResizer();
+    setupRowHighlight();
 
     document.querySelectorAll('.task-children.collapsed').forEach(container => {
         const parentId = container.getAttribute('data-parent-id');
@@ -2567,5 +2606,71 @@ function initResizer() {
         renderTimelineHeaders();
     });
 }
+
+// 1. Fungsi untuk highlight row
+function highlightRow(taskId) {
+    // Remove existing highlights
+    removeAllHighlights();
+    
+    if (!taskId) return;
+    
+    // Highlight task row di task list
+    const taskRow = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
+    if (taskRow) {
+        taskRow.classList.add('row-highlighted');
+    }
+    
+    // Highlight gantt row
+    const ganttRow = document.querySelector(`.gantt-row[data-task-id="${taskId}"]`);
+    if (ganttRow) {
+        ganttRow.classList.add('row-highlighted');
+    }
+}
+
+// 2. Fungsi untuk remove highlight
+function removeAllHighlights() {
+    document.querySelectorAll('.row-highlighted').forEach(el => {
+        el.classList.remove('row-highlighted');
+    });
+}
+
+// 3. Setup event listeners untuk hover
+function setupRowHighlight() {
+    // Hover pada task rows
+    document.addEventListener('mouseover', function(e) {
+        const taskRow = e.target.closest('.task-row');
+        if (taskRow) {
+            const taskId = taskRow.getAttribute('data-task-id');
+            highlightRow(taskId);
+        }
+        
+        // Hover pada gantt bars
+        const ganttBar = e.target.closest('.gantt-bar');
+        if (ganttBar) {
+            const taskId = ganttBar.getAttribute('data-task-id');
+            highlightRow(taskId);
+        }
+        
+        // Hover pada gantt rows (cells)
+        const ganttRow = e.target.closest('.gantt-row');
+        if (ganttRow && !ganttBar) {
+            const taskId = ganttRow.getAttribute('data-task-id');
+            highlightRow(taskId);
+        }
+    });
+    
+    // Remove highlight saat mouse leave gantt container
+    const ganttContainer = document.querySelector('.gantt-container');
+    if (ganttContainer) {
+        ganttContainer.addEventListener('mouseleave', removeAllHighlights);
+    }
+    
+    // Remove highlight saat mouse leave task list
+    const taskListBody = document.getElementById('taskListBody');
+    if (taskListBody) {
+        taskListBody.addEventListener('mouseleave', removeAllHighlights);
+    }
+}
+
 </script>
 @endsection
