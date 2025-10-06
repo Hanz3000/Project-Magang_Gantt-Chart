@@ -352,16 +352,18 @@
     }
 
     .timeline-header-container {
-        background: #f1f3f4;
-        border-bottom: 1px solid #d1d5db;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        max-width: 100%;
-        width: fit-content;
-        min-width: 100%;
-    }
+    background: #f1f3f4;
+    border-bottom: 1px solid #d1d5db;
+    overflow-x: hidden !important;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: fit-content;
+    min-width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
 
     .timeline-header-container::-webkit-scrollbar {
         display: none;
@@ -384,54 +386,64 @@
     }
 
     /* Timeline Grid */
-    .month-header {
-        display: flex;
-        border-bottom: 1px solid #d1d5db;
-        background: #f1f3f4;
-        height: 20px;
-        min-width: fit-content;
-    }
+   .month-header {
+    display: flex;
+    border-bottom: 1px solid #d1d5db;
+    background: #f1f3f4;
+    height: 20px;
+    min-width: fit-content;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
 
-    .month-section {
-        text-align: center;
-        font-weight: 600;
-        font-size: 11px;
-        color: #374151;
-        border-right: 1px solid #d1d5db;
-        padding: 2px 4px;
-        background: #f1f3f4;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 60px;
-    }
+.month-section {
+    text-align: center;
+    font-weight: 600;
+    font-size: 11px;
+    color: #374151;
+    border-right: 1px solid #d1d5db;
+    padding: 2px 0; /* Ubah dari "2px 4px" menjadi "2px 0" */
+    background: #f1f3f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
 
     .day-header {
-        display: flex;
-        background: #f8f9fa;
-        height: 32px;
-        border-bottom: 1px solid #d1d5db;
-        min-width: fit-content;
-    }
+    display: flex;
+    background: #f8f9fa;
+    height: 32px;
+    border-bottom: 1px solid #d1d5db;
+    min-width: fit-content;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
 
-    .timeline-day {
-        width: var(--day-width);
-        min-width: var(--day-width);
-        max-width: var(--day-width);
-        flex-shrink: 0;
-        text-align: center;
-        border-right: 1px solid #e5e7eb;
-        font-size: 10px;
-        font-weight: 500;
-        padding: 2px;
-        background: #f8f9fa;
-        color: #374151;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        position: relative;
-    }
+.timeline-day {
+    width: var(--day-width);
+    min-width: var(--day-width);
+    max-width: var(--day-width);
+    flex-shrink: 0;
+    flex-grow: 0;
+    text-align: center;
+    border-right: 1px solid #e5e7eb;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 0;
+    background: #f8f9fa;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    box-sizing: border-box; /* PENTING: border termasuk dalam width */
+}
+
 
     .timeline-day::after {
         content: attr(data-dayname);
@@ -478,14 +490,17 @@
 
     /* Gantt Rows */
     .gantt-row {
-        height: 40px; /* Match task row height exactly */
-        position: relative;
-        border-bottom: 1px solid #f1f5f9;
-        background: white;
-        display: flex;
-        min-width: fit-content;
-        overflow: hidden;
-    }
+    height: 40px;
+    position: relative;
+    border-bottom: 1px solid #f1f5f9;
+    background: white;
+    display: flex;
+    min-width: fit-content;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
 
     .gantt-row:nth-child(even) {
         background: #fafbfc;
@@ -500,13 +515,17 @@
     }
 
     .gantt-grid-cell {
-        width: var(--day-width);
-        min-width: var(--day-width);
-        max-width: var(--day-width);
-        height: 40px; /* Match exact height */
-        border-right: 1px solid #f1f5f9;
-        flex-shrink: 0;
-    }
+    width: var(--day-width);
+    min-width: var(--day-width);
+    max-width: var(--day-width);
+    height: 40px;
+    border-right: 1px solid #f1f5f9;
+    flex-shrink: 0;
+    flex-grow: 0;
+    box-sizing: border-box; /* PENTING: border termasuk dalam width */
+    padding: 0;
+    margin: 0;
+}
 
     .gantt-grid-cell.weekend {
         background-color: #f9fafb;
@@ -821,12 +840,13 @@
     }
 
     .gantt-rows-container {
-        width: fit-content;
-        min-width: 100%;
-        overflow-x: visible;
-        display: block;
-    }
-
+    width: fit-content;
+    min-width: 100%;
+    overflow-x: visible;
+    display: block;
+    padding: 0;
+    margin: 0;
+}
     /* Enhanced Modal Styles with Smooth Animations */
     .modal {
         position: fixed;
@@ -1322,7 +1342,7 @@
             print-color-adjust: exact;
         }
     }
-/* Ganti CSS highlight yang lama dengan yang ini */
+
 
 /* Highlight untuk task row - Biru sangat soft */
 .task-row.row-highlighted {
@@ -1707,7 +1727,10 @@ function renderTimelineHeaders() {
 
 function renderMonthHeaders() {
     const monthHeaderContainer = document.getElementById('monthHeaderContainer');
-    if (!monthHeaderContainer) return;
+    if (!monthHeaderContainer) {
+        console.error('monthHeaderContainer not found');
+        return;
+    }
 
     const monthGroups = {};
     timelineData.days.forEach(day => {
@@ -1721,22 +1744,42 @@ function renderMonthHeaders() {
         monthGroups[monthKey].days.push(day);
     });
 
+    const dayWidth = getDayWidth();
+    
     let monthHeaderHTML = '<div class="month-header">';
     Object.values(monthGroups).forEach(month => {
-        const dayWidth = getDayWidth();
+        // Karena box-sizing: border-box, border sudah included dalam dayWidth
+        // Jadi lebar bulan = jumlah hari × dayWidth
         const monthWidth = month.days.length * dayWidth;
-        monthHeaderHTML += `<div class="month-section" style="width: ${monthWidth}px;">${month.name}</div>`;
+        
+        monthHeaderHTML += `
+            <div class="month-section" style="
+                width: ${monthWidth}px; 
+                min-width: ${monthWidth}px; 
+                flex: 0 0 ${monthWidth}px;
+            ">${month.name}</div>
+        `;
     });
     monthHeaderHTML += '</div>';
 
     monthHeaderContainer.innerHTML = monthHeaderHTML;
+    
+    console.log('Month headers rendered:', Object.values(monthGroups).map(m => ({
+        name: m.name,
+        days: m.days.length,
+        width: m.days.length * dayWidth
+    })));
 }
 
 function renderDayHeaders() {
     const dayHeaderContainer = document.getElementById('dayHeaderContainer');
-    if (!dayHeaderContainer) return;
+    if (!dayHeaderContainer) {
+        console.error('dayHeaderContainer not found');
+        return;
+    }
 
     const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const dayWidth = getDayWidth();
 
     let dayHeaderHTML = '<div class="day-header">';
     timelineData.days.forEach(day => {
@@ -1744,10 +1787,9 @@ function renderDayHeaders() {
         if (day.dayOfWeek === 0) classes.push('sunday');
         if (day.isToday) classes.push('today');
 
-        const dayWidth = getDayWidth();
         dayHeaderHTML += `
             <div class="${classes.join(' ')}" 
-                 style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"
+                 style="width: ${dayWidth}px;"
                  data-dayname="${dayNames[day.dayOfWeek]}"
                  title="${getFullDayName(day.dayOfWeek)}">
                 ${day.dayNumber}
@@ -1758,6 +1800,7 @@ function renderDayHeaders() {
 
     dayHeaderContainer.innerHTML = dayHeaderHTML;
 }
+
 
 function getFullDayName(dayOfWeek) {
     const fullDayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -1866,15 +1909,20 @@ function updateGanttChart() {
 function generateGanttRow(task) {
     const dayWidth = getDayWidth();
     const isHidden = !isTaskVisible(task);
+    
     let rowHTML = `<div class="gantt-row ${isHidden ? 'hidden-gantt-row' : ''}" data-task-id="${task.id}">`;
+    
     timelineData.days.forEach(day => {
         const classes = ['gantt-grid-cell'];
         if (day.isWeekend) classes.push('weekend');
         if (day.isToday) classes.push('today');
-        rowHTML += `<div class="${classes.join(' ')}" style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"></div>`;
+        
+        rowHTML += `<div class="${classes.join(' ')}" style="width: ${dayWidth}px;"></div>`;
     });
+    
     const taskBar = generateTaskBar(task, dayWidth);
     if (taskBar) rowHTML += taskBar;
+    
     rowHTML += '</div>';
     return rowHTML;
 }
@@ -1891,6 +1939,8 @@ function generateTaskBar(task, dayWidth) {
     const timelineStart = timelineData.startDate;
     const startDayOffset = Math.max(0, Math.floor((taskStart - timelineStart) / (24 * 60 * 60 * 1000)));
     const endDayOffset = Math.min(timelineData.days.length - 1, Math.floor((taskEnd - timelineStart) / (24 * 60 * 60 * 1000)));
+    
+    // Karena box-sizing: border-box, semua perhitungan menggunakan dayWidth langsung
     const barLeft = startDayOffset * dayWidth;
     const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
 
@@ -1987,15 +2037,37 @@ function zoomOut() {
 function updateGanttWidths() {
     const dayWidth = getDayWidth();
     const totalWidth = timelineData.days.length * dayWidth;
+    
+    console.log('=== UPDATE GANTT WIDTHS ===');
+    console.log('Day width:', dayWidth, 'px');
+    console.log('Total days:', timelineData.days.length);
+    console.log('Total width:', totalWidth, 'px');
+    console.log('=========================');
+    
+    // Update gantt rows container
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (ganttRowsContainer) {
         ganttRowsContainer.style.width = `${totalWidth}px`;
         ganttRowsContainer.style.minWidth = `${totalWidth}px`;
     }
+    
+    // Update timeline header container
     const timelineHeaderContainer = document.querySelector('.timeline-header-container');
     if (timelineHeaderContainer) {
         timelineHeaderContainer.style.width = `${totalWidth}px`;
         timelineHeaderContainer.style.minWidth = `${totalWidth}px`;
+    }
+    
+    // Update month header
+    const monthHeader = document.querySelector('.month-header');
+    if (monthHeader) {
+        monthHeader.style.width = `${totalWidth}px`;
+    }
+    
+    // Update day header
+    const dayHeader = document.querySelector('.day-header');
+    if (dayHeader) {
+        dayHeader.style.width = `${totalWidth}px`;
     }
 }
 
