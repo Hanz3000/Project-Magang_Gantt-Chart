@@ -1360,6 +1360,28 @@
     border-color: #93c5fd !important;
     color: #1e40af !important;
 }
+
+/* Highlight untuk kolom timeline */
+.timeline-day.column-highlighted {
+    background-color: #bfdbfe !important;
+    color: #1e40af !important;
+    font-weight: 700 !important;
+    border-left: 2px solid #3b82f6;
+    border-right: 2px solid #3b82f6;
+    box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.gantt-grid-cell.column-highlighted {
+    background-color: #dbeafe !important;
+    border-left: 2px solid #93c5fd !important;
+    border-right: 2px solid #93c5fd !important;
+}
+
+/* Kombinasi row dan column highlight (intersection) */
+.gantt-row.row-highlighted .gantt-grid-cell.column-highlighted {
+    background-color: #93c5fd !important;
+    box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.3);
+}
 </style>
 
 <div class="gantt-container">
@@ -1610,6 +1632,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateZoomButtons();
     initResizer();
     setupRowHighlight();
+    setupColumnHighlight();
 
     document.querySelectorAll('.task-children.collapsed').forEach(container => {
         const parentId = container.getAttribute('data-parent-id');
@@ -2669,6 +2692,68 @@ function setupRowHighlight() {
     const taskListBody = document.getElementById('taskListBody');
     if (taskListBody) {
         taskListBody.addEventListener('mouseleave', removeAllHighlights);
+    }
+}
+
+function highlightTimelineColumn(dayIndex) {
+    // Remove existing column highlights
+    removeAllColumnHighlights();
+    
+    if (dayIndex === null || dayIndex === undefined) return;
+    
+    // Highlight timeline day header
+    const timelineDays = document.querySelectorAll('.timeline-day');
+    if (timelineDays[dayIndex]) {
+        timelineDays[dayIndex].classList.add('column-highlighted');
+    }
+    
+    // Highlight semua gantt-grid-cell di kolom yang sama
+    document.querySelectorAll('.gantt-row').forEach(row => {
+        const cells = row.querySelectorAll('.gantt-grid-cell');
+        if (cells[dayIndex]) {
+            cells[dayIndex].classList.add('column-highlighted');
+        }
+    });
+}
+
+function removeAllColumnHighlights() {
+    document.querySelectorAll('.column-highlighted').forEach(el => {
+        el.classList.remove('column-highlighted');
+    });
+}
+
+function setupColumnHighlight() {
+    // Hover pada timeline day header
+    document.addEventListener('mouseover', function(e) {
+        const timelineDay = e.target.closest('.timeline-day');
+        if (timelineDay) {
+            // Ambil index dari parent container yang benar
+            const dayContainer = timelineDay.closest('.day-header');
+            const allDays = dayContainer.querySelectorAll('.timeline-day');
+            const dayIndex = Array.from(allDays).indexOf(timelineDay);
+            highlightTimelineColumn(dayIndex);
+        }
+        
+        // Hover pada gantt grid cell
+        const ganttCell = e.target.closest('.gantt-grid-cell');
+        if (ganttCell && !e.target.closest('.gantt-bar')) {
+            const row = ganttCell.closest('.gantt-row');
+            const cells = row.querySelectorAll('.gantt-grid-cell');
+            const dayIndex = Array.from(cells).indexOf(ganttCell);
+            highlightTimelineColumn(dayIndex);
+        }
+    });
+    
+    // Remove highlight saat mouse leave dari timeline header
+    const timelineHeader = document.querySelector('.timeline-header-section');
+    if (timelineHeader) {
+        timelineHeader.addEventListener('mouseleave', removeAllColumnHighlights);
+    }
+    
+    // Remove highlight saat mouse leave dari gantt content
+    const ganttContent = document.getElementById('ganttContent');
+    if (ganttContent) {
+        ganttContent.addEventListener('mouseleave', removeAllColumnHighlights);
     }
 }
 
