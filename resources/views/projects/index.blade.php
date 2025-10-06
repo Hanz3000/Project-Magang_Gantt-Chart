@@ -1498,21 +1498,25 @@
 <div class="gantt-main-content">
     <!-- Task List -->
     <div class="task-list-container">
-        <div class="task-list-body" id="taskListBody">
-            @if(isset($tasks) && $tasks->count() > 0)
-                @foreach($tasks as $task)
-                    @include('partials.task-item', ['task' => $task, 'level' => 0])
-                @endforeach
-            @else
-                <div class="p-8 text-center text-gray-500">
-                    <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                    <p class="text-sm">Tidak ada tugas. Klik "Tambah Tugas" untuk memulai.</p>
-                </div>
-            @endif
-        </div>
+    <div class="task-list-body" id="taskListBody">
+        @if(isset($tasks) && $tasks->count() > 0)
+            @foreach($tasks->whereNull('parent_id') as $task)
+                @include('partials.task-item', [
+                    'task' => $task, 
+                    'level' => 0,
+                    'allTasks' => $tasks
+                ])
+            @endforeach
+        @else
+            <div class="p-8 text-center text-gray-500">
+                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <p class="text-sm">Tidak ada tugas. Klik "Tambah Tugas" untuk memulai.</p>
+            </div>
+        @endif
     </div>
+</div>
 
     <!-- Resizer -->
     <div class="resizer" id="resizerMain"></div>
@@ -1958,17 +1962,21 @@ function toggleTaskCollapse(taskId) {
     const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
     
     if (toggleIcon && childrenContainer) {
+        // Toggle class
         toggleIcon.classList.toggle('rotate-90');
         childrenContainer.classList.toggle('collapsed');
         
+        // Update collapsedTasks Set
         if (childrenContainer.classList.contains('collapsed')) {
             collapsedTasks.add(taskId.toString());
         } else {
             collapsedTasks.delete(taskId.toString());
         }
         
-        // Re-render gantt setelah toggle
-        setTimeout(() => updateGanttChart(), 50);
+        // Update gantt chart dengan delay
+        setTimeout(() => {
+            updateGanttChart();
+        }, 50);
     }
 }
 
@@ -2003,22 +2011,49 @@ function handleTaskBarClick(taskId) {
     }
 }
 
+// Ganti fungsi expandAll() dan collapseAll() yang lama dengan yang ini:
+
 function expandAll() {
-    document.querySelectorAll('.task-children').forEach(container => container.classList.remove('collapsed'));
-    document.querySelectorAll('.toggle-collapse').forEach(icon => icon.classList.add('rotate-90'));
+    // Hapus class collapsed dari semua task-children
+    document.querySelectorAll('.task-children').forEach(container => {
+        container.classList.remove('collapsed');
+    });
+    
+    // Rotate semua toggle icon
+    document.querySelectorAll('.toggle-collapse').forEach(icon => {
+        icon.classList.add('rotate-90');
+    });
+    
+    // Clear collapsedTasks Set
     collapsedTasks.clear();
-    updateGanttChart();
+    
+    // Update Gantt chart setelah delay singkat untuk memastikan DOM sudah terupdate
+    setTimeout(() => {
+        updateGanttChart();
+    }, 50);
 }
 
 function collapseAll() {
+    // Tambahkan class collapsed ke semua task-children
     document.querySelectorAll('.task-children').forEach(container => {
         container.classList.add('collapsed');
         const parentId = container.getAttribute('data-parent-id');
-        if (parentId) collapsedTasks.add(parentId);
+        if (parentId) {
+            collapsedTasks.add(parentId);
+        }
     });
-    document.querySelectorAll('.toggle-collapse').forEach(icon => icon.classList.remove('rotate-90'));
-    updateGanttChart();
+    
+    // Remove rotate dari semua toggle icon
+    document.querySelectorAll('.toggle-collapse').forEach(icon => {
+        icon.classList.remove('rotate-90');
+    });
+    
+    // Update Gantt chart setelah delay singkat untuk memastikan DOM sudah terupdate
+    setTimeout(() => {
+        updateGanttChart();
+    }, 50);
 }
+
 
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey || e.metaKey) {

@@ -349,7 +349,7 @@ $('#parent_id').on('change', function() {
     if (parentStart && parentFinish) {
         $('#parentInfo').prop('hidden', false);
         $('#parentInfoText').text(
-            `Sub-task mulai ${formatDate(parentStart)}, selesai idealnya ${formatDate(parentFinish)}. Jika Melebihi, task utama akan diperpanjang.`
+            `Sub-task dimulai ${formatDate(parentStart)}, selesai ${formatDate(parentFinish)}.`
         );
     } else {
         $('#parentInfo').prop('hidden', true);

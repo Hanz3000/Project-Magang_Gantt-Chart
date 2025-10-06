@@ -104,7 +104,7 @@
                                     <p class="font-medium">Informasi Task Utama</p>
                                     <p id="parentInfoText">
                                         @if($task->parent_id && $task->parent)
-                                            Sub-task mulai {{ \Carbon\Carbon::parse($task->parent->start)->format('d-m-Y') }}, selesai idealnya {{ \Carbon\Carbon::parse($task->parent->finish)->format('d-m-Y') }}. Melebihi, task utama diperpanjang.
+                                            Sub-task dimulai {{ \Carbon\Carbon::parse($task->parent->start)->format('d-m-Y') }}, selesai {{ \Carbon\Carbon::parse($task->parent->finish)->format('d-m-Y') }}.
                                         @endif
                                     </p>
                                 </div>
