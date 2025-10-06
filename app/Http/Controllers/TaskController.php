@@ -11,13 +11,13 @@ class TaskController extends Controller
 {
     public function index()
     {
-        $tasks = Task::with('children.children:id,name,parent_id,duration,start,finish,progress,level,order,description,user_id')
-            ->whereNull('parent_id')
-            ->where('user_id', Auth::id()) // hanya tampilkan task user login
+        // Ambil SEMUA tasks milik user, bukan hanya root
+        $tasks = Task::where('user_id', Auth::id())
             ->orderBy('order')
             ->get();
 
-        $structuredTasks = $this->buildTaskTree($tasks);
+        // Build struktur hierarkis yang benar
+        $structuredTasks = $this->buildTaskHierarchy($tasks);
 
         return view('projects.index', [
             'tasks' => $tasks,
@@ -26,14 +26,22 @@ class TaskController extends Controller
         ]);
     }
 
-    private function buildTaskTree($tasks, $level = 0)
+    /**
+     * Build hierarki task dengan urutan yang benar
+     * Task akan muncul dalam urutan: Parent → Children → Next Parent
+     */
+    private function buildTaskHierarchy($tasks, $parentId = null, $level = 0)
     {
         $result = [];
-        foreach ($tasks as $task) {
+        
+        // Filter tasks berdasarkan parent_id
+        $filteredTasks = $tasks->where('parent_id', $parentId)->sortBy('order');
+        
+        foreach ($filteredTasks as $task) {
             $startDate = $task->start ? Carbon::parse($task->start)->format('Y-m-d') : null;
             $endDate   = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
 
-            $result[] = [
+            $taskData = [
                 'id'          => $task->id,
                 'name'        => $task->name,
                 'startDate'   => $startDate,
@@ -45,31 +53,65 @@ class TaskController extends Controller
                 'parent_id'   => $task->parent_id,
                 'order'       => $task->order ?? 0,
                 'description' => $task->description ?? null,
-                'children'    => []
             ];
 
-            if ($task->children->isNotEmpty()) {
-                $childTasks = $this->buildTaskTree($task->children, $level + 1);
-                $result[array_key_last($result)]['children'] = $childTasks;
-                $result = array_merge($result, $childTasks);
+            // Tambahkan task ke hasil
+            $result[] = $taskData;
+
+            // Rekursif untuk children
+            $children = $this->buildTaskHierarchy($tasks, $task->id, $level + 1);
+            if (!empty($children)) {
+                // Tambahkan children langsung setelah parent
+                $result = array_merge($result, $children);
             }
         }
+        
         return $result;
     }
 
-    public function create()
-{
-    // hanya ambil parent task milik user login
-    $parents = Task::where('user_id', Auth::id())
-        ->get()
-        ->map(function($task) {
-            $task->start = $task->start ? \Carbon\Carbon::parse($task->start)->format('d-m-Y') : null;
-            $task->finish = $task->finish ? \Carbon\Carbon::parse($task->finish)->format('d-m-Y') : null;
-            return $task;
-        });
+    /**
+     * Normalize orders secara rekursif untuk memastikan urutan sequential global
+     * tanpa mengubah relative order per level
+     */
+    private function normalizeOrders()
+    {
+        $tasks = Task::where('user_id', Auth::id())
+            ->orderBy('order')
+            ->get();
 
-    return view('projects.create', compact('parents'));
-}
+        $order = 1;
+        $this->assignOrders($tasks, null, $order);
+    }
+
+    /**
+     * Assign orders rekursif, preserving relative order dari collection yang sudah di-sort
+     */
+    private function assignOrders($tasks, $parentId, &$order)
+    {
+        // Ambil children dalam urutan yang ada di collection (sudah global sorted)
+        $children = $tasks->where('parent_id', $parentId);
+
+        foreach ($children as $child) {
+            $child->order = $order++;
+            $child->save();
+
+            // Rekursif untuk sub-children
+            $this->assignOrders($tasks, $child->id, $order);
+        }
+    }
+
+    public function create()
+    {
+        $parents = Task::where('user_id', Auth::id())
+            ->get()
+            ->map(function($task) {
+                $task->start = $task->start ? \Carbon\Carbon::parse($task->start)->format('d-m-Y') : null;
+                $task->finish = $task->finish ? \Carbon\Carbon::parse($task->finish)->format('d-m-Y') : null;
+                return $task;
+            });
+
+        return view('projects.create', compact('parents'));
+    }
 
     public function store(Request $request)
     {
@@ -90,11 +132,11 @@ class TaskController extends Controller
 
         $duration = $request->duration ?: intval($start->diffInDays($finish) + 1);
 
-        $level    = 0;
+        $level = 0;
 
         if ($request->parent_id) {
             $parent = Task::where('id', $request->parent_id)
-                ->where('user_id', Auth::id()) // parent juga harus milik user login
+                ->where('user_id', Auth::id())
                 ->first();
 
             if ($parent) {
@@ -113,9 +155,19 @@ class TaskController extends Controller
             }
         }
 
-        $maxOrder = Task::where('user_id', Auth::id())->max('order') ?? 0;
+        // Saat create, set order sebagai yang TERAKHIR di parent (atau root)
+        $maxOrder = 0;
+        if ($request->parent_id) {
+            $maxOrder = Task::where('parent_id', $request->parent_id)
+                ->where('user_id', Auth::id())
+                ->max('order') ?? 0;
+        } else {
+            $maxOrder = Task::whereNull('parent_id')
+                ->where('user_id', Auth::id())
+                ->max('order') ?? 0;
+        }
 
-        Task::create([
+        $newTask = Task::create([
             'name'        => $request->name,
             'parent_id'   => $request->parent_id,
             'duration'    => $duration,
@@ -123,111 +175,36 @@ class TaskController extends Controller
             'finish'      => $finish,
             'progress'    => 0,
             'level'       => $level,
-            'order'       => $maxOrder + 1,
+            'order'       => $maxOrder + 1,  // Yang terakhir untuk task baru
             'description' => $request->description,
-            'user_id'     => Auth::id(), // tambahkan user_id
+            'user_id'     => Auth::id(),
         ]);
+
+        // Normalize orders setelah create untuk memastikan urutan benar
+        $this->normalizeOrders();
 
         return redirect()->route('tasks.index')
             ->with('success', 'Task berhasil ditambahkan!');
     }
 
-   protected function updateParentRecursively($task, $newFinish, $childLevel = null)
-{
-    if (!$task->start || !$task->finish) {
-        return;
-    }
-
-    $taskStart  = Carbon::parse($task->start, 'Asia/Jakarta')->startOfDay();
-    $taskFinish = Carbon::parse($task->finish, 'Asia/Jakarta')->startOfDay();
-    $newFinish  = Carbon::parse($newFinish, 'Asia/Jakarta')->startOfDay();
-
-    if ($childLevel === null) {
-        $childLevel = $task->level + 1; // Level anak adalah level task + 1
-    }
-
-    // Aturan update berdasarkan level anak
-    if ($newFinish > $taskFinish) {
-        // Jika anak adalah level 1 (anak langsung dari root)
-        if ($childLevel == 1) {
-            // Update task level 1 dan root (level 0)
-            $task->finish   = $newFinish;
-            $task->duration = intval($taskStart->diffInDays($newFinish)) + 1;
-            $task->save();
-            
-            // Update root task jika ini bukan root
-            if ($task->level > 0 && $task->parent_id) {
-                $root = $this->getRootTask($task);
-                if ($root && $root->id !== $task->id) {
-                    $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
-                    $rootFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
-                    if ($newFinish > $rootFinish) {
-                        $root->finish   = $newFinish;
-                        $root->duration = intval($rootStart->diffInDays($newFinish)) + 1;
-                        $root->save();
-                    }
-                }
-            }
-        } 
-        // Jika anak adalah level 2+ (subtask dari level 1)
-        else if ($childLevel >= 2) {
-            // Hanya update root task (level 0), bukan task level 1
-            $root = $this->getRootTask($task);
-            if ($root && $root->id !== $task->id) {
-                $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
-                $rootFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
-                if ($newFinish > $rootFinish) {
-                    $root->finish   = $newFinish;
-                    $root->duration = intval($rootStart->diffInDays($newFinish)) + 1;
-                    $root->save();
-                }
-            }
-        }
-        // Jika anak adalah level 0 (root task sendiri)
-        else if ($childLevel == 0) {
-            // Hanya update dirinya sendiri
-            $task->finish   = $newFinish;
-            $task->duration = intval($taskStart->diffInDays($newFinish)) + 1;
-            $task->save();
-        }
-    }
-
-    // Lanjut ke parent jika masih ada
-    if ($task->parent_id) {
-        $parent = Task::find($task->parent_id);
-        if ($parent && $parent->user_id === Auth::id()) {
-            $this->updateParentRecursively($parent, $newFinish, $childLevel);
-        }
-    }
-}
-protected function getRootTask($task)
-{
-    while ($task->parent_id) {
-        $task = Task::find($task->parent_id);
-    }
-    return $task;
-}
-
-
-
     public function edit(Task $task)
-{
-    if ($task->user_id !== Auth::id()) {
-        return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak mengedit task ini.');
+    {
+        if ($task->user_id !== Auth::id()) {
+            return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak mengedit task ini.');
+        }
+
+        $parents = Task::where('user_id', Auth::id())
+            ->where('id', '!=', $task->id)
+            ->whereNotIn('id', $this->getDescendantIds($task))
+            ->get()
+            ->map(function($t) {
+                $t->start = $t->start ? \Carbon\Carbon::parse($t->start)->format('d-m-Y') : null;
+                $t->finish = $t->finish ? \Carbon\Carbon::parse($t->finish)->format('d-m-Y') : null;
+                return $t;
+            });
+
+        return view('projects.edit', compact('task', 'parents'));
     }
-
-    $parents = Task::where('user_id', Auth::id())
-        ->where('id', '!=', $task->id)
-        ->whereNotIn('id', $this->getDescendantIds($task))
-        ->get()
-        ->map(function($task) {
-            $task->start = $task->start ? \Carbon\Carbon::parse($task->start)->format('d-m-Y') : null;
-            $task->finish = $task->finish ? \Carbon\Carbon::parse($task->finish)->format('d-m-Y') : null;
-            return $task;
-        });
-
-    return view('projects.edit', compact('task', 'parents'));
-}
 
     public function update(Request $request, Task $task)
     {
@@ -251,6 +228,8 @@ protected function getRootTask($task)
                 ]);
             }
         }
+
+        $oldParentId = $task->parent_id; // Simpan parent lama
 
         $start    = Carbon::parse($request->start, 'Asia/Jakarta')->startOfDay();
         $duration = $request->duration;
@@ -283,6 +262,12 @@ protected function getRootTask($task)
             'level'       => $level,
         ]);
 
+        // Reorder tasks setelah parent berubah
+        if ($oldParentId != $request->parent_id) {
+            $this->reorderTasksAfterParentChange($task, $oldParentId, $request->parent_id);
+        }
+
+        // Update parent recursively jika perlu
         if ($request->parent_id && isset($parent)) {
             $maxFinishStr = $parent->children()->max('finish');
             $maxFinish    = $maxFinishStr ? Carbon::parse($maxFinishStr, 'Asia/Jakarta')->startOfDay() : null;
@@ -292,8 +277,128 @@ protected function getRootTask($task)
             }
         }
 
+        // Normalize orders setelah update untuk memastikan urutan benar
+        $this->normalizeOrders();
+
         return redirect()->route('tasks.index')
             ->with('success', 'Task berhasil diupdate!');
+    }
+
+    /**
+     * Fungsi untuk reorder tasks setelah parent berubah
+     * - Saat pindah ke parent baru (level > 0): menjadi YANG PERTAMA di siblings
+     * - Saat pindah ke root (level = 0): menjadi YANG TERAKHIR di root (untuk menghindari muncul di atas existing roots seperti Magang)
+     */
+    private function reorderTasksAfterParentChange($task, $oldParentId, $newParentId)
+    {
+        if ($newParentId) {
+            // Task dipindahkan ke parent baru: Buat menjadi YANG PERTAMA di siblings
+            $minOrder = Task::where('parent_id', $newParentId)
+                ->where('user_id', Auth::id())
+                ->where('id', '!=', $task->id)
+                ->min('order') ?? 1;  // Default 1 jika kosong
+            
+            // Set order lebih kecil dari yang terkecil (jadi yang pertama)
+            $task->order = $minOrder - 1;
+            $task->save();
+        } else {
+            // Task dikembalikan ke root (parent_id = null): Buat menjadi YANG TERAKHIR di root
+            $maxOrder = Task::whereNull('parent_id')
+                ->where('user_id', Auth::id())
+                ->where('id', '!=', $task->id)
+                ->max('order') ?? 0;
+            
+            // Set order setelah yang terbesar
+            $task->order = $maxOrder + 1;
+            $task->save();
+        }
+
+        // Update level untuk semua descendants
+        $this->updateDescendantsLevel($task);
+    }
+
+    /**
+     * Update level untuk semua descendants secara rekursif
+     */
+    private function updateDescendantsLevel($task)
+    {
+        $children = Task::where('parent_id', $task->id)->get();
+        
+        foreach ($children as $child) {
+            $child->level = $task->level + 1;
+            $child->save();
+            
+            // Rekursif untuk grandchildren
+            $this->updateDescendantsLevel($child);
+        }
+    }
+
+    protected function updateParentRecursively($task, $newFinish, $childLevel = null)
+    {
+        if (!$task->start || !$task->finish) {
+            return;
+        }
+
+        $taskStart  = Carbon::parse($task->start, 'Asia/Jakarta')->startOfDay();
+        $taskFinish = Carbon::parse($task->finish, 'Asia/Jakarta')->startOfDay();
+        $newFinish  = Carbon::parse($newFinish, 'Asia/Jakarta')->startOfDay();
+
+        if ($childLevel === null) {
+            $childLevel = $task->level + 1;
+        }
+
+        if ($newFinish > $taskFinish) {
+            if ($childLevel == 1) {
+                $task->finish   = $newFinish;
+                $task->duration = intval($taskStart->diffInDays($newFinish)) + 1;
+                $task->save();
+                
+                if ($task->level > 0 && $task->parent_id) {
+                    $root = $this->getRootTask($task);
+                    if ($root && $root->id !== $task->id) {
+                        $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
+                        $rootFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
+                        if ($newFinish > $rootFinish) {
+                            $root->finish   = $newFinish;
+                            $root->duration = intval($rootStart->diffInDays($newFinish)) + 1;
+                            $root->save();
+                        }
+                    }
+                }
+            } 
+            else if ($childLevel >= 2) {
+                $root = $this->getRootTask($task);
+                if ($root && $root->id !== $task->id) {
+                    $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
+                    $rootFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
+                    if ($newFinish > $rootFinish) {
+                        $root->finish   = $newFinish;
+                        $root->duration = intval($rootStart->diffInDays($newFinish)) + 1;
+                        $root->save();
+                    }
+                }
+            }
+            else if ($childLevel == 0) {
+                $task->finish   = $newFinish;
+                $task->duration = intval($taskStart->diffInDays($newFinish)) + 1;
+                $task->save();
+            }
+        }
+
+        if ($task->parent_id) {
+            $parent = Task::find($task->parent_id);
+            if ($parent && $parent->user_id === Auth::id()) {
+                $this->updateParentRecursively($parent, $newFinish, $childLevel);
+            }
+        }
+    }
+
+    protected function getRootTask($task)
+    {
+        while ($task->parent_id) {
+            $task = Task::find($task->parent_id);
+        }
+        return $task;
     }
 
     private function getDescendantIds(Task $task)

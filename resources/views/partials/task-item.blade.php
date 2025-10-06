@@ -1,14 +1,15 @@
 @php
-    $level = $level ?? 0;
-    $isParent = $task->children && $task->children->count() > 0;
-    $paddingLeft = $level > 0 ? 32 : 8;
+    // Tidak lagi perlu cek children dari relasi Eloquent
+    // Karena structuredTasks sudah flat dari controller
+    $isParent = isset($allTasks) && $allTasks->where('parent_id', $task->id)->count() > 0;
+    $paddingLeft = ($task->level ?? 0) > 0 ? 32 : 8;
 @endphp
 
 <!-- Task Row -->
-<div class="task-row group transition-colors duration-200 {{ $level > 0 ? 'task-child' : '' }}"
+<div class="task-row group transition-colors duration-200 {{ ($task->level ?? 0) > 0 ? 'task-child' : '' }}"
      data-task-id="{{ $task->id }}"
      data-parent-id="{{ $task->parent_id ?? '' }}"
-     data-level="{{ $level }}">
+     data-level="{{ $task->level ?? 0 }}">
 
     <!-- Toggle Column (40px) -->
     <div class="task-cell task-toggle-cell">
@@ -31,15 +32,15 @@
          data-task-id="{{ $task->id }}"
          style="padding-left: {{ $paddingLeft }}px;">
         <div class="flex items-center gap-2">
-            @if($level > 0)
-                <!-- Child Task: Square Green Icon -->
-                <div class="task-icon-square task-icon-green"></div>
+            @if(($task->level ?? 0) > 0)
+                <!-- Child Task: Square Icon (warna akan diset oleh JavaScript) -->
+                <div class="task-icon-square"></div>
             @else
-                <!-- Parent Task: Square Blue Icon -->
-                <div class="task-icon-square task-icon-blue"></div>
+                <!-- Parent Task: Square Icon (warna akan diset oleh JavaScript) -->
+                <div class="task-icon-square"></div>
             @endif
-            <span class="task-name-text {{ $level === 0 ? 'font-semibold' : 'font-medium' }}">
-                {{ $task->name }}
+            <span class="task-name-text {{ ($task->level ?? 0) === 0 ? 'font-semibold' : 'font-medium' }}">
+                {{ is_array($task) ? $task['name'] : $task->name }}
             </span>
         </div>
     </div>
@@ -47,35 +48,43 @@
     <!-- Start Date Column -->
     <div class="task-cell task-date-cell">
         <span class="task-date-text">
-            {{ $task->start ? \Carbon\Carbon::parse($task->start)->format('M j, Y') : '-' }}
+            @if(is_array($task))
+                {{ isset($task['start']) ? \Carbon\Carbon::parse($task['start'])->format('M j, Y') : '-' }}
+            @else
+                {{ $task->start ? \Carbon\Carbon::parse($task->start)->format('M j, Y') : '-' }}
+            @endif
         </span>
     </div>
 
     <!-- End Date Column -->
     <div class="task-cell task-date-cell">
         <span class="task-date-text">
-            {{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('M j, Y') : '-' }}
+            @if(is_array($task))
+                {{ isset($task['finish']) ? \Carbon\Carbon::parse($task['finish'])->format('M j, Y') : '-' }}
+            @else
+                {{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('M j, Y') : '-' }}
+            @endif
         </span>
     </div>
 
     <!-- Duration Column -->
     <div class="task-cell task-duration-cell">
         <span class="duration-badge-modern"
-              data-task-id="{{ $task->id }}"
-              data-parent-id="{{ $task->parent_id ?? '' }}"
-              data-level="{{ $level }}"
-              id="duration-{{ $task->id }}">
-            {{ $task->duration ?? 0 }}d
+              data-task-id="{{ is_array($task) ? $task['id'] : $task->id }}"
+              data-parent-id="{{ is_array($task) ? ($task['parent_id'] ?? '') : ($task->parent_id ?? '') }}"
+              data-level="{{ is_array($task) ? ($task['level'] ?? 0) : ($task->level ?? 0) }}"
+              id="duration-{{ is_array($task) ? $task['id'] : $task->id }}">
+            {{ is_array($task) ? ($task['duration'] ?? 0) : ($task->duration ?? 0) }}d
         </span>
     </div>
 </div>
 
-<!-- Recursively render children -->
-@if($isParent)
+<!-- Recursively render children jika ada -->
+@if($isParent && isset($allTasks))
     <div class="task-children transition-all duration-300 ease-in-out"
-         data-parent-id="{{ $task->id }}">
-        @foreach($task->children as $child)
-            @include('partials.task-item', ['task' => $child, 'level' => $level + 1])
+         data-parent-id="{{ is_array($task) ? $task['id'] : $task->id }}">
+        @foreach($allTasks->where('parent_id', is_array($task) ? $task['id'] : $task->id) as $child)
+            @include('partials.task-item', ['task' => $child, 'allTasks' => $allTasks])
         @endforeach
     </div>
 @endif

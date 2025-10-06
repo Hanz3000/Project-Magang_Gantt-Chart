@@ -1712,41 +1712,86 @@ function getDayWidth() {
 }
 
 function isTaskVisible(task) {
-    if (!task.parent_id) return true;
+    // Jika tidak punya parent, pasti visible
+    if (!task.parent_id) {
+        return true;
+    }
+    
+    // Cari parent dari task
     const parent = tasksData.find(t => t.id === task.parent_id);
-    if (!parent) return false;
-    return isTaskVisible(parent) && !collapsedTasks.has(parent.id.toString());
+    if (!parent) {
+        return false;
+    }
+    
+    // Jika parent di-collapse, task tidak visible
+    if (collapsedTasks.has(parent.id.toString())) {
+        return false;
+    }
+    
+    // Rekursif cek parent-parent di atasnya
+    return isTaskVisible(parent);
 }
 
 function getVisibleTasks() {
-    const visibleTasks = [];
-    function traverseTasks(tasks, parentId = null) {
-        tasks.forEach(task => {
-            if (task.parent_id === parentId) {
-                if (isTaskVisible(task)) {
-                    visibleTasks.push(task);
-                    if (!collapsedTasks.has(task.id.toString())) {
-                        traverseTasks(tasks, task.id);
-                    }
-                }
+    // tasksData dari controller sudah urut hierarkis
+    // Filter hanya yang visible (tidak ketutup collapse)
+    return tasksData.filter(task => {
+        // Root task selalu visible
+        if (!task.parent_id) return true;
+        
+        // Cek apakah parent di-collapse
+        let currentParentId = task.parent_id;
+        while (currentParentId) {
+            if (collapsedTasks.has(currentParentId.toString())) {
+                return false;
             }
-        });
-    }
-    traverseTasks(tasksData, null);
-    return visibleTasks;
+            // Cari parent berikutnya
+            const parentTask = tasksData.find(t => t.id === currentParentId);
+            currentParentId = parentTask ? parentTask.parent_id : null;
+        }
+        
+        return true;
+    });
 }
 
+function getTasksInDOMOrder() {
+    const orderedTasks = [];
+    const taskRows = document.querySelectorAll('.task-row');
+    
+    taskRows.forEach(row => {
+        const taskId = parseInt(row.getAttribute('data-task-id'));
+        const task = tasksData.find(t => t.id === taskId);
+        if (task) {
+            orderedTasks.push(task);
+        }
+    });
+    
+    return orderedTasks;
+}
+
+// UPDATE fungsi updateGanttChart() jadi seperti ini:
 function updateGanttChart() {
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (!ganttRowsContainer) return;
 
+    // Ambil tasks sesuai urutan DOM, bukan dari tasksData
+    const orderedTasks = getTasksInDOMOrder();
+    
+    console.log('DOM Order:', orderedTasks.map(t => t.name)); // Debug
+    
     let ganttHTML = '';
-    const visibleTasks = getVisibleTasks();
-    if (visibleTasks.length > 0) {
-        visibleTasks.forEach(task => {
-            ganttHTML += generateGanttRow(task);
+    if (orderedTasks.length > 0) {
+        orderedTasks.forEach(task => {
+            // Cek visibility untuk collapse/expand
+            const taskRow = document.querySelector(`.task-row[data-task-id="${task.id}"]`);
+            const isVisible = taskRow && taskRow.offsetParent !== null;
+            
+            if (isVisible) {
+                ganttHTML += generateGanttRow(task);
+            }
         });
     }
+    
     ganttRowsContainer.innerHTML = ganttHTML;
     addTodayIndicator();
     updateGanttWidths();
@@ -1788,9 +1833,10 @@ function generateTaskBar(task, dayWidth) {
     const { bg, border } = getColorForRootAndLevel(rootId, relLevel);
 
     return `
-        <div class="gantt-bar" 
+       <div class="gantt-bar" 
              style="left: ${barLeft}px; width: ${barWidth}px; background: ${bg}; border-color: ${border};"
              data-task-id="${task.id}"
+             data-parent-id="${task.parent_id || ''}"
              data-start-day="${startDayOffset}"
              data-duration="${task.duration || 0}">
             <span class="task-bar-text">${task.name}</span>
@@ -1910,12 +1956,19 @@ function setDefaultScrollPosition() {
 function toggleTaskCollapse(taskId) {
     const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
     const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
+    
     if (toggleIcon && childrenContainer) {
         toggleIcon.classList.toggle('rotate-90');
         childrenContainer.classList.toggle('collapsed');
-        if (childrenContainer.classList.contains('collapsed')) collapsedTasks.add(taskId.toString());
-        else collapsedTasks.delete(taskId.toString());
-        updateGanttChart();
+        
+        if (childrenContainer.classList.contains('collapsed')) {
+            collapsedTasks.add(taskId.toString());
+        } else {
+            collapsedTasks.delete(taskId.toString());
+        }
+        
+        // Re-render gantt setelah toggle
+        setTimeout(() => updateGanttChart(), 50);
     }
 }
 

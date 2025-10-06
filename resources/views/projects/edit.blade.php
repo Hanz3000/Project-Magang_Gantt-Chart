@@ -1,4 +1,4 @@
-{{-- resources/views/tasks/edit.blade.php --}}
+<!-- resources/views/tasks/edit.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -68,8 +68,8 @@
                                     <option value="">-- Tidak ada (Task Baru) --</option>
                                     @foreach($parents as $parent)
                                         <option value="{{ $parent->id }}" 
-                                                data-start="{{ $parent->start }}" 
-                                                data-finish="{{ $parent->finish }}"
+                                                data-start="{{ $parent->start ? $parent->start->format('Y-m-d') : '' }}" 
+                                                data-finish="{{ $parent->finish ? $parent->finish->format('Y-m-d') : '' }}"
                                                 {{ old('parent_id', $task->parent_id) == $parent->id ? 'selected' : '' }}>
                                             {{ $parent->name }}
                                         </option>
@@ -331,17 +331,25 @@
 
             if (parentId) {
                 parentInfo.show();
-                const start = $(this).find('option:selected').data('start');
-                const finish = $(this).find('option:selected').data('finish');
-                const startFormatted = new Date(start).toLocaleDateString('en-GB');
-                const finishFormatted = new Date(finish).toLocaleDateString('en-GB');
+                const parentStart = $(this).find('option:selected').data('start');
+                const parentFinish = $(this).find('option:selected').data('finish');
+                const startFormatted = new Date(parentStart).toLocaleDateString('en-GB');
+                const finishFormatted = new Date(parentFinish).toLocaleDateString('en-GB');
                 parentInfoText.text(
                     `Sub-task mulai ${startFormatted}, selesai idealnya ${finishFormatted}. 
                      Melebihi, task utama diperpanjang.`
                 );
-                // Autofit tanggal mulai ke parent_start jika kosong
-                if (!$('#start').val()) {
-                    $('#start').val(start);
+                // Autofit tanggal mulai ke hari setelah tanggal selesai parent
+                if (parentFinish) {
+                    const start = new Date(parentFinish);
+                    start.setDate(start.getDate() + 1); // Tambah 1 hari setelah tanggal selesai parent
+                    $('#start').val(start.toISOString().split('T')[0]);
+                    const durationVal = $('#duration').val();
+                    if (durationVal) {
+                        const finish = new Date(start);
+                        finish.setDate(start.getDate() + parseInt(durationVal) - 1);
+                        $('#finish').val(finish.toISOString().split('T')[0]);
+                    }
                 }
             } else {
                 parentInfo.hide();
@@ -369,27 +377,13 @@
             const startVal = $('#start').val();
             const finishVal = $('#finish').val();
             const durationVal = $('#duration').val();
-            const parentId = $('#parent_id').val();
-            let parentStart = null;
-            let parentFinish = null;
 
-            if (parentId) {
-                parentStart = $('#parent_id option:selected').data('start');
-                parentFinish = $('#parent_id option:selected').data('finish');
-            }
-
-            // Hapus batasan min untuk start (izinkan semua tanggal)
+            // Hapus batasan min untuk start dan finish
             $('#start').removeAttr('min');
-
-            // Atur min finish berdasarkan start (tetap pertahankan validasi ini)
-            if (startVal) {
-                $('#finish').attr('min', startVal);
-            } else {
-                $('#finish').removeAttr('min');
-            }
+            $('#finish').removeAttr('min');
 
             // Durasi → hitung finish
-            if (lastChanged === 'duration' && durationVal && startVal) {
+            if ((lastChanged === 'start' || lastChanged === 'duration' || lastChanged === 'parent') && durationVal && startVal) {
                 const start = new Date(startVal);
                 const finish = new Date(start);
                 finish.setDate(start.getDate() + parseInt(durationVal) - 1);
@@ -407,13 +401,6 @@
 
         // Validasi tanggal saat input
         function validateDateInputs() {
-            const parentId = $('#parent_id').val();
-            let minDate = null;
-
-            if (parentId) {
-                minDate = $('#parent_id option:selected').data('start');
-            }
-
             // Validasi input finish (pastikan tidak sebelum start)
             $('#finish').off('input').on('input', function() {
                 const startVal = $('#start').val();
