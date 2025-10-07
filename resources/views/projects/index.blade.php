@@ -275,14 +275,10 @@
 
     .timeline-header-section {
         flex: 1;
-        overflow-x: hidden !important;
+        overflow-x: auto !important;
         overflow-y: hidden;
         min-width: 0;
         background: #f8f9fa;
-    }
-
-    .timeline-header-section::-webkit-scrollbar {
-        display: none;
     }
 
     .task-header-row {
@@ -344,10 +340,10 @@
     .timeline-header-container {
         background: #f1f3f4;
         border-bottom: 1px solid #d1d5db;
-        overflow-x: hidden !important;
+        overflow-x: auto !important;
         overflow-y: hidden;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+        scrollbar-width: auto;
+        -ms-overflow-style: auto;
         width: fit-content;
         min-width: 100%;
         box-sizing: border-box;
@@ -355,37 +351,20 @@
         margin: 0;
     }
 
-    .timeline-header-container::-webkit-scrollbar {
-        display: none;
-    }
-
     /* ===== GANTT CONTENT CONTAINER - SCROLLABLE ===== */
     .gantt-content-container {
         flex: 1;
         overflow-x: auto;
         overflow-y: auto;
-        scrollbar-width: thin;
+        scrollbar-width: auto;
+        -ms-overflow-style: auto;
         padding: 0;
         margin: 0;
     }
 
-    .gantt-content-container::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-
-    .gantt-content-container::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 4px;
-    }
-
-    .gantt-content-container::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-    }
-
-    .gantt-content-container::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+    /* Hide horizontal scrollbar for bottom content */
+    .gantt-content-container::-webkit-scrollbar:horizontal {
+        height: 0 !important;
     }
 
     body.no-scroll {
@@ -393,6 +372,18 @@
         position: fixed;
         width: 100%;
         height: 100%;
+    }
+
+    /* ===== SCROLL CONTROLS ===== */
+    .scroll-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border-top: 1px solid #e5e7eb;
+        padding: 8px;
+        gap: 8px;
+        flex-shrink: 0;
     }
 
     /* ===== TIMELINE GRID ===== */
@@ -1449,6 +1440,29 @@
             print-color-adjust: exact;
         }
     }
+
+    /* Custom scrollbar styles for horizontal scrollbars */
+    .timeline-header-section::-webkit-scrollbar,
+    .gantt-content-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .timeline-header-section::-webkit-scrollbar-track,
+    .gantt-content-container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+
+    .timeline-header-section::-webkit-scrollbar-thumb,
+    .gantt-content-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    .timeline-header-section::-webkit-scrollbar-thumb:hover,
+    .gantt-content-container::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
 </style>
 
 <div class="gantt-container">
@@ -1708,6 +1722,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initResizer();
     setupRowHighlight();
     setupColumnHighlight();
+    setupScrollButtons(); // New: Setup scroll buttons
 
     // TAMBAHAN: Setup sticky header effect
     setupStickyHeaderEffect();
@@ -1726,6 +1741,40 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTaskIconColors();
     }, 100);
 });
+
+// New function to setup scroll buttons
+function setupScrollButtons() {
+    const ganttContent = document.getElementById('ganttContent');
+    const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+    const scrollRightBtn = document.getElementById('scrollRightBtn');
+
+    if (!ganttContent || !scrollLeftBtn || !scrollRightBtn) return;
+
+    function updateButtonStates() {
+        const maxScroll = ganttContent.scrollWidth - ganttContent.clientWidth;
+        scrollLeftBtn.disabled = ganttContent.scrollLeft <= 0;
+        scrollRightBtn.disabled = ganttContent.scrollLeft >= maxScroll;
+    }
+
+    scrollLeftBtn.addEventListener('click', () => scrollHorizontal(-200));
+    scrollRightBtn.addEventListener('click', () => scrollHorizontal(200));
+
+    ganttContent.addEventListener('scroll', updateButtonStates);
+    window.addEventListener('resize', updateButtonStates);
+
+    updateButtonStates();
+}
+
+// New function to scroll horizontally
+function scrollHorizontal(delta) {
+    const ganttContent = document.getElementById('ganttContent');
+    if (ganttContent) {
+        ganttContent.scrollBy({
+            left: delta,
+            behavior: 'smooth'
+        });
+    }
+}
 
 function initializeTimeline() {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -2116,6 +2165,11 @@ function setupScrollSynchronization() {
     ganttContent.addEventListener('scroll', () => {
         taskListBody.scrollTop = ganttContent.scrollTop;
         timelineHeaderSection.scrollLeft = ganttContent.scrollLeft;
+    });
+
+    // Sync scroll from header to content for top scrollbar
+    timelineHeaderSection.addEventListener('scroll', () => {
+        ganttContent.scrollLeft = timelineHeaderSection.scrollLeft;
     });
 }
 
