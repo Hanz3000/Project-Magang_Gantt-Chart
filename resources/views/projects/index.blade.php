@@ -3,35 +3,35 @@
 @section('content')
 <style>
     :root {
-    --level-0-bg: #0078d4;
-    --level-0-border: #106ebe;
-    --level-1-bg: #107c10;
-    --level-1-border: #0e6e0e;
-    --level-2-bg: #881798;
-    --level-2-border: #7a1589;
-    --level-3-bg: #ff8c00;
-    --level-3-border: #e67e00;
-    --level-4-bg: #e81123;
-    --level-4-border: #d10e20;
-    --level-5-bg: #5c2d91;
-    --level-5-border: #522982;
-    --day-width: 24px;
-}
+        --level-0-bg: #0078d4;
+        --level-0-border: #106ebe;
+        --level-1-bg: #107c10;
+        --level-1-border: #0e6e0e;
+        --level-2-bg: #881798;
+        --level-2-border: #7a1589;
+        --level-3-bg: #ff8c00;
+        --level-3-border: #e67e00;
+        --level-4-bg: #e81123;
+        --level-4-border: #d10e20;
+        --level-5-bg: #5c2d91;
+        --level-5-border: #522982;
+        --day-width: 24px;
+    }
 
     /* ===== TASK LIST STYLING (GAMBAR STYLE) ===== */
-   .task-row {
-    display: grid;
-    grid-template-columns: 40px 1fr 150px 110px 110px; /* Increased Durasi column to 150px */
-    height: 40px;
-    align-items: center; /* Center content vertically */
-    padding: 0;
-    border-bottom: 1px solid #e0e0e0;
-    background: white;
-    font-size: 13px;
-    transition: background-color 0.15s ease;
-    max-width: 100%;
-    position: relative;
-}
+    .task-row {
+        display: grid;
+        grid-template-columns: 40px 1fr 150px 110px 110px;
+        height: 40px;
+        align-items: center;
+        padding: 0;
+        border-bottom: 1px solid #e0e0e0;
+        background: white;
+        font-size: 13px;
+        transition: background-color 0.15s ease;
+        max-width: 100%;
+        position: relative;
+    }
 
     .task-row:hover {
         background-color: #f5f5f5 !important;
@@ -50,22 +50,22 @@
     }
 
     /* Task Cell Base */
-   .task-cell {
-    padding: 8px 12px;
-    border-right: 1px solid #e0e0e0;
-    display: flex;
-    align-items: center; /* Center content vertically */
-    height: 100%;
-}
+    .task-cell {
+        padding: 8px 12px;
+        border-right: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
 
     /* Task Toggle Cell */
-.task-toggle-cell {
-    justify-content: center;
-    padding: 0;
-    border-right: 1px solid #e0e0e0;
-    display: flex;
-    align-items: center; /* Center content vertically */
-}
+    .task-toggle-cell {
+        justify-content: center;
+        padding: 0;
+        border-right: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+    }
 
     .toggle-collapse {
         cursor: pointer;
@@ -92,16 +92,16 @@
 
     /* Task Name Cell */
     .task-name-cell {
-    text-align: left;
-    justify-content: flex-start;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-right: 1px solid #e0e0e0;
-    display: flex;
-    align-items: center; /* Center content vertically */
-    gap: 8px;
-    position: relative;
-}
+        text-align: left;
+        justify-content: flex-start;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-right: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+    }
 
     .task-name-text {
         font-size: 14px;
@@ -116,7 +116,7 @@
         font-weight: 400;
     }
 
-    /* Task Icon Square (akan berubah warna sesuai level) */
+    /* Task Icon Square */
     .task-icon-square {
         width: 16px;
         height: 16px;
@@ -126,7 +126,7 @@
         transition: all 0.2s ease;
     }
 
-    /* Task Indicator - digunakan di partial yang ada */
+    /* Task Indicator */
     .task-indicator {
         width: 16px;
         height: 16px;
@@ -139,12 +139,12 @@
 
     /* Date Cell */
     .task-date-cell {
-    justify-content: flex-start;
-    padding: 8px 12px;
-    border-right: 1px solid #e0e0e0;
-    display: flex;
-    align-items: center; /* Center content vertically */
-}
+        justify-content: flex-start;
+        padding: 8px 12px;
+        border-right: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+    }
 
     .task-date-text {
         font-size: 13px;
@@ -153,15 +153,15 @@
     }
     
     /* Task Duration Cell */
-.task-duration-cell {
-    justify-content: center;
-    padding: 8px 12px;
-    border-right: none;
-    display: flex;
-    align-items: center; /* Center content vertically */
-}
+    .task-duration-cell {
+        justify-content: center;
+        padding: 8px 12px;
+        border-right: none;
+        display: flex;
+        align-items: center;
+    }
 
-    /* Duration Badge Modern - Dibuat netral tanpa warna dinamis */
+    /* Duration Badge Modern */
     .duration-badge-modern {
         display: inline-flex;
         align-items: center;
@@ -183,7 +183,7 @@
         border-color: #d1d5db;
     }
 
-    /* Duration Badge Simple (tetap untuk backward compatibility) */
+    /* Duration Badge Simple */
     .duration-badge-simple {
         display: inline-flex;
         align-items: center;
@@ -200,16 +200,15 @@
         transition: all 0.2s ease;
     }
 
-    /* ===== GANTT CONTAINER ===== */
+    /* ===== GANTT CONTAINER - UPDATED FOR STICKY ===== */
     .gantt-container {
         display: flex;
         flex-direction: column;
-        min-height: calc(100vh - 120px);
-        overflow-y: auto;
-        overflow-x: hidden;
+        height: calc(100vh - 120px); /* Fixed height */
+        overflow: hidden; /* CRITICAL: Container tidak boleh scroll */
         background: #ffffff;
         border: 1px solid #d1d5db;
-        border-radius: 12px; /* Rounded corners */
+        border-radius: 12px;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         max-width: 100vw;
         box-sizing: border-box;
@@ -226,23 +225,25 @@
         border-radius: 12px 12px 0 0;
     }
 
+    /* ===== GANTT MAIN CONTENT - SCROLLABLE AREA ===== */
     .gantt-main-content {
         display: flex;
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
+        flex: 1; /* Mengambil sisa ruang */
+        min-height: 0; /* CRITICAL untuk flex children bisa scroll */
+        overflow: hidden; /* Parent tidak scroll */
+        position: relative;
     }
 
     /* Task List Container */
     .task-list-container {
-        width: 550px; /* Lebih lebar untuk menampung kolom baru */
+        width: 550px;
         min-width: 400px;
         max-width: 80%;
         display: flex;
         flex-direction: column;
         border-right: 1px solid #e0e0e0;
         background: #ffffff;
-        overflow: hidden;
+        overflow: hidden; /* Parent tidak scroll */
         flex-shrink: 0;
     }
 
@@ -252,28 +253,36 @@
         display: flex;
         flex-direction: column;
         background: white;
-        overflow: hidden;
+        overflow: hidden; /* Parent tidak scroll */
         min-width: 0;
     }
 
-    /* Combined Header Container */
+    /* ===== COMBINED HEADER CONTAINER - STICKY MAGIC ===== */
     .combined-header-container {
         display: flex;
         width: 100%;
         background: #f8f9fa;
         border-bottom: 2px solid #e5e7eb;
-        position: sticky;
-        top: 0;
-        z-index: 20;
+        position: sticky; /* KUNCI UTAMA #1 */
+        top: 0; /* KUNCI UTAMA #2 */
+        z-index: 100; /* KUNCI UTAMA #3 - Harus tinggi */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0; /* Jangan shrink */
+    }
+
+    /* Enhanced shadow saat scroll */
+    .combined-header-container.scrolled {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     .task-list-header-section {
-        width: 550px; /* Match task-list-container */
+        width: 550px;
         min-width: 400px;
         max-width: 80%;
         border-right: 1px solid #e0e0e0;
         overflow: hidden;
         flex-shrink: 0;
+        background: #fafafa;
     }
 
     .timeline-header-section {
@@ -281,6 +290,7 @@
         overflow-x: hidden !important;
         overflow-y: hidden;
         min-width: 0;
+        background: #f8f9fa;
     }
 
     .timeline-header-section::-webkit-scrollbar {
@@ -288,16 +298,16 @@
     }
 
     /* Modern Task Header Row */
-.task-header-row {
-    display: grid;
-    grid-template-columns: 40px 1fr 150px 110px 110px; /* Increased Durasi column to 150px */
-    height: 40px;
-    align-items: center;
-    padding: 0;
-    border-bottom: 2px solid #bdbdbd;
-    position: relative;
-    background: #fafafa;
-}
+    .task-header-row {
+        display: grid;
+        grid-template-columns: 40px 1fr 150px 110px 110px;
+        height: 40px;
+        align-items: center;
+        padding: 0;
+        border-bottom: 2px solid #bdbdbd;
+        position: relative;
+        background: #fafafa;
+    }
 
     .task-header-cell {
         padding: 8px 12px;
@@ -342,40 +352,78 @@
         transition: left 0.3s ease;
     }
 
-    /* Task List Body */
+    /* ===== TASK LIST BODY - SCROLLABLE ===== */
     .task-list-body {
         flex: 1;
-        overflow: visible !important;
-        min-height: auto !important;
+        overflow-y: auto; /* INI yang scroll vertikal */
+        overflow-x: hidden;
         background: white;
-        max-height: none !important;
+    }
+
+    /* Custom Scrollbar untuk Task List */
+    .task-list-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .task-list-body::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+
+    .task-list-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    .task-list-body::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
     }
 
     .timeline-header-container {
-    background: #f1f3f4;
-    border-bottom: 1px solid #d1d5db;
-    overflow-x: hidden !important;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    width: fit-content;
-    min-width: 100%;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-}
+        background: #f1f3f4;
+        border-bottom: 1px solid #d1d5db;
+        overflow-x: hidden !important;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        width: fit-content;
+        min-width: 100%;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
 
     .timeline-header-container::-webkit-scrollbar {
         display: none;
     }
 
+    /* ===== GANTT CONTENT CONTAINER - SCROLLABLE ===== */
     .gantt-content-container {
-        overflow-x: auto !important;
-        overflow-y: auto !important;
-        max-height: none !important;
-        max-width: 100%;
+        flex: 1; /* Ambil sisa space */
+        overflow-x: auto; /* Scroll horizontal */
+        overflow-y: auto; /* Scroll vertikal */
         scrollbar-width: thin;
         padding-bottom: 10px;
+    }
+
+    /* Custom Scrollbar untuk Gantt Content */
+    .gantt-content-container::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .gantt-content-container::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+
+    .gantt-content-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    .gantt-content-container::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
     }
 
     body.no-scroll {
@@ -386,64 +434,63 @@
     }
 
     /* Timeline Grid */
-   .month-header {
-    display: flex;
-    border-bottom: 1px solid #d1d5db;
-    background: #f1f3f4;
-    height: 20px;
-    min-width: fit-content;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-}
+    .month-header {
+        display: flex;
+        border-bottom: 1px solid #d1d5db;
+        background: #f1f3f4;
+        height: 20px;
+        min-width: fit-content;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
 
-.month-section {
-    text-align: center;
-    font-weight: 600;
-    font-size: 11px;
-    color: #374151;
-    border-right: 1px solid #d1d5db;
-    padding: 2px 0; /* Ubah dari "2px 4px" menjadi "2px 0" */
-    background: #f1f3f4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-sizing: border-box;
-}
+    .month-section {
+        text-align: center;
+        font-weight: 600;
+        font-size: 11px;
+        color: #374151;
+        border-right: 1px solid #d1d5db;
+        padding: 2px 0;
+        background: #f1f3f4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-sizing: border-box;
+    }
 
     .day-header {
-    display: flex;
-    background: #f8f9fa;
-    height: 32px;
-    border-bottom: 1px solid #d1d5db;
-    min-width: fit-content;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-}
+        display: flex;
+        background: #f8f9fa;
+        height: 32px;
+        border-bottom: 1px solid #d1d5db;
+        min-width: fit-content;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
 
-.timeline-day {
-    width: var(--day-width);
-    min-width: var(--day-width);
-    max-width: var(--day-width);
-    flex-shrink: 0;
-    flex-grow: 0;
-    text-align: center;
-    border-right: 1px solid #e5e7eb;
-    font-size: 10px;
-    font-weight: 500;
-    padding: 2px 0;
-    background: #f8f9fa;
-    color: #374151;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    position: relative;
-    box-sizing: border-box; /* PENTING: border termasuk dalam width */
-}
-
+    .timeline-day {
+        width: var(--day-width);
+        min-width: var(--day-width);
+        max-width: var(--day-width);
+        flex-shrink: 0;
+        flex-grow: 0;
+        text-align: center;
+        border-right: 1px solid #e5e7eb;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px 0;
+        background: #f8f9fa;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        position: relative;
+        box-sizing: border-box;
+    }
 
     .timeline-day::after {
         content: attr(data-dayname);
@@ -490,17 +537,16 @@
 
     /* Gantt Rows */
     .gantt-row {
-    height: 40px;
-    position: relative;
-    border-bottom: 1px solid #f1f5f9;
-    background: white;
-    display: flex;
-    min-width: fit-content;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-}
-
+        height: 40px;
+        position: relative;
+        border-bottom: 1px solid #f1f5f9;
+        background: white;
+        display: flex;
+        min-width: fit-content;
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+    }
 
     .gantt-row:nth-child(even) {
         background: #fafbfc;
@@ -515,17 +561,17 @@
     }
 
     .gantt-grid-cell {
-    width: var(--day-width);
-    min-width: var(--day-width);
-    max-width: var(--day-width);
-    height: 40px;
-    border-right: 1px solid #f1f5f9;
-    flex-shrink: 0;
-    flex-grow: 0;
-    box-sizing: border-box; /* PENTING: border termasuk dalam width */
-    padding: 0;
-    margin: 0;
-}
+        width: var(--day-width);
+        min-width: var(--day-width);
+        max-width: var(--day-width);
+        height: 40px;
+        border-right: 1px solid #f1f5f9;
+        flex-shrink: 0;
+        flex-grow: 0;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
 
     .gantt-grid-cell.weekend {
         background-color: #f9fafb;
@@ -540,7 +586,7 @@
     /* Task Bars - Enhanced */
     .gantt-bar {
         position: absolute;
-        top: 8px; /* Centered vertically */
+        top: 8px;
         height: 20px;
         border-radius: 4px;
         display: flex;
@@ -662,6 +708,7 @@
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
+        flex-shrink: 0; /* Jangan shrink */
     }
 
     .toolbar-left {
@@ -840,13 +887,14 @@
     }
 
     .gantt-rows-container {
-    width: fit-content;
-    min-width: 100%;
-    overflow-x: visible;
-    display: block;
-    padding: 0;
-    margin: 0;
-}
+        width: fit-content;
+        min-width: 100%;
+        overflow-x: visible;
+        display: block;
+        padding: 0;
+        margin: 0;
+    }
+
     /* Enhanced Modal Styles with Smooth Animations */
     .modal {
         position: fixed;
@@ -1126,6 +1174,84 @@
         opacity: 1;
     }
 
+    /* Smooth scrollbar for modal body */
+    .modal-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* Highlight untuk task row - Biru sangat soft */
+    .task-row.row-highlighted {
+        background-color: #eff6ff !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .task-row.row-highlighted .task-cell {
+        background-color: #eff6ff !important;
+    }
+
+    /* Highlight untuk gantt row - Biru sangat soft */
+    .gantt-row.row-highlighted .gantt-grid-cell {
+        background-color: #eff6ff !important;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Highlight untuk gantt bar - Shadow biru halus */
+    .gantt-row.row-highlighted .gantt-bar {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        transform: scale(1.02);
+        transition: all 0.2s ease;
+        z-index: 10;
+    }
+
+    /* Highlight untuk task name - Biru sedikit lebih gelap */
+    .task-row.row-highlighted .task-name-text {
+        color: #1e40af;
+        font-weight: 600;
+    }
+
+    /* Highlight untuk duration badge */
+    .task-row.row-highlighted .duration-badge-modern {
+        background: #dbeafe !important;
+        border-color: #93c5fd !important;
+        color: #1e40af !important;
+    }
+
+    /* Highlight untuk kolom timeline */
+    .timeline-day.column-highlighted {
+        background-color: #bfdbfe !important;
+        color: #1e40af !important;
+        font-weight: 700 !important;
+        border-left: 2px solid #3b82f6;
+        border-right: 2px solid #3b82f6;
+        box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2);
+    }
+
+    .gantt-grid-cell.column-highlighted {
+        background-color: #dbeafe !important;
+        border-left: 2px solid #93c5fd !important;
+        border-right: 2px solid #93c5fd !important;
+    }
+
+    /* Kombinasi row dan column highlight (intersection) */
+    .gantt-row.row-highlighted .gantt-grid-cell.column-highlighted {
+        background-color: #93c5fd !important;
+        box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.3);
+    }
+
     /* Responsive Design */
     @media (max-width: 1200px) {
         .toolbar {
@@ -1264,25 +1390,6 @@
         outline-offset: 2px;
     }
 
-    /* Smooth scrollbar for modal body */
-    .modal-body::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .modal-body::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 3px;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 3px;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
-
     /* High contrast mode support */
     @media (prefers-contrast: high) {
         .gantt-bar {
@@ -1303,7 +1410,8 @@
         .toggle-collapse,
         .nav-button,
         .control-button,
-        .modal-content {
+        .modal-content,
+        .combined-header-container {
             transition: none;
         }
 
@@ -1320,9 +1428,13 @@
     @media print {
         .gantt-container {
             height: auto !important;
-            min-height: auto !important;
-            max-height: none !important;
             overflow: visible !important;
+        }
+
+        .combined-header-container {
+            position: relative !important;
+            top: auto !important;
+            box-shadow: none !important;
         }
 
         .task-list-body,
@@ -1342,105 +1454,45 @@
             print-color-adjust: exact;
         }
     }
-
-
-/* Highlight untuk task row - Biru sangat soft */
-.task-row.row-highlighted {
-    background-color: #eff6ff !important;
-    transition: background-color 0.2s ease;
-}
-
-.task-row.row-highlighted .task-cell {
-    background-color: #eff6ff !important;
-}
-
-/* Highlight untuk gantt row - Biru sangat soft */
-.gantt-row.row-highlighted .gantt-grid-cell {
-    background-color: #eff6ff !important;
-    transition: background-color 0.2s ease;
-}
-
-/* Highlight untuk gantt bar - Shadow biru halus */
-.gantt-row.row-highlighted .gantt-bar {
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    transform: scale(1.02);
-    transition: all 0.2s ease;
-    z-index: 10;
-}
-
-/* Highlight untuk task name - Biru sedikit lebih gelap */
-.task-row.row-highlighted .task-name-text {
-    color: #1e40af;
-    font-weight: 600;
-}
-
-/* Highlight untuk duration badge */
-.task-row.row-highlighted .duration-badge-modern {
-    background: #dbeafe !important;
-    border-color: #93c5fd !important;
-    color: #1e40af !important;
-}
-
-/* Highlight untuk kolom timeline */
-.timeline-day.column-highlighted {
-    background-color: #bfdbfe !important;
-    color: #1e40af !important;
-    font-weight: 700 !important;
-    border-left: 2px solid #3b82f6;
-    border-right: 2px solid #3b82f6;
-    box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2);
-}
-
-.gantt-grid-cell.column-highlighted {
-    background-color: #dbeafe !important;
-    border-left: 2px solid #93c5fd !important;
-    border-right: 2px solid #93c5fd !important;
-}
-
-/* Kombinasi row dan column highlight (intersection) */
-.gantt-row.row-highlighted .gantt-grid-cell.column-highlighted {
-    background-color: #93c5fd !important;
-    box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.3);
-}
 </style>
 
 <div class="gantt-container">
     <!-- Toolbar -->
     <div class="toolbar">
         <!-- Navigasi Bulan -->
-    <div class="month-navigation">
-        <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            Sebelumnya
-        </button>
+        <div class="month-navigation">
+            <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                Sebelumnya
+            </button>
 
-        <div class="current-period" id="currentPeriod" onclick="openDateModal()" title="Klik untuk memilih bulan/tahun">
-            Januari 2025
+            <div class="current-period" id="currentPeriod" onclick="openDateModal()" title="Klik untuk memilih bulan/tahun">
+                Januari 2025
+            </div>
+
+            <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya (Alt + Panah Kanan)">
+                Berikutnya
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+
+            <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Pilih Periode Timeline">
+                <option value="1">1 Bulan</option>
+                <option value="3" selected>3 Bulan</option>
+                <option value="6">6 Bulan</option>
+                <option value="12">1 Tahun</option>
+            </select>
+
+            <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini (Alt + Home)">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+                Hari Ini
+            </button>
         </div>
-
-        <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya (Alt + Panah Kanan)">
-            Berikutnya
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-        </button>
-
-        <select class="period-selector" id="periodSelector" onchange="changePeriod(this.value)" title="Pilih Periode Timeline">
-            <option value="1">1 Bulan</option>
-            <option value="3" selected>3 Bulan</option>
-            <option value="6">6 Bulan</option>
-            <option value="12">1 Tahun</option>
-        </select>
-
-        <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini (Alt + Home)">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-            </svg>
-            Hari Ini
-        </button>
-    </div>
 
         <div class="toolbar-right">
             <!-- Zoom + Perluas + Ciutkan + Tambah Tugas -->
@@ -1513,8 +1565,7 @@
                     Edit
                 </a>
 
-                <a href="#" id="deleteTaskBtn"
-                    class="modal-btn modal-btn-danger">
+                <a href="#" id="deleteTaskBtn" class="modal-btn modal-btn-danger">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M6.5 3a1 1 0 00-1 1v1H4a1 1 0 000 2h1v9a2 2 0 002 2h6a2 2 0 002-2V7h1a1 1 0 100-2h-1.5V4a1 1 0 00-1-1h-5zM7.5 5h5V4h-5v1zM7 7v8h6V7H7z" clip-rule="evenodd"></path>
                         <path d="M9 9v4M11 9v4"></path>
@@ -1532,83 +1583,84 @@
     </div>
 
     <!-- Modal Pemilih Bulan/Tahun -->
-<div id="dateModal" class="fixed inset-0 bg-black bg-opacity-0 backdrop-blur-none flex items-center justify-center z-[1000] transition-all duration-400 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle" style="display: none;">
-    <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform translate-y-10 scale-95 opacity-0 transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]">
-        <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
-            <h4 id="dateModalTitle" class="text-lg font-semibold">Pilih Bulan dan Tahun</h4>
-            <button class="text-2xl font-bold hover:bg-white/20 rounded p-1 transition" onclick="closeDateModal()" aria-label="Tutup modal">&times;</button>
-        </div>
-        <div class="p-4">
-            <div class="flex items-center justify-center gap-2 mb-4">
-                <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(-1)" aria-label="Tahun sebelumnya">&lt;</button>
-                <input type="number" id="modalYearInput" class="w-20 text-center border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Tahun saat ini">
-                <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(1)" aria-label="Tahun berikutnya">&gt;</button>
+    <div id="dateModal" class="fixed inset-0 bg-black bg-opacity-0 backdrop-blur-none flex items-center justify-center z-[1000] transition-all duration-400 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle" style="display: none;">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform translate-y-10 scale-95 opacity-0 transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]">
+            <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
+                <h4 id="dateModalTitle" class="text-lg font-semibold">Pilih Bulan dan Tahun</h4>
+                <button class="text-2xl font-bold hover:bg-white/20 rounded p-1 transition" onclick="closeDateModal()" aria-label="Tutup modal">&times;</button>
             </div>
-            <div id="modalMonthsGrid" class="grid grid-cols-3 gap-2 sm:grid-cols-2"></div>
-        </div>
-        <div class="bg-gray-50 p-4 text-right">
-            <button class="bg-gray-100 border border-gray-300 rounded px-4 py-2 hover:bg-gray-200 transition" onclick="closeDateModal()">Batal</button>
-        </div>
-    </div>
-</div>
-
-   <!-- Combined Header -->
-<div class="combined-header-container">
-    <!-- Task List Header Section -->
-    <div class="task-list-header-section">
-        <div class="task-header-row">
-            <div class="task-header-cell"></div>
-            <div class="task-header-cell">Nama Task</div>
-            <div class="task-header-cell">Tanggal Mulai </div>
-            <div class="task-header-cell">Tangal Selesai</div>
-            <div class="task-header-cell">Durasi</div>
-        </div>
-    </div>
-
-    <!-- Timeline Header Section -->
-    <div class="timeline-header-section" id="timelineHeaderSection">
-        <div class="timeline-header-container">
-            <div id="monthHeaderContainer"></div>
-            <div id="dayHeaderContainer"></div>
-        </div>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="gantt-main-content">
-    <!-- Task List -->
-    <div class="task-list-container">
-    <div class="task-list-body" id="taskListBody">
-        @if(isset($tasks) && $tasks->count() > 0)
-            @foreach($tasks->whereNull('parent_id') as $task)
-                @include('partials.task-item', [
-                    'task' => $task, 
-                    'level' => 0,
-                    'allTasks' => $tasks
-                ])
-            @endforeach
-        @else
-            <div class="p-8 text-center text-gray-500">
-                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                </svg>
-                <p class="text-sm">Tidak ada tugas. Klik "Tambah Tugas" untuk memulai.</p>
+            <div class="p-4">
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(-1)" aria-label="Tahun sebelumnya">&lt;</button>
+                    <input type="number" id="modalYearInput" class="w-20 text-center border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Tahun saat ini">
+                    <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(1)" aria-label="Tahun berikutnya">&gt;</button>
+                </div>
+                <div id="modalMonthsGrid" class="grid grid-cols-3 gap-2 sm:grid-cols-2"></div>
             </div>
-        @endif
-    </div>
-</div>
-
-    <!-- Resizer -->
-    <div class="resizer" id="resizerMain"></div>
-
-    <!-- Gantt View -->
-<div class="gantt-view-container">
-    <div class="gantt-content-container" id="ganttContent">
-        <div class="gantt-rows-container" id="ganttRowsContainer">
-            <!-- Gantt bars will be generated by JavaScript -->
+            <div class="bg-gray-50 p-4 text-right">
+                <button class="bg-gray-100 border border-gray-300 rounded px-4 py-2 hover:bg-gray-200 transition" onclick="closeDateModal()">Batal</button>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- Combined Header - STICKY -->
+    <div class="combined-header-container">
+        <!-- Task List Header Section -->
+        <div class="task-list-header-section">
+            <div class="task-header-row">
+                <div class="task-header-cell"></div>
+                <div class="task-header-cell">Nama Task</div>
+                <div class="task-header-cell">Tanggal Mulai</div>
+                <div class="task-header-cell">Tanggal Selesai</div>
+                <div class="task-header-cell">Durasi</div>
+            </div>
+        </div>
+
+        <!-- Timeline Header Section -->
+        <div class="timeline-header-section" id="timelineHeaderSection">
+            <div class="timeline-header-container">
+                <div id="monthHeaderContainer"></div>
+                <div id="dayHeaderContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content - SCROLLABLE -->
+    <div class="gantt-main-content">
+        <!-- Task List -->
+        <div class="task-list-container">
+            <div class="task-list-body" id="taskListBody">
+                @if(isset($tasks) && $tasks->count() > 0)
+                    @foreach($tasks->whereNull('parent_id') as $task)
+                        @include('partials.task-item', [
+                            'task' => $task, 
+                            'level' => 0,
+                            'allTasks' => $tasks
+                        ])
+                    @endforeach
+                @else
+                    <div class="p-8 text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="text-sm">Tidak ada tugas. Klik "Tambah Tugas" untuk memulai.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Resizer -->
+        <div class="resizer" id="resizerMain"></div>
+
+        <!-- Gantt View -->
+        <div class="gantt-view-container">
+            <div class="gantt-content-container" id="ganttContent">
+                <div class="gantt-rows-container" id="ganttRowsContainer">
+                    <!-- Gantt bars will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -1653,6 +1705,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initResizer();
     setupRowHighlight();
     setupColumnHighlight();
+
+    // TAMBAHAN: Setup sticky header effect
+    setupStickyHeaderEffect();
 
     document.querySelectorAll('.task-children.collapsed').forEach(container => {
         const parentId = container.getAttribute('data-parent-id');
@@ -1801,7 +1856,6 @@ function renderDayHeaders() {
     dayHeaderContainer.innerHTML = dayHeaderHTML;
 }
 
-
 function getFullDayName(dayOfWeek) {
     const fullDayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     return fullDayNames[dayOfWeek];
@@ -1839,28 +1893,6 @@ function isTaskVisible(task) {
     
     // Rekursif cek parent-parent di atasnya
     return isTaskVisible(parent);
-}
-
-function getVisibleTasks() {
-    // tasksData dari controller sudah urut hierarkis
-    // Filter hanya yang visible (tidak ketutup collapse)
-    return tasksData.filter(task => {
-        // Root task selalu visible
-        if (!task.parent_id) return true;
-        
-        // Cek apakah parent di-collapse
-        let currentParentId = task.parent_id;
-        while (currentParentId) {
-            if (collapsedTasks.has(currentParentId.toString())) {
-                return false;
-            }
-            // Cari parent berikutnya
-            const parentTask = tasksData.find(t => t.id === currentParentId);
-            currentParentId = parentTask ? parentTask.parent_id : null;
-        }
-        
-        return true;
-    });
 }
 
 function getTasksInDOMOrder() {
@@ -2188,7 +2220,6 @@ function collapseAll() {
     }, 50);
 }
 
-
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey || e.metaKey) {
         if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); }
@@ -2274,7 +2305,23 @@ window.GanttChart = {
         return { startDate: timelineData.startDate, endDate: timelineData.endDate, period: timelinePeriod };
     },
     getVisibleTasks: function() {
-        return getVisibleTasks().filter(task => {
+        return tasksData.filter(task => {
+            // Root task selalu visible
+            if (!task.parent_id) return true;
+            
+            // Cek apakah parent di-collapse
+            let currentParentId = task.parent_id;
+            while (currentParentId) {
+                if (collapsedTasks.has(currentParentId.toString())) {
+                    return false;
+                }
+                // Cari parent berikutnya
+                const parentTask = tasksData.find(t => t.id === currentParentId);
+                currentParentId = parentTask ? parentTask.parent_id : null;
+            }
+            
+            return true;
+        }).filter(task => {
             const startDate = task.startDate;
             const endDate = task.endDate;
             return startDate && endDate && !(new Date(endDate) < timelineData.startDate || new Date(startDate) > timelineData.endDate);
@@ -2829,5 +2876,31 @@ function setupColumnHighlight() {
     }
 }
 
+// ===== STICKY HEADER EFFECT =====
+function setupStickyHeaderEffect() {
+    const taskListBody = document.getElementById('taskListBody');
+    const ganttContent = document.getElementById('ganttContent');
+    const headerContainer = document.querySelector('.combined-header-container');
+    
+    if (!taskListBody || !ganttContent || !headerContainer) {
+        console.error('Sticky header elements not found');
+        return;
+    }
+    
+    // Detect scroll dan tambahkan shadow effect
+    function handleScroll() {
+        const scrollTop = this.scrollTop;
+        if (scrollTop > 10) {
+            headerContainer.classList.add('scrolled');
+        } else {
+            headerContainer.classList.remove('scrolled');
+        }
+    }
+    
+    taskListBody.addEventListener('scroll', handleScroll);
+    ganttContent.addEventListener('scroll', handleScroll);
+    
+    console.log('✓ Sticky header effect initialized');
+}
 </script>
 @endsection
