@@ -421,48 +421,32 @@
         validateDateInputs();
 
         // Validasi sebelum submit
-        $('#taskForm').on('submit', function(e) {
-            const duration = $('#duration').val();
-            const start = $('#start').val();
-            const finish = $('#finish').val();
+        // Validasi sebelum submit
+$('#taskForm').on('submit', function(e) {
+    const duration = $('#duration').val();
+    const start = $('#start').val();
+    const finish = $('#finish').val();
 
-            // Validasi dasar
-            if (!duration && (!start || !finish)) {
-                e.preventDefault();
-                alert('Jika Durasi kosong, Tanggal Mulai dan Tanggal Selesai wajib diisi!');
-                return false;
-            }
+    // Validasi dasar
+    if (!duration && (!start || !finish)) {
+        e.preventDefault();
+        alert('Jika Durasi kosong, Tanggal Mulai dan Tanggal Selesai wajib diisi!');
+        return false;
+    }
 
-            if (finish && start) {
-                const startDate = new Date(start);
-                const finishDate = new Date(finish);
+    if (finish && start) {
+        const startDate = new Date(start);
+        const finishDate = new Date(finish);
 
-                if (finishDate < startDate) {
-                    e.preventDefault();
-                    alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
-                    $('#finish').val('');
-                    $('#duration').val('');
-                    return false;
-                }
-            }
+        if (finishDate < startDate) {
+            e.preventDefault();
+            alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
+            $('#finish').val('');
+            $('#duration').val('');
+            return false;
+        }
+    }
+});
 
-            // Validasi tambahan: jika task punya anak, finish parent tidak boleh < max child finish
-            @if($task->children && $task->children->count() > 0)
-                let maxChildFinish = null;
-                @foreach($task->children as $child)
-                    const childFinish = new Date("{{ $child->finish ? $child->finish->format('Y-m-d') : '' }}");
-                    if (!isNaN(childFinish)) {
-                        if (maxChildFinish === null || childFinish > maxChildFinish) {
-                            maxChildFinish = childFinish;
-                        }
-                    }
-                @endforeach
-                if (finish && maxChildFinish && new Date(finish) < maxChildFinish) {
-                    e.preventDefault();
-                    alert('Tanggal Selesai task utama tidak boleh sebelum tanggal selesai sub-task terakhir!');
-                    return false;
-                }
-            @endif
-        });
     });
 </script>

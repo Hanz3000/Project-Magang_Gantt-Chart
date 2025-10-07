@@ -227,12 +227,12 @@
             <div class="absolute inset-0" style="background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);"></div>
         </div>
         
-        <a href="{{ route('projects.index') }}" class="relative z-10 group nav-brand w-full sm:w-auto">
+       <a href="{{ route('tasks.index') }}" class="relative z-10 group nav-brand w-full sm:w-auto">
   <div class="flex items-center space-x-3">
     <div class="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-              d="M3 7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+      <!-- Ganti icon di sini -->
+      <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M6.78 3.78a.75.75 0 0 0-1.06-1.06L3.75 4.69l-.47-.47a.75.75 0 0 0-1.06 1.06l1 1a.75.75 0 0 0 1.06 0l2.5-2.5ZM11 17.5c0 .342.027.679.078 1.007H9.75a.75.75 0 0 1-.102-1.493l.102-.007h1.268A6.6 6.6 0 0 0 11 17.5Zm6.5-6.5a6.47 6.47 0 0 1 3.466 1h.284l.102-.007a.75.75 0 0 0-.102-1.493H9.75l-.102.007A.75.75 0 0 0 9.75 12h4.284a6.47 6.47 0 0 1 3.466-1Zm3.75-7H9.75l-.102.007A.75.75 0 0 0 9.75 5.5h11.5l.102-.007A.75.75 0 0 0 21.25 4ZM6.78 16.78a.75.75 0 1 0-1.06-1.06l-1.97 1.97l-.47-.47a.75.75 0 0 0-1.06 1.06l1 1a.75.75 0 0 0 1.06 0l2.5-2.5Zm0-7.56a.75.75 0 0 1 0 1.06l-2.5 2.5a.75.75 0 0 1-1.06 0l-1-1a.75.75 0 1 1 1.06-1.06l.47.47l1.97-1.97a.75.75 0 0 1 1.06 0ZM23 17.5a5.5 5.5 0 1 0-11 0a5.5 5.5 0 0 0 11 0Zm-5 .5l.001 2.503a.5.5 0 1 1-1 0V18h-2.505a.5.5 0 0 1 0-1H17v-2.5a.5.5 0 1 1 1 0V17h2.497a.5.5 0 0 1 0 1H18Z"/>
       </svg>
     </div>
     <span class="font-bold text-lg sm:text-xl tracking-wide group-hover:text-blue-100 transition-colors duration-300">
@@ -243,16 +243,18 @@
 
 
 
+
         <!-- User Section -->
         @auth
             <div id="user-section" class="relative z-10 user-section w-full sm:w-auto">
                 <!-- User Greeting - Clickable untuk membuka dropdown -->
                 <div onclick="toggleDropdown()" class="user-section-clickable flex items-center space-x-2 bg-white bg-opacity-10 backdrop-blur-sm rounded-full px-3 sm:px-4 py-2 cursor-pointer">
                     <div class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                    </div>
+    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="-5 -10 110 135" fill="currentColor">
+        <path d="m80.465 52.363h-19.719c-0.44141 0-0.85938 0.14062-1.2109 0.39844-4.1055 3.0391-7.9023 4.4844-11.441 3.8984-2.2773-0.37891-4.3984-1.6094-6.3984-3.6797-0.39062-0.39844-0.91016-0.61719-1.4648-0.61719h-20.695c-4.1211 0-8.0703 1.6367-10.98 4.5508-2.9219 2.9141-4.5547 6.8672-4.5547 10.988v2.3008c0 4.1211 1.6328 8.0742 4.5547 10.988 2.9102 2.9141 6.8594 4.5508 10.98 4.5508h60.93c4.1211 0 8.0703-1.6367 10.98-4.5508 2.9219-2.9141 4.5547-6.8672 4.5547-10.988v-2.3008c0-8.582-6.957-15.539-15.535-15.539z" fill-rule="evenodd"/>
+        <path d="m38.914 45.012c1.9336 3.7461 5.668 6.2344 9.8672 6.5938h0.011719c1.2305 0.097656 2.4922 0.09375 3.7617-0.019531 4.7109-0.40234 8.7656-3.4766 10.434-7.9023 2.4023-6.3398 3.4102-12.785 3.1562-19.324-0.14453-4.3008-3.1641-7.9766-7.3555-8.9688v-0.003906c-5.9883-1.4414-11.98-1.5117-17.969-0.16406-4.6016 1.0117-7.7852 5.2344-7.4922 9.9453 0.38672 6.6055 2.1758 13.223 5.5859 19.844z" fill-rule="evenodd"/>
+    </svg>
+</div>
                     <span class="text-xs sm:text-sm">
                         <strong class="font-semibold">{{ Auth::user()->name }}</strong>
                     </span>

@@ -31,14 +31,7 @@
             <p class="text-sm text-gray-500">Tanggal Daftar</p>
             <p class="font-semibold text-gray-800">{{ $user->created_at->format('d M Y') }}</p>
         </div>
-        <div class="p-4 bg-gray-50 rounded-lg border">
-            <p class="text-sm text-gray-500">Terakhir Login</p>
-            <p class="font-semibold text-gray-800">{{ $user->last_login ?? '-' }}</p>
-        </div>
-        <div class="p-4 bg-gray-50 rounded-lg border">
-            <p class="text-sm text-gray-500">Role</p>
-            <p class="font-semibold text-gray-800">{{ $user->role ?? 'User' }}</p>
-        </div>
+        
         <div class="p-4 bg-gray-50 rounded-lg border">
             <p class="text-sm text-gray-500">Status Akun</p>
             <p class="font-semibold text-green-600">Aktif</p>
