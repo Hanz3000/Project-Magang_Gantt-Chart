@@ -358,25 +358,12 @@
         overflow-y: auto; /* INI yang scroll vertikal */
         overflow-x: hidden;
         background: white;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
     }
 
-    /* Custom Scrollbar untuk Task List */
     .task-list-body::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .task-list-body::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 4px;
-    }
-
-    .task-list-body::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-    }
-
-    .task-list-body::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        display: none; /* WebKit */
     }
 
     .timeline-header-container {
@@ -1454,6 +1441,51 @@
             print-color-adjust: exact;
         }
     }
+
+
+    /* Fullscreen Mode Styles */
+.gantt-container.fullscreen-mode .task-list-container {
+    width: 0 !important;
+    min-width: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.gantt-container.fullscreen-mode .task-list-header-section {
+    width: 0 !important;
+    min-width: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.gantt-container.fullscreen-mode .resizer {
+    display: none;
+}
+
+.gantt-container.fullscreen-mode .gantt-view-container {
+    flex: 1;
+    width: 100%;
+}
+
+.gantt-container.fullscreen-mode .timeline-header-section {
+    flex: 1;
+    width: 100%;
+}
+
+/* Fullscreen Button Active State */
+.control-button.fullscreen-active {
+    background: #0078d4;
+    color: white;
+    border-color: #106ebe;
+}
+
+.control-button.fullscreen-active:hover {
+    background: #106ebe;
+}
 </style>
 
 <div class="gantt-container">
@@ -1495,27 +1527,44 @@
         </div>
 
         <div class="toolbar-right">
-            <!-- Zoom + Perluas + Ciutkan + Tambah Tugas -->
-            <div class="zoom-controls">
-                <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out">-</button>
-                <span class="zoom-level" id="zoomLevel">100%</span>
-                <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In">+</button>
-            </div>
+    <!-- Zoom + Perluas + Ciutkan + Fullscreen + Tambah Tugas -->
+    <div class="zoom-controls">
+        <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out">-</button>
+        <span class="zoom-level" id="zoomLevel">100%</span>
+        <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In">+</button>
+    </div>
 
-            <button class="control-button" onclick="expandAll()" title="Perluas semua tugas">
-                Perluas
-            </button>
+    <button class="control-button" onclick="expandAll()" title="Perluas semua tugas">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Perluas
+    </button>
 
-            <button class="control-button" onclick="collapseAll()" title="Ciutkan semua tugas">
-                Ciutkan
-            </button>
+    <button class="control-button" onclick="collapseAll()" title="Ciutkan semua tugas">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+        </svg>
+        Ciutkan
+    </button>
 
-            @if(isset($createRoute))
-            <a href="{{ $createRoute }}" class="control-button primary">
-                Tambah Tugas Baru
-            </a>
-            @endif
-        </div>
+    <!-- TOMBOL FULLSCREEN BARU -->
+    <button class="control-button" id="fullscreenBtn" onclick="toggleFullscreenMode()" title="Toggle Fullscreen Gantt (F11)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+        </svg>
+        <span id="fullscreenText">Fullscreen</span>
+    </button>
+
+    @if(isset($createRoute))
+    <a href="{{ $createRoute }}" class="control-button primary">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Tambah Tugas Baru
+    </a>
+    @endif
+</div>
     </div>
 
     <!-- Enhanced Modal Structure -->
@@ -1676,6 +1725,7 @@ let timelineData = {
 let tasksData = [];
 let collapsedTasks = new Set();
 let isModalAnimating = false;
+let isFullscreenMode = false;
 
 const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -2902,5 +2952,80 @@ function setupStickyHeaderEffect() {
     
     console.log('✓ Sticky header effect initialized');
 }
+
+
+function toggleFullscreenMode() {
+    const ganttContainer = document.querySelector('.gantt-container');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const fullscreenText = document.getElementById('fullscreenText');
+    
+    if (!ganttContainer || !fullscreenBtn) return;
+    
+    isFullscreenMode = !isFullscreenMode;
+    
+    if (isFullscreenMode) {
+        // Aktifkan fullscreen mode
+        ganttContainer.classList.add('fullscreen-mode');
+        fullscreenBtn.classList.add('fullscreen-active');
+        if (fullscreenText) fullscreenText.textContent = 'Exit Fullscreen';
+        
+        // Update gantt chart untuk menyesuaikan lebar baru
+        setTimeout(() => {
+            updateGanttChart();
+            renderTimelineHeaders();
+        }, 350); // Tunggu animasi selesai
+        
+        console.log('✓ Fullscreen mode activated');
+    } else {
+        // Nonaktifkan fullscreen mode
+        ganttContainer.classList.remove('fullscreen-mode');
+        fullscreenBtn.classList.remove('fullscreen-active');
+        if (fullscreenText) fullscreenText.textContent = 'Fullscreen';
+        
+        // Update gantt chart kembali ke ukuran normal
+        setTimeout(() => {
+            updateGanttChart();
+            renderTimelineHeaders();
+        }, 350); // Tunggu animasi selesai
+        
+        console.log('✓ Fullscreen mode deactivated');
+    }
+}
+
+// Keyboard shortcut untuk fullscreen (F11 atau Ctrl+Shift+F)
+document.addEventListener('keydown', function(e) {
+    // F11 untuk toggle fullscreen
+    if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreenMode();
+    }
+    
+    // Ctrl+Shift+F untuk toggle fullscreen
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreenMode();
+    }
+    
+    // ESC untuk keluar dari fullscreen mode
+    if (e.key === 'Escape' && isFullscreenMode) {
+        toggleFullscreenMode();
+    }
+    
+    // Existing keyboard shortcuts...
+    if (e.ctrlKey || e.metaKey) {
+        if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); }
+        else if (e.key === '-') { e.preventDefault(); zoomOut(); }
+    }
+    if (e.altKey) {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); navigateMonth(-1); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); navigateMonth(1); }
+        else if (e.key === 'Home') { e.preventDefault(); goToToday(); }
+    }
+    if (e.key === 'Escape' && !isFullscreenMode) {
+        const modal = document.getElementById('taskModal');
+        if (modal?.classList.contains('opening') && !isModalAnimating) closeTaskModal();
+        document.querySelectorAll('.gantt-bar.selected').forEach(bar => bar.classList.remove('selected'));
+    }
+});
 </script>
 @endsection
