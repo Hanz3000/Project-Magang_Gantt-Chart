@@ -18,7 +18,7 @@
         --day-width: 24px;
     }
 
-    /* ===== TASK LIST STYLING (GAMBAR STYLE) ===== */
+    /* ===== TASK LIST STYLING ===== */
     .task-row {
         display: grid;
         grid-template-columns: 40px 1fr 150px 110px 110px;
@@ -49,7 +49,6 @@
         background-color: #f5f5f5 !important;
     }
 
-    /* Task Cell Base */
     .task-cell {
         padding: 8px 12px;
         border-right: 1px solid #e0e0e0;
@@ -58,7 +57,6 @@
         height: 100%;
     }
 
-    /* Task Toggle Cell */
     .task-toggle-cell {
         justify-content: center;
         padding: 0;
@@ -90,7 +88,6 @@
         transform: rotate(90deg);
     }
 
-    /* Task Name Cell */
     .task-name-cell {
         text-align: left;
         justify-content: flex-start;
@@ -116,7 +113,6 @@
         font-weight: 400;
     }
 
-    /* Task Icon Square */
     .task-icon-square {
         width: 16px;
         height: 16px;
@@ -126,7 +122,6 @@
         transition: all 0.2s ease;
     }
 
-    /* Task Indicator */
     .task-indicator {
         width: 16px;
         height: 16px;
@@ -137,7 +132,6 @@
         margin-right: 8px;
     }
 
-    /* Date Cell */
     .task-date-cell {
         justify-content: flex-start;
         padding: 8px 12px;
@@ -152,7 +146,6 @@
         font-weight: 400;
     }
     
-    /* Task Duration Cell */
     .task-duration-cell {
         justify-content: center;
         padding: 8px 12px;
@@ -161,7 +154,6 @@
         align-items: center;
     }
 
-    /* Duration Badge Modern */
     .duration-badge-modern {
         display: inline-flex;
         align-items: center;
@@ -183,7 +175,6 @@
         border-color: #d1d5db;
     }
 
-    /* Duration Badge Simple */
     .duration-badge-simple {
         display: inline-flex;
         align-items: center;
@@ -200,12 +191,12 @@
         transition: all 0.2s ease;
     }
 
-    /* ===== GANTT CONTAINER - UPDATED FOR STICKY ===== */
+    /* ===== GANTT CONTAINER ===== */
     .gantt-container {
         display: flex;
         flex-direction: column;
-        height: calc(100vh - 120px); /* Fixed height */
-        overflow: hidden; /* CRITICAL: Container tidak boleh scroll */
+        height: calc(100vh - 120px);
+        overflow: hidden;
         background: #ffffff;
         border: 1px solid #d1d5db;
         border-radius: 12px;
@@ -225,16 +216,15 @@
         border-radius: 12px 12px 0 0;
     }
 
-    /* ===== GANTT MAIN CONTENT - SCROLLABLE AREA ===== */
+    /* ===== GANTT MAIN CONTENT ===== */
     .gantt-main-content {
         display: flex;
-        flex: 1; /* Mengambil sisa ruang */
-        min-height: 0; /* CRITICAL untuk flex children bisa scroll */
-        overflow: hidden; /* Parent tidak scroll */
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
         position: relative;
     }
 
-    /* Task List Container */
     .task-list-container {
         width: 550px;
         min-width: 400px;
@@ -243,34 +233,32 @@
         flex-direction: column;
         border-right: 1px solid #e0e0e0;
         background: #ffffff;
-        overflow: hidden; /* Parent tidak scroll */
+        overflow: hidden;
         flex-shrink: 0;
     }
 
-    /* Gantt View Container */
     .gantt-view-container {
         flex: 1;
         display: flex;
         flex-direction: column;
         background: white;
-        overflow: hidden; /* Parent tidak scroll */
+        overflow: hidden;
         min-width: 0;
     }
 
-    /* ===== COMBINED HEADER CONTAINER - STICKY MAGIC ===== */
+    /* ===== COMBINED HEADER - STICKY ===== */
     .combined-header-container {
         display: flex;
         width: 100%;
         background: #f8f9fa;
         border-bottom: 2px solid #e5e7eb;
-        position: sticky; /* KUNCI UTAMA #1 */
-        top: 0; /* KUNCI UTAMA #2 */
-        z-index: 100; /* KUNCI UTAMA #3 - Harus tinggi */
+        position: sticky;
+        top: 0;
+        z-index: 100;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        flex-shrink: 0; /* Jangan shrink */
+        flex-shrink: 0;
     }
 
-    /* Enhanced shadow saat scroll */
     .combined-header-container.scrolled {
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
@@ -297,7 +285,6 @@
         display: none;
     }
 
-    /* Modern Task Header Row */
     .task-header-row {
         display: grid;
         grid-template-columns: 40px 1fr 150px 110px 110px;
@@ -340,30 +327,18 @@
         border-right: none;
     }
 
-    .shifted-right {
-        position: relative;
-        left: 150px;
-        transition: left 0.3s ease;
-    }
-
-    .shifted {
-        position: relative;
-        left: 0;
-        transition: left 0.3s ease;
-    }
-
     /* ===== TASK LIST BODY - SCROLLABLE ===== */
     .task-list-body {
         flex: 1;
-        overflow-y: auto; /* INI yang scroll vertikal */
+        overflow-y: auto;
         overflow-x: hidden;
         background: white;
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE/Edge */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
 
     .task-list-body::-webkit-scrollbar {
-        display: none; /* WebKit */
+        display: none;
     }
 
     .timeline-header-container {
@@ -386,14 +361,14 @@
 
     /* ===== GANTT CONTENT CONTAINER - SCROLLABLE ===== */
     .gantt-content-container {
-        flex: 1; /* Ambil sisa space */
-        overflow-x: auto; /* Scroll horizontal */
-        overflow-y: auto; /* Scroll vertikal */
+        flex: 1;
+        overflow-x: auto;
+        overflow-y: auto;
         scrollbar-width: thin;
-        padding-bottom: 10px;
+        padding: 0;
+        margin: 0;
     }
 
-    /* Custom Scrollbar untuk Gantt Content */
     .gantt-content-container::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -420,7 +395,7 @@
         height: 100%;
     }
 
-    /* Timeline Grid */
+    /* ===== TIMELINE GRID ===== */
     .month-header {
         display: flex;
         border-bottom: 1px solid #d1d5db;
@@ -522,7 +497,7 @@
         font-weight: 700;
     }
 
-    /* Gantt Rows */
+    /* ===== GANTT ROWS ===== */
     .gantt-row {
         height: 40px;
         position: relative;
@@ -570,7 +545,7 @@
         border-right: 2px solid #1e40af;
     }
 
-    /* Task Bars - Enhanced */
+    /* ===== TASK BARS ===== */
     .gantt-bar {
         position: absolute;
         top: 8px;
@@ -601,7 +576,7 @@
         z-index: 10;
     }
 
-    /* Task Colors by Level */
+    /* ===== TASK COLORS BY LEVEL ===== */
     .level-0 {
         background: var(--level-0-bg);
         border-color: var(--level-0-border);
@@ -632,7 +607,6 @@
         border-color: var(--level-5-border);
     }
 
-    /* Task Indicators */
     .task-indicator {
         width: 12px;
         height: 12px;
@@ -649,7 +623,6 @@
     .indicator-level-4 { background: var(--level-4-bg); }
     .indicator-level-5 { background: var(--level-5-bg); }
 
-    /* Task Children Container */
     .task-children {
         display: block;
     }
@@ -658,7 +631,7 @@
         display: none;
     }
 
-    /* Resizer Styles */
+    /* ===== RESIZER ===== */
     .resizer {
         width: 5px;
         background-color: #d1d5db;
@@ -685,7 +658,7 @@
         background: transparent;
     }
 
-    /* Modern Toolbar */
+    /* ===== TOOLBAR ===== */
     .toolbar {
         background: #f8f9fa;
         border-bottom: 1px solid #e5e7eb;
@@ -695,7 +668,7 @@
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
-        flex-shrink: 0; /* Jangan shrink */
+        flex-shrink: 0;
     }
 
     .toolbar-left {
@@ -715,7 +688,6 @@
         border: 1px solid #e5e7eb;
     }
 
-    /* Month Navigation */
     .month-navigation {
         display: flex;
         align-items: center;
@@ -816,7 +788,6 @@
         background: #106ebe;
     }
 
-    /* Zoom Controls */
     .zoom-controls {
         display: inline-flex;
         align-items: center;
@@ -862,7 +833,6 @@
         background: #fff;
     }
 
-    /* Loading States */
     .gantt-bar.loading {
         background: #e5e7eb !important;
         animation: pulse 1.5s ease-in-out infinite;
@@ -880,9 +850,14 @@
         display: block;
         padding: 0;
         margin: 0;
+        line-height: 0;
     }
 
-    /* Enhanced Modal Styles with Smooth Animations */
+    .gantt-row:last-child {
+        border-bottom: none;
+    }
+
+    /* ===== MODAL STYLES ===== */
     .modal {
         position: fixed;
         z-index: 1000;
@@ -1161,7 +1136,6 @@
         opacity: 1;
     }
 
-    /* Smooth scrollbar for modal body */
     .modal-body::-webkit-scrollbar {
         width: 6px;
     }
@@ -1180,7 +1154,7 @@
         background: #94a3b8;
     }
 
-    /* Highlight untuk task row - Biru sangat soft */
+    /* ===== HIGHLIGHT STYLES ===== */
     .task-row.row-highlighted {
         background-color: #eff6ff !important;
         transition: background-color 0.2s ease;
@@ -1190,13 +1164,11 @@
         background-color: #eff6ff !important;
     }
 
-    /* Highlight untuk gantt row - Biru sangat soft */
     .gantt-row.row-highlighted .gantt-grid-cell {
         background-color: #eff6ff !important;
         transition: background-color 0.2s ease;
     }
 
-    /* Highlight untuk gantt bar - Shadow biru halus */
     .gantt-row.row-highlighted .gantt-bar {
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         transform: scale(1.02);
@@ -1204,20 +1176,17 @@
         z-index: 10;
     }
 
-    /* Highlight untuk task name - Biru sedikit lebih gelap */
     .task-row.row-highlighted .task-name-text {
         color: #1e40af;
         font-weight: 600;
     }
 
-    /* Highlight untuk duration badge */
     .task-row.row-highlighted .duration-badge-modern {
         background: #dbeafe !important;
         border-color: #93c5fd !important;
         color: #1e40af !important;
     }
 
-    /* Highlight untuk kolom timeline */
     .timeline-day.column-highlighted {
         background-color: #bfdbfe !important;
         color: #1e40af !important;
@@ -1233,13 +1202,55 @@
         border-right: 2px solid #93c5fd !important;
     }
 
-    /* Kombinasi row dan column highlight (intersection) */
     .gantt-row.row-highlighted .gantt-grid-cell.column-highlighted {
         background-color: #93c5fd !important;
         box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.3);
     }
 
-    /* Responsive Design */
+    /* ===== FULLSCREEN MODE ===== */
+    .gantt-container.fullscreen-mode .task-list-container {
+        width: 0 !important;
+        min-width: 0 !important;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .gantt-container.fullscreen-mode .task-list-header-section {
+        width: 0 !important;
+        min-width: 0 !important;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .gantt-container.fullscreen-mode .resizer {
+        display: none;
+    }
+
+    .gantt-container.fullscreen-mode .gantt-view-container {
+        flex: 1;
+        width: 100%;
+    }
+
+    .gantt-container.fullscreen-mode .timeline-header-section {
+        flex: 1;
+        width: 100%;
+    }
+
+    .control-button.fullscreen-active {
+        background: #0078d4;
+        color: white;
+        border-color: #106ebe;
+    }
+
+    .control-button.fullscreen-active:hover {
+        background: #106ebe;
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
     @media (max-width: 1200px) {
         .toolbar {
             flex-direction: column;
@@ -1354,7 +1365,7 @@
         }
     }
 
-    /* Accessibility improvements */
+    /* ===== ACCESSIBILITY ===== */
     .gantt-bar:focus {
         outline: 2px solid #2563eb;
         outline-offset: 1px;
@@ -1377,7 +1388,6 @@
         outline-offset: 2px;
     }
 
-    /* High contrast mode support */
     @media (prefers-contrast: high) {
         .gantt-bar {
             border-width: 2px;
@@ -1391,7 +1401,6 @@
         }
     }
 
-    /* Reduced motion support */
     @media (prefers-reduced-motion: reduce) {
         .gantt-bar,
         .toggle-collapse,
@@ -1411,7 +1420,6 @@
         }
     }
 
-    /* Print styles */
     @media print {
         .gantt-container {
             height: auto !important;
@@ -1441,59 +1449,13 @@
             print-color-adjust: exact;
         }
     }
-
-
-    /* Fullscreen Mode Styles */
-.gantt-container.fullscreen-mode .task-list-container {
-    width: 0 !important;
-    min-width: 0 !important;
-    opacity: 0;
-    pointer-events: none;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.gantt-container.fullscreen-mode .task-list-header-section {
-    width: 0 !important;
-    min-width: 0 !important;
-    opacity: 0;
-    pointer-events: none;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.gantt-container.fullscreen-mode .resizer {
-    display: none;
-}
-
-.gantt-container.fullscreen-mode .gantt-view-container {
-    flex: 1;
-    width: 100%;
-}
-
-.gantt-container.fullscreen-mode .timeline-header-section {
-    flex: 1;
-    width: 100%;
-}
-
-/* Fullscreen Button Active State */
-.control-button.fullscreen-active {
-    background: #0078d4;
-    color: white;
-    border-color: #106ebe;
-}
-
-.control-button.fullscreen-active:hover {
-    background: #106ebe;
-}
 </style>
 
 <div class="gantt-container">
     <!-- Toolbar -->
     <div class="toolbar">
-        <!-- Navigasi Bulan -->
         <div class="month-navigation">
-            <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
+            <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
@@ -1504,7 +1466,7 @@
                 Januari 2025
             </div>
 
-            <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya (Alt + Panah Kanan)">
+            <button class="nav-button" id="nextBtn" onclick="navigateMonth(1)" title="Bulan Berikutnya">
                 Berikutnya
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
@@ -1518,7 +1480,7 @@
                 <option value="12">1 Tahun</option>
             </select>
 
-            <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini (Alt + Home)">
+            <button class="nav-button" onclick="goToToday()" title="Ke Hari Ini">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
                 </svg>
@@ -1527,52 +1489,50 @@
         </div>
 
         <div class="toolbar-right">
-    <!-- Zoom + Perluas + Ciutkan + Fullscreen + Tambah Tugas -->
-    <div class="zoom-controls">
-        <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out">-</button>
-        <span class="zoom-level" id="zoomLevel">100%</span>
-        <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In">+</button>
+            <div class="zoom-controls">
+                <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out">-</button>
+                <span class="zoom-level" id="zoomLevel">100%</span>
+                <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In">+</button>
+            </div>
+
+            <button class="control-button" onclick="expandAll()" title="Perluas semua tugas">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Perluas
+            </button>
+
+            <button class="control-button" onclick="collapseAll()" title="Ciutkan semua tugas">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                </svg>
+                Ciutkan
+            </button>
+
+            <button class="control-button" id="fullscreenBtn" onclick="toggleFullscreenMode()" title="Toggle Fullscreen">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+                <span id="fullscreenText">Fullscreen</span>
+            </button>
+
+            @if(isset($createRoute))
+            <a href="{{ $createRoute }}" class="control-button primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Tambah Tugas Baru
+            </a>
+            @endif
+        </div>
     </div>
 
-    <button class="control-button" onclick="expandAll()" title="Perluas semua tugas">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-        </svg>
-        Perluas
-    </button>
-
-    <button class="control-button" onclick="collapseAll()" title="Ciutkan semua tugas">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-        </svg>
-        Ciutkan
-    </button>
-
-    <!-- TOMBOL FULLSCREEN BARU -->
-    <button class="control-button" id="fullscreenBtn" onclick="toggleFullscreenMode()" title="Toggle Fullscreen Gantt (F11)">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-        </svg>
-        <span id="fullscreenText">Fullscreen</span>
-    </button>
-
-    @if(isset($createRoute))
-    <a href="{{ $createRoute }}" class="control-button primary">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Tambah Tugas Baru
-    </a>
-    @endif
-</div>
-    </div>
-
-    <!-- Enhanced Modal Structure -->
+    <!-- Task Modal -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 id="taskName">Task Details</h4>
-                <button class="modal-close-x" onclick="closeTaskModal()" aria-label="Close modal">&times;</button>
+                <button class="modal-close-x" onclick="closeTaskModal()">&times;</button>
             </div>
 
             <div class="modal-body">
@@ -1581,7 +1541,6 @@
                     <div class="modal-field-value" id="taskDuration">-</div>
                 </div>
 
-                <!-- Start Date dan Finish Date bersebelahan -->
                 <div class="date-fields-row">
                     <div class="date-field">
                         <div class="modal-field-label">Tanggal Mulai</div>
@@ -1595,7 +1554,7 @@
 
                 <div class="modal-field">
                     <div class="modal-field-label">Deskripsi</div>
-                    <div class="modal-field-value" id="taskDescription">Tidak ada deskripsi tersedia</div>
+                    <div class="modal-field-value" id="taskDescription">Tidak ada deskripsi</div>
                 </div>
             </div>
 
@@ -1622,7 +1581,6 @@
                     <span>Hapus</span>
                 </a>
 
-                <!-- Form hapus task (hidden) -->
                 <form id="deleteTaskForm" method="POST" style="display:none;">
                     @csrf
                     @method('DELETE')
@@ -1631,18 +1589,18 @@
         </div>
     </div>
 
-    <!-- Modal Pemilih Bulan/Tahun -->
-    <div id="dateModal" class="fixed inset-0 bg-black bg-opacity-0 backdrop-blur-none flex items-center justify-center z-[1000] transition-all duration-400 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle" style="display: none;">
-        <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform translate-y-10 scale-95 opacity-0 transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]">
+    <!-- Date Modal -->
+    <div id="dateModal" class="fixed inset-0 bg-black bg-opacity-0 backdrop-blur-none flex items-center justify-center z-[1000] transition-all duration-400 ease-in-out" style="display: none;">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform translate-y-10 scale-95 opacity-0 transition-all duration-400">
             <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
-                <h4 id="dateModalTitle" class="text-lg font-semibold">Pilih Bulan dan Tahun</h4>
-                <button class="text-2xl font-bold hover:bg-white/20 rounded p-1 transition" onclick="closeDateModal()" aria-label="Tutup modal">&times;</button>
+                <h4 class="text-lg font-semibold">Pilih Bulan dan Tahun</h4>
+                <button class="text-2xl font-bold hover:bg-white/20 rounded p-1 transition" onclick="closeDateModal()">&times;</button>
             </div>
             <div class="p-4">
                 <div class="flex items-center justify-center gap-2 mb-4">
-                    <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(-1)" aria-label="Tahun sebelumnya">&lt;</button>
-                    <input type="number" id="modalYearInput" class="w-20 text-center border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Tahun saat ini">
-                    <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(1)" aria-label="Tahun berikutnya">&gt;</button>
+                    <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(-1)">&lt;</button>
+                    <input type="number" id="modalYearInput" class="w-20 text-center border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button class="bg-gray-100 border border-gray-300 rounded px-2 py-1 hover:bg-gray-200 transition" onclick="changeModalYear(1)">&gt;</button>
                 </div>
                 <div id="modalMonthsGrid" class="grid grid-cols-3 gap-2 sm:grid-cols-2"></div>
             </div>
@@ -1654,7 +1612,6 @@
 
     <!-- Combined Header - STICKY -->
     <div class="combined-header-container">
-        <!-- Task List Header Section -->
         <div class="task-list-header-section">
             <div class="task-header-row">
                 <div class="task-header-cell"></div>
@@ -1665,7 +1622,6 @@
             </div>
         </div>
 
-        <!-- Timeline Header Section -->
         <div class="timeline-header-section" id="timelineHeaderSection">
             <div class="timeline-header-container">
                 <div id="monthHeaderContainer"></div>
@@ -1674,9 +1630,8 @@
         </div>
     </div>
 
-    <!-- Main Content - SCROLLABLE -->
+    <!-- Main Content -->
     <div class="gantt-main-content">
-        <!-- Task List -->
         <div class="task-list-container">
             <div class="task-list-body" id="taskListBody">
                 @if(isset($tasks) && $tasks->count() > 0)
@@ -1698,14 +1653,12 @@
             </div>
         </div>
 
-        <!-- Resizer -->
         <div class="resizer" id="resizerMain"></div>
 
-        <!-- Gantt View -->
         <div class="gantt-view-container">
             <div class="gantt-content-container" id="ganttContent">
                 <div class="gantt-rows-container" id="ganttRowsContainer">
-                    <!-- Gantt bars will be generated by JavaScript -->
+                    <!-- Gantt bars generated by JavaScript -->
                 </div>
             </div>
         </div>
@@ -2967,7 +2920,7 @@ function toggleFullscreenMode() {
         // Aktifkan fullscreen mode
         ganttContainer.classList.add('fullscreen-mode');
         fullscreenBtn.classList.add('fullscreen-active');
-        if (fullscreenText) fullscreenText.textContent = 'Exit Fullscreen';
+        if (fullscreenText) fullscreenText.textContent = 'Fullscreen';
         
         // Update gantt chart untuk menyesuaikan lebar baru
         setTimeout(() => {
