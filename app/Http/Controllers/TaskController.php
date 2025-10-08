@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class TaskController extends Controller
@@ -119,18 +120,20 @@ class TaskController extends Controller
             'name'        => 'required|string|max:255',
             'parent_id'   => 'nullable|exists:tasks,id',
             'start'       => 'required|date',
-            'finish'      => 'required_if:duration,null|date|after_or_equal:start',
-            'duration'    => 'nullable|integer|min:1',
+            'finish'      => 'required_without:duration|date|after_or_equal:start',
+            'duration'    => 'required_without:finish|nullable|integer|min:1',
             'description' => 'nullable|string',
         ]);
 
         $start = Carbon::parse($request->start, 'Asia/Jakarta')->startOfDay();
 
-        $finish = $request->finish
-            ? Carbon::parse($request->finish, 'Asia/Jakarta')->startOfDay()
-            : $start->copy()->addDays($request->duration - 1);
+        if ($request->duration) {
+            $finish = $start->copy()->addDays($request->duration - 1);
+        } else {
+            $finish = Carbon::parse($request->finish, 'Asia/Jakarta')->startOfDay();
+        }
 
-        $duration = $request->duration ?: intval($start->diffInDays($finish) + 1);
+        $duration = intval($start->diffInDays($finish) + 1);
 
         $level = 0;
 
@@ -148,10 +151,7 @@ class TaskController extends Controller
                     $finish = $start->copy()->addDays($duration - 1);
                 }
 
-                $parentFinish = Carbon::parse($parent->finish, 'Asia/Jakarta')->startOfDay();
-                if ($finish > $parentFinish) {
-                    $this->updateParentRecursively($parent, $finish);
-                }
+                // Hapus pemanggilan updateParentRecursively, gunakan ensure setelah create
             }
         }
 
@@ -179,6 +179,11 @@ class TaskController extends Controller
             'description' => $request->description,
             'user_id'     => Auth::id(),
         ]);
+
+        // Jika ini child, update root finish jika perlu
+        if ($request->parent_id) {
+            $this->ensureParentFinishCoversChildren($newTask->parent);
+        }
 
         // Normalize orders setelah create untuk memastikan urutan benar
         $this->normalizeOrders();
@@ -214,10 +219,14 @@ class TaskController extends Controller
 
         $request->validate([
             'name'        => 'required|string|max:255',
-            'duration'    => 'required|integer|min:1',
             'start'       => 'required|date',
+            'finish'      => 'required_without:duration|nullable|date|after_or_equal:start',
+            'duration'    => 'required_without:finish|nullable|integer|min:1',
             'parent_id'   => 'nullable|exists:tasks,id',
-            'description' => 'nullable|string|max:1000'
+            'description' => 'nullable|string|max:1000',
+            'move_children' => 'nullable|in:0,1',
+            'original_start_date' => 'nullable|date',
+            'original_finish_date' => 'nullable|date',
         ]);
 
         if ($request->parent_id) {
@@ -230,12 +239,34 @@ class TaskController extends Controller
         }
 
         $oldParentId = $task->parent_id; // Simpan parent lama
+        $oldStart = $task->start; // Simpan start lama untuk hitung diff jika diperlukan
 
-        $start    = Carbon::parse($request->start, 'Asia/Jakarta')->startOfDay();
-        $duration = $request->duration;
-        $finish   = $start->copy()->addDays($duration - 1);
-        $level    = 0;
+        // ===== SOLUSI OFFSET RELATIF: Hitung selisih tanggal =====
+        $originalStart = $request->original_start_date 
+            ? Carbon::parse($request->original_start_date, 'Asia/Jakarta')->startOfDay()
+            : Carbon::parse($task->start, 'Asia/Jakarta')->startOfDay();
+        
+        $newStart = Carbon::parse($request->start, 'Asia/Jakarta')->startOfDay();
+        
+        // Hitung selisih hari (sudah signed: positif jika maju, negatif jika mundur)
+        $daysDiff = $originalStart->diffInDays($newStart, false);
+        // =========================================================
 
+        $start = $newStart;
+        $duration = null;
+        $finish = null;
+
+        if ($request->duration) {
+            $duration = $request->duration;
+            $finish = $start->copy()->addDays($duration - 1);
+        } else {
+            $finish = $request->finish ? Carbon::parse($request->finish, 'Asia/Jakarta')->startOfDay() : $start->copy()->addDays(0);
+            $duration = intval($start->diffInDays($finish) + 1);
+        }
+
+        $level = 0;
+
+        $parent = null;
         if ($request->parent_id) {
             $parent = Task::where('id', $request->parent_id)
                 ->where('user_id', Auth::id())
@@ -252,36 +283,247 @@ class TaskController extends Controller
             }
         }
 
-        $task->update([
-            'name'        => $request->name,
-            'duration'    => $duration,
-            'start'       => $start,
-            'finish'      => $finish,
-            'parent_id'   => $request->parent_id,
-            'description' => $request->description,
-            'level'       => $level,
-        ]);
-
-        // Reorder tasks setelah parent berubah
-        if ($oldParentId != $request->parent_id) {
-            $this->reorderTasksAfterParentChange($task, $oldParentId, $request->parent_id);
+        // ===== ENFORCE MIN FINISH BERDASARKAN CHILDREN (JIKA ADA) =====
+        if ($task->children && $task->children->count() > 0) {
+            $maxChildFinish = $this->getMaxDescendantFinish($task);
+            if ($maxChildFinish && $finish < $maxChildFinish) {
+                $finish = $maxChildFinish;
+                $duration = intval($start->diffInDays($finish) + 1);
+            }
         }
+        // =============================================================
 
-        // Update parent recursively jika perlu
-        if ($request->parent_id && isset($parent)) {
-            $maxFinishStr = $parent->children()->max('finish');
-            $maxFinish    = $maxFinishStr ? Carbon::parse($maxFinishStr, 'Asia/Jakarta')->startOfDay() : null;
+        DB::beginTransaction();
 
-            if ($maxFinish) {
-                $this->updateParentRecursively($parent, $maxFinish);
+        try {
+            // Update task utama
+            $task->update([
+                'name'        => $request->name,
+                'duration'    => $duration,
+                'start'       => $start,
+                'finish'      => $finish,
+                'parent_id'   => $request->parent_id,
+                'description' => $request->description,
+                'level'       => $level,
+            ]);
+
+            // ===== HANDLE CHILDREN BERDASARKAN move_children DAN PERUBAHAN PARENT =====
+            $moveChildren = $request->input('move_children', '1') === '1';
+            $parentChanged = $oldParentId != $request->parent_id;
+            
+            $task->fresh(); // Reload task setelah update
+            $task->load('children'); // Load children fresh
+
+            if ($task->children && $task->children->count() > 0) {
+                if ($moveChildren) {
+                    // Jika dicentang: Pindahkan children (shift dates jika ada perubahan tanggal)
+                    if ($daysDiff != 0) {
+                        $this->updateChildrenWithOffset($task->children, $daysDiff);
+                    }
+                    // Hierarki tetap ikut (parent_id children sudah = $task->id)
+                    // Setelah shift, reconfirm root finish
+                    $this->ensureParentFinishCoversChildren($task);
+                } else {
+                    // Jika tidak dicentang: Jangan pindahkan children
+                    // - Jangan shift dates
+                    // - Jika parent berubah, detach children: set parent_id mereka ke oldParentId (grandparent) atau null jika root
+                    if ($parentChanged) {
+                        $detachToParentId = $oldParentId ?: null; // Ke grandparent atau root
+                        $newLevel = $oldParentId ? ($task->fresh()->level - 1) : 0; // Adjust level untuk old parent
+                        $this->detachChildrenToParent($task->children, $detachToParentId, $newLevel);
+                    }
+                }
+            }
+            // ==========================================================================
+
+            // Reorder task utama setelah parent berubah (hanya untuk task utama, children sudah dihandle di atas)
+            if ($parentChanged) {
+                $this->reorderTasksAfterParentChange($task, $oldParentId, $request->parent_id);
+            }
+
+            // Update root recursively jika perlu (untuk parent baru)
+            if ($request->parent_id && $parent) {
+                $this->ensureParentFinishCoversChildren($parent);
+            }
+
+            // Jika ada old parent, cek apakah perlu shrink finish old parent (opsional, jika children di-detach)
+            if ($parentChanged && $oldParentId) {
+                $oldParent = Task::find($oldParentId);
+                if ($oldParent) {
+                    $this->updateParentFinishIfNeeded($oldParent);
+                }
+            }
+
+            DB::commit();
+
+            // Normalize orders setelah semua update
+            $this->normalizeOrders();
+
+            $successMessage = 'Task berhasil diupdate!';
+            if ($task->children()->count() > 0) {
+                if ($moveChildren) {
+                    if ($daysDiff != 0) {
+                        $successMessage .= ' Sub-task juga telah dipindahkan dengan offset yang sama.';
+                    } else {
+                        $successMessage .= ' Sub-task tetap mengikuti hierarki.';
+                    }
+                } else {
+                    $successMessage .= ' Sub-task dibiarkan di posisi semula.';
+                }
+                // Tambah info jika durasi disesuaikan
+                $freshTask = $task->fresh();
+                $proposedFinishInput = $request->finish ? Carbon::parse($request->finish, 'Asia/Jakarta')->startOfDay() : ($request->duration ? $start->copy()->addDays($request->duration - 1) : $start);
+                if ($freshTask->finish > $proposedFinishInput) {
+                    $successMessage .= ' Durasi task utama disesuaikan untuk menutupi sub-task.';
+                }
+            }
+
+            return redirect()->route('tasks.index')
+                ->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withErrors(['error' => 'Gagal update task: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * ===== FUNGSI BARU: Get max finish dari semua descendants (rekursif) =====
+     */
+    private function getMaxDescendantFinish($task)
+    {
+        $maxFinish = null;
+        $children = $task->children;
+
+        foreach ($children as $child) {
+            $childFinish = $child->finish ? Carbon::parse($child->finish, 'Asia/Jakarta')->startOfDay() : null;
+            if ($childFinish && (!$maxFinish || $childFinish > $maxFinish)) {
+                $maxFinish = $childFinish;
+            }
+            // Rekursif untuk sub-children
+            $subMax = $this->getMaxDescendantFinish($child);
+            if ($subMax && (!$maxFinish || $subMax > $maxFinish)) {
+                $maxFinish = $subMax;
             }
         }
 
-        // Normalize orders setelah update untuk memastikan urutan benar
-        $this->normalizeOrders();
+        return $maxFinish;
+    }
 
-        return redirect()->route('tasks.index')
-            ->with('success', 'Task berhasil diupdate!');
+    /**
+     * ===== FUNGSI BARU: Ensure root finish covers all children in the tree (extend hanya root jika perlu) =====
+     */
+    private function ensureParentFinishCoversChildren($parent)
+    {
+        if (!$parent || !$parent->start) {
+            return;
+        }
+
+        $maxChildFinish = $this->getMaxDescendantFinish($parent);
+        if ($maxChildFinish) {
+            // Cari root task
+            $root = $this->getRootTask($parent);
+            $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
+            $rootCurrentFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
+            
+            if ($maxChildFinish > $rootCurrentFinish) {
+                $root->finish = $maxChildFinish;
+                $root->duration = intval($rootStart->diffInDays($maxChildFinish) + 1);
+                $root->save();
+            }
+            // Tidak extend intermediate parents, hanya root
+        }
+    }
+
+    /**
+     * ===== FUNGSI BARU: Update children dengan offset relatif =====
+     * Fungsi ini akan memindahkan semua child tasks dengan mempertahankan
+     * jarak relatif mereka terhadap parent task
+     */
+    private function updateChildrenWithOffset($children, $daysDiff)
+    {
+        foreach ($children as $child) {
+            // Hitung tanggal baru untuk child dengan menambahkan offset
+            if ($child->start) {
+                $newChildStart = Carbon::parse($child->start, 'Asia/Jakarta')
+                    ->startOfDay()
+                    ->addDays($daysDiff);
+                $child->start = $newChildStart;
+            }
+
+            if ($child->finish) {
+                $newChildFinish = Carbon::parse($child->finish, 'Asia/Jakarta')
+                    ->startOfDay()
+                    ->addDays($daysDiff);
+                $child->finish = $newChildFinish;
+            }
+
+            // Update duration berdasarkan new dates
+            if ($child->start && $child->finish) {
+                $child->duration = intval($child->start->diffInDays($child->finish) + 1);
+            }
+
+            $child->save();
+
+            // Rekursif untuk grandchildren (cucu)
+            $child->load('children');
+            if ($child->children && $child->children->count() > 0) {
+                $this->updateChildrenWithOffset($child->children, $daysDiff);
+            }
+        }
+    }
+
+    /**
+     * ===== FUNGSI BARU: Detach children ke parent lama atau root =====
+     * Saat !move_children dan parent berubah, pindahkan children ke oldParentId
+     * Update level dan order mereka di sana
+     */
+    private function detachChildrenToParent($children, $targetParentId, $newLevel)
+    {
+        foreach ($children as $child) {
+            // Set parent_id baru ke target (old parent atau null)
+            $child->parent_id = $targetParentId;
+            $child->level = $newLevel + 1; // Adjust level
+
+            // Set order sebagai yang terakhir di target parent
+            $maxOrderInTarget = Task::where('parent_id', $targetParentId)
+                ->where('user_id', Auth::id())
+                ->max('order') ?? 0;
+            $child->order = $maxOrderInTarget + 1;
+
+            $child->save();
+
+            // Rekursif untuk sub-children (grandchildren asli)
+            $child->load('children');
+            if ($child->children && $child->children->count() > 0) {
+                $this->detachChildrenToParent($child->children, $child->id, $child->level);
+            }
+        }
+    }
+
+    /**
+     * ===== FUNGSI BARU: Update finish parent jika children di-detach =====
+     * Cek max finish children dan shrink jika perlu
+     */
+    private function updateParentFinishIfNeeded($parent)
+    {
+        $maxFinishStr = $parent->children()->max('finish');
+        $maxFinish = $maxFinishStr ? Carbon::parse($maxFinishStr, 'Asia/Jakarta')->startOfDay() : null;
+
+        if ($maxFinish && $maxFinish < Carbon::parse($parent->finish)) {
+            $parentStart = Carbon::parse($parent->start, 'Asia/Jakarta')->startOfDay();
+            $parent->finish = $maxFinish;
+            $parent->duration = intval($parentStart->diffInDays($maxFinish) + 1);
+            $parent->save();
+
+            // Rekursif ke atas jika perlu (untuk shrink, extend ke root jika max keseluruhan berubah)
+            if ($parent->parent_id) {
+                $grandParent = Task::find($parent->parent_id);
+                if ($grandParent) {
+                    $this->updateParentFinishIfNeeded($grandParent);
+                }
+            }
+        }
     }
 
     /**
@@ -313,12 +555,13 @@ class TaskController extends Controller
             $task->save();
         }
 
-        // Update level untuk semua descendants
-        $this->updateDescendantsLevel($task);
+        // Update level untuk task utama sudah dilakukan di update utama
+        // Descendants sudah dihandle di detach jika !move_children
     }
 
     /**
      * Update level untuk semua descendants secara rekursif
+     * (Tidak digunakan lagi karena dihandle di detach)
      */
     private function updateDescendantsLevel($task)
     {
@@ -335,70 +578,18 @@ class TaskController extends Controller
 
     protected function updateParentRecursively($task, $newFinish, $childLevel = null)
     {
-        if (!$task->start || !$task->finish) {
-            return;
-        }
-
-        $taskStart  = Carbon::parse($task->start, 'Asia/Jakarta')->startOfDay();
-        $taskFinish = Carbon::parse($task->finish, 'Asia/Jakarta')->startOfDay();
-        $newFinish  = Carbon::parse($newFinish, 'Asia/Jakarta')->startOfDay();
-
-        if ($childLevel === null) {
-            $childLevel = $task->level + 1;
-        }
-
-        if ($newFinish > $taskFinish) {
-            if ($childLevel == 1) {
-                $task->finish   = $newFinish;
-                $task->duration = intval($taskStart->diffInDays($newFinish)) + 1;
-                $task->save();
-                
-                if ($task->level > 0 && $task->parent_id) {
-                    $root = $this->getRootTask($task);
-                    if ($root && $root->id !== $task->id) {
-                        $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
-                        $rootFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
-                        if ($newFinish > $rootFinish) {
-                            $root->finish   = $newFinish;
-                            $root->duration = intval($rootStart->diffInDays($newFinish)) + 1;
-                            $root->save();
-                        }
-                    }
-                }
-            } 
-            else if ($childLevel >= 2) {
-                $root = $this->getRootTask($task);
-                if ($root && $root->id !== $task->id) {
-                    $rootStart = Carbon::parse($root->start, 'Asia/Jakarta')->startOfDay();
-                    $rootFinish = Carbon::parse($root->finish, 'Asia/Jakarta')->startOfDay();
-                    if ($newFinish > $rootFinish) {
-                        $root->finish   = $newFinish;
-                        $root->duration = intval($rootStart->diffInDays($newFinish)) + 1;
-                        $root->save();
-                    }
-                }
-            }
-            else if ($childLevel == 0) {
-                $task->finish   = $newFinish;
-                $task->duration = intval($taskStart->diffInDays($newFinish)) + 1;
-                $task->save();
-            }
-        }
-
-        if ($task->parent_id) {
-            $parent = Task::find($task->parent_id);
-            if ($parent && $parent->user_id === Auth::id()) {
-                $this->updateParentRecursively($parent, $newFinish, $childLevel);
-            }
-        }
+        // Deprecated: Gunakan ensureParentFinishCoversChildren instead
+        $this->ensureParentFinishCoversChildren($task);
     }
 
     protected function getRootTask($task)
     {
-        while ($task->parent_id) {
-            $task = Task::find($task->parent_id);
+        $current = $task;
+        while ($current->parent_id) {
+            $current = Task::find($current->parent_id);
+            if (!$current) break;
         }
-        return $task;
+        return $current;
     }
 
     private function getDescendantIds(Task $task)
@@ -416,24 +607,38 @@ class TaskController extends Controller
         }
     }
 
+    /**
+     * Delete task dan semua descendants secara rekursif
+     */
+    private function deleteRecursive(Task $task)
+    {
+        $children = $task->children()->get();
+        foreach ($children as $child) {
+            $this->deleteRecursive($child);
+        }
+        $task->delete();
+    }
+
     public function destroy(Task $task)
     {
         if ($task->user_id !== Auth::id()) {
             return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak menghapus task ini.');
         }
 
+        // Jika ada parent, update parent finish setelah delete (shrink jika perlu)
+        $parentId = $task->parent_id;
         try {
-            if ($task->children()->count() > 0) {
-                $task->children()->delete();
-                $task->delete();
-                return redirect()->route('tasks.index')
-                    ->with('warning', 'Tugas utama dan semua sub-task-nya telah dihapus!');
+            $this->deleteRecursive($task);
+
+            if ($parentId) {
+                $parent = Task::find($parentId);
+                if ($parent) {
+                    $this->updateParentFinishIfNeeded($parent);
+                }
             }
 
-            $task->delete();
-
             return redirect()->route('tasks.index')
-                ->with('success', 'Task berhasil dihapus!');
+                ->with('success', 'Task dan semua sub-task-nya berhasil dihapus!');
         } catch (\Exception $e) {
             return redirect()->route('tasks.index')
                 ->with('error', 'Terjadi kesalahan saat menghapus task: ' . $e->getMessage());

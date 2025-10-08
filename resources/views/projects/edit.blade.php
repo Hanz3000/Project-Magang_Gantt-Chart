@@ -26,6 +26,11 @@
                     @csrf
                     @method('PUT')
 
+                    <!-- Hidden fields untuk tracking perubahan tanggal -->
+                    <input type="hidden" name="original_start_date" id="original_start_date" value="{{ $task->start ? $task->start->format('Y-m-d') : '' }}">
+                    <input type="hidden" name="original_finish_date" id="original_finish_date" value="{{ $task->finish ? $task->finish->format('Y-m-d') : '' }}">
+                    <input type="hidden" name="move_children" id="move_children" value="1">
+
                     <!-- Row 1: Task Name & Parent Task Selection -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                         <!-- Task Name (First Column) -->
@@ -111,6 +116,43 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Warning untuk task dengan anak -->
+                    @if($task->children && $task->children->count() > 0)
+                    <div class="mb-6">
+                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                            <div class="flex items-start space-x-3">
+                                <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <div class="flex-1">
+                                    <div class="text-sm text-amber-800">
+                                        <p class="font-medium mb-2">Task ini memiliki {{ $task->children->count() }} sub-task</p>
+                                        <div class="space-y-1 mb-3">
+                                            @foreach($task->children as $child)
+                                            <div class="text-xs bg-white/50 px-2 py-1 rounded">
+                                                • {{ $child->name }} 
+                                                <span class="text-amber-600">
+                                                    ({{ $child->start ? $child->start->format('d/m/Y') : '-' }} - {{ $child->finish ? $child->finish->format('d/m/Y') : '-' }})
+                                                </span>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" id="move_children_checkbox" checked 
+                                                   class="w-4 h-4 text-blue-600 bg-white border-amber-300 rounded focus:ring-blue-500 focus:ring-2">
+                                            <span class="font-medium">Pindahkan juga semua sub-task (pertahankan jarak relatif)</span>
+                                        </label>
+                                        <p class="text-xs mt-2 text-amber-700">
+                                            ✓ Jika dicentang: Sub-task akan ikut bergeser sesuai perubahan tanggal task ini<br>
+                                            ✗ Jika tidak: Hanya task ini yang akan dipindah, sub-task tetap di posisi semula
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
 
                     <!-- Row 2: Date Fields & Duration -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -323,6 +365,11 @@
 
         let lastChanged = ''; // Lacak field terakhir diubah
 
+        // Sync checkbox dengan hidden input
+        $('#move_children_checkbox').on('change', function() {
+            $('#move_children').val(this.checked ? '1' : '0');
+        });
+
         // Event listener pilih parent
         $('#parent_id').on('change', function() {
             const parentId = $(this).val();
@@ -333,7 +380,7 @@
                 parentInfo.show();
                 const parentStart = $(this).find('option:selected').data('start');
                 const parentFinish = $(this).find('option:selected').data('finish');
-                const startFormatted = new Date(parentStart).toLocaleDateString('en-GB');
+                const startFormatted = new Date(parentFinish).toLocaleDateString('en-GB'); // Gunakan finish untuk autofit
                 const finishFormatted = new Date(parentFinish).toLocaleDateString('en-GB');
                 parentInfoText.text(
                     `Sub-task mulai ${startFormatted}, selesai idealnya ${finishFormatted}. 
@@ -421,32 +468,30 @@
         validateDateInputs();
 
         // Validasi sebelum submit
-        // Validasi sebelum submit
-$('#taskForm').on('submit', function(e) {
-    const duration = $('#duration').val();
-    const start = $('#start').val();
-    const finish = $('#finish').val();
+        $('#taskForm').on('submit', function(e) {
+            const duration = $('#duration').val();
+            const start = $('#start').val();
+            const finish = $('#finish').val();
 
-    // Validasi dasar
-    if (!duration && (!start || !finish)) {
-        e.preventDefault();
-        alert('Jika Durasi kosong, Tanggal Mulai dan Tanggal Selesai wajib diisi!');
-        return false;
-    }
+            // Validasi dasar
+            if (!duration && (!start || !finish)) {
+                e.preventDefault();
+                alert('Jika Durasi kosong, Tanggal Mulai dan Tanggal Selesai wajib diisi!');
+                return false;
+            }
 
-    if (finish && start) {
-        const startDate = new Date(start);
-        const finishDate = new Date(finish);
+            if (finish && start) {
+                const startDate = new Date(start);
+                const finishDate = new Date(finish);
 
-        if (finishDate < startDate) {
-            e.preventDefault();
-            alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
-            $('#finish').val('');
-            $('#duration').val('');
-            return false;
-        }
-    }
-});
-
+                if (finishDate < startDate) {
+                    e.preventDefault();
+                    alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
+                    $('#finish').val('');
+                    $('#duration').val('');
+                    return false;
+                }
+            }
+        });
     });
 </script>

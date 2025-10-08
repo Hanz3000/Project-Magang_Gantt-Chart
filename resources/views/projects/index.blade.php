@@ -2990,7 +2990,7 @@ function toggleFullscreenMode() {
         // Aktifkan fullscreen mode
         ganttContainer.classList.add('fullscreen-mode');
         fullscreenBtn.classList.add('fullscreen-active');
-        if (fullscreenText) fullscreenText.textContent = 'Fullscreen';
+        if (fullscreenText) fullscreenText.textContent = 'Perkecil';
         
         // Update gantt chart untuk menyesuaikan lebar baru
         setTimeout(() => {
