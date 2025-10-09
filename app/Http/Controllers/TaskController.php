@@ -205,11 +205,13 @@ class TaskController extends Controller
             return redirect()->route('tasks.index')->with('error', 'Anda tidak berhak mengedit task ini.');
         }
 
+        // Simpan original dates SEBELUM diformat
+        $task->original_start_date = $task->start ? Carbon::parse($task->start)->format('Y-m-d') : null;
+        $task->original_finish_date = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
+        
         // Format dates untuk display di form (Y-m-d untuk input type="date")
-        $task->start = $task->start ? Carbon::parse($task->start)->format('Y-m-d') : null;
-        $task->finish = $task->finish ? Carbon::parse($task->finish)->format('Y-m-d') : null;
-        $task->original_start_date = $task->start; // Untuk offset calculation
-        $task->original_finish_date = $task->finish;
+        $task->start = $task->original_start_date;
+        $task->finish = $task->original_finish_date;
 
         $parents = Task::where('user_id', Auth::id())
             ->where('id', '!=', $task->id)

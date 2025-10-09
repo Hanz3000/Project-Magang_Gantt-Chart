@@ -109,7 +109,7 @@
                                     <p class="font-medium">Informasi Task Utama</p>
                                     <p id="parentInfoText">
                                         @if($task->parent_id && $task->parent)
-                                            Sub-task dimulai {{ \Carbon\Carbon::parse($task->parent->start)->format('d-m-Y') }}, selesai {{ \Carbon\Carbon::parse($task->parent->finish)->format('d-m-Y') }}.
+                                            Sub-task dimulai {{ \Carbon\Carbon::parse($task->parent->start)->format('d-m-Y') }} dan selesai {{ \Carbon\Carbon::parse($task->parent->finish)->format('d-m-Y') }}.
                                         @endif
                                     </p>
                                 </div>
@@ -380,8 +380,8 @@
                 parentInfo.show();
                 const parentStart = $(this).find('option:selected').data('start');
                 const parentFinish = $(this).find('option:selected').data('finish');
-                const startFormatted = new Date(parentFinish).toLocaleDateString('en-GB'); // Gunakan finish untuk autofit
-                const finishFormatted = new Date(parentFinish).toLocaleDateString('en-GB');
+                const startFormatted = new Date(parentStart).toLocaleDateString('en-GB'); // ✅ BENAR
+const finishFormatted = new Date(parentFinish).toLocaleDateString('en-GB');
                 parentInfoText.text(
                     `Sub-task mulai ${startFormatted}, selesai idealnya ${finishFormatted}. 
                      Melebihi, task utama diperpanjang.`
