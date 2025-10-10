@@ -583,6 +583,48 @@
         z-index: 10;
     }
 
+/* ===== TOOLTIP STYLES ===== */
+.gantt-bar::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    background: #28a745; /* Warna hijau cerah */
+    color: white;
+    padding: 10px 15px; /* Padding yang lebih besar */
+    border-radius: 8px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    line-height: 1.4;
+    text-align: center;
+}
+
+.gantt-bar::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    border: 8px solid transparent; /* Border yang lebih besar */
+    border-top-color: #28a745; /* Warna hijau cerah */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+}
+
+.gantt-bar:hover::after,
+.gantt-bar:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
     /* ===== TASK COLORS BY LEVEL ===== */
     .level-0 {
         background: var(--level-0-bg);
@@ -2345,17 +2387,28 @@ function generateTaskBar(task, dayWidth) {
     const relLevel = getRelativeLevel(task);
     const { bg, border } = getColorForRootAndLevel(rootId, relLevel);
 
+    // Format tanggal untuk tooltip
+    const startDateFormatted = formatDate(task.startDate);
+    const endDateFormatted = formatDate(task.endDate);
+    const duration = task.duration || calculateDuration(task.startDate, task.endDate);
+    
+    // Buat tooltip text
+    const tooltipText = `${task.name} | ${startDateFormatted} - ${endDateFormatted} | ${duration} hari`;
+
     return `
        <div class="gantt-bar" 
              style="left: ${barLeft}px; width: ${barWidth}px; background: ${bg}; border-color: ${border};"
              data-task-id="${task.id}"
              data-parent-id="${task.parent_id || ''}"
              data-start-day="${startDayOffset}"
-             data-duration="${task.duration || 0}">
+             data-duration="${duration}"
+             data-tooltip="${tooltipText}"
+             title="${tooltipText}">
             <span class="task-bar-text">${task.name}</span>
         </div>
     `;
 }
+
 
 function addTodayIndicator() {
     const today = new Date();
