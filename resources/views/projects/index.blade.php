@@ -1058,7 +1058,7 @@
         gap: 12px;
         padding: 20px 24px;
         background: #f9fafb;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid #e7e7e7;
     }
 
     .modal-btn {
@@ -2247,6 +2247,7 @@ function getDayWidth() {
 // ===== TASK VISIBILITY =====
 function isTaskVisible(task) {
     if (!task.parent_id) {
+
         return true;
     }
     
@@ -2782,13 +2783,7 @@ function populateModalContent(task) {
             if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
                 const form = document.getElementById('deleteTaskForm');
                 if (form) {
-                    // Show deleting toast
-                    ToastNotification.info(
-                        'Menghapus...',
-                        `Sedang menghapus task "${task.name}"`,
-                        2000
-                    );
-                    
+                    // ToastNotification.info(...) dihapus — langsung submit form
                     form.action = `/tasks/${task.id}`;
                     form.submit();
                 }

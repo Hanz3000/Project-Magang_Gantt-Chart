@@ -640,7 +640,7 @@ class TaskController extends Controller
             }
 
             return redirect()->route('tasks.index')
-                ->with('success', 'Task dan semua sub-task-nya berhasil dihapus!');
+                ->with('success', 'Task berhasil dihapus!');
         } catch (\Exception $e) {
             return redirect()->route('tasks.index')
                 ->with('error', 'Terjadi kesalahan saat menghapus task: ' . $e->getMessage());
