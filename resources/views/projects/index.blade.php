@@ -1479,6 +1479,167 @@
     .gantt-content-container::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
+
+
+    /* ===== TOAST NOTIFICATION STYLES ===== */
+.toast {
+    position: fixed;
+    top: 25px;
+    right: 30px;
+    border-radius: 12px;
+    background: #fff;
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transform: translateX(calc(100% + 30px));
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+    z-index: 9999;
+    min-width: 300px;
+}
+
+.toast.active {
+    transform: translateX(0%);
+}
+
+.toast .toast-content {
+    display: flex;
+    align-items: center;
+}
+
+.toast-content .toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 35px;
+    min-width: 35px;
+    color: #fff;
+    font-size: 20px;
+    border-radius: 50%;
+}
+
+.toast.success .toast-icon {
+    background-color: #4070f4;
+}
+
+.toast.error .toast-icon {
+    background-color: #dc2626;
+}
+
+.toast.warning .toast-icon {
+    background-color: #ff8c00;
+}
+
+.toast.info .toast-icon {
+    background-color: #0078d4;
+}
+
+.toast-content .message {
+    display: flex;
+    flex-direction: column;
+    margin: 0 20px;
+}
+
+.message .text {
+    font-size: 14px;
+    font-weight: 400;
+    color: #666666;
+    line-height: 1.5;
+}
+
+.message .text.text-1 {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.toast .toast-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 18px;
+    color: #666;
+    background: none;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.toast .toast-close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.toast .progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+}
+
+.toast .progress:before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.toast.success .progress:before {
+    background-color: #4070f4;
+}
+
+.toast.error .progress:before {
+    background-color: #dc2626;
+}
+
+.toast.warning .progress:before {
+    background-color: #ff8c00;
+}
+
+.toast.info .progress:before {
+    background-color: #0078d4;
+}
+
+.progress.active:before {
+    animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+    100% {
+        right: 100%;
+    }
+}
+
+/* Multiple toast stacking */
+.toast:nth-child(2) {
+    top: 105px;
+}
+
+.toast:nth-child(3) {
+    top: 185px;
+}
+
+.toast:nth-child(4) {
+    top: 265px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .toast {
+        right: 15px;
+        left: 15px;
+        min-width: auto;
+        transform: translateX(calc(100% + 15px));
+    }
+    
+    .toast.active {
+        transform: translateX(0%);
+    }
+}
 </style>
 
 <div class="gantt-container">
@@ -1693,10 +1854,12 @@
             </div>
                     </div>
     </div>
+
+    <div id="toastContainer"></div>
 </div>
 
 <script>
-// Global variables for timeline management
+// ===== GLOBAL VARIABLES =====
 let currentDate = new Date();
 let timelinePeriod = 3; // months
 let currentZoom = 100;
@@ -1716,8 +1879,140 @@ const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Jul
 tasksData = @json($structuredTasks);
 @endif
 
+// ===== TOAST NOTIFICATION SYSTEM =====
+const ToastNotification = {
+    container: null,
+    activeToasts: [],
+    
+    init() {
+        this.container = document.getElementById('toastContainer') || this.createContainer();
+    },
+    
+    createContainer() {
+        const container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.right = '0';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+        return container;
+    },
+    
+    show(type, title, message, duration = 5000) {
+        if (!this.container) this.init();
+        
+        const toast = this.createToast(type, title, message);
+        this.container.appendChild(toast);
+        this.activeToasts.push(toast);
+        
+        // Trigger animation
+        setTimeout(() => {
+            toast.classList.add('active');
+            const progress = toast.querySelector('.progress');
+            if (progress) progress.classList.add('active');
+        }, 100);
+        
+        // Auto close
+        const timer1 = setTimeout(() => {
+            this.close(toast);
+        }, duration);
+        
+        const timer2 = setTimeout(() => {
+            const progress = toast.querySelector('.progress');
+            if (progress) progress.classList.remove('active');
+        }, duration + 300);
+        
+        // Store timers for manual close
+        toast.dataset.timer1 = timer1;
+        toast.dataset.timer2 = timer2;
+        
+        return toast;
+    },
+    
+    createToast(type, title, message) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icons = {
+            success: '✓',
+            error: '✕',
+            warning: '⚠',
+            info: 'ℹ'
+        };
+        
+        toast.innerHTML = `
+            <div class="toast-content">
+                <div class="toast-icon">${icons[type] || icons.info}</div>
+                <div class="message">
+                    <span class="text text-1">${title}</span>
+                    <span class="text text-2">${message}</span>
+                </div>
+            </div>
+            <button class="toast-close" onclick="ToastNotification.closeByElement(this.parentElement)">×</button>
+            <div class="progress"></div>
+        `;
+        
+        return toast;
+    },
+    
+    close(toast) {
+        toast.classList.remove('active');
+        
+        setTimeout(() => {
+            const progress = toast.querySelector('.progress');
+            if (progress) progress.classList.remove('active');
+        }, 300);
+        
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.parentElement.removeChild(toast);
+            }
+            this.activeToasts = this.activeToasts.filter(t => t !== toast);
+        }, 500);
+    },
+    
+    closeByElement(toastElement) {
+        // Clear timers
+        if (toastElement.dataset.timer1) {
+            clearTimeout(parseInt(toastElement.dataset.timer1));
+        }
+        if (toastElement.dataset.timer2) {
+            clearTimeout(parseInt(toastElement.dataset.timer2));
+        }
+        
+        this.close(toastElement);
+    },
+    
+    // Convenience methods
+    success(title, message, duration) {
+        return this.show('success', title, message, duration);
+    },
+    
+    error(title, message, duration) {
+        return this.show('error', title, message, duration);
+    },
+    
+    warning(title, message, duration) {
+        return this.show('warning', title, message, duration);
+    },
+    
+    info(title, message, duration) {
+        return this.show('info', title, message, duration);
+    },
+    
+    closeAll() {
+        this.activeToasts.forEach(toast => this.close(toast));
+    }
+};
+
+// ===== DOCUMENT READY =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Tasks data:', tasksData);
+    
+    // Initialize Toast System
+    ToastNotification.init();
+    
     const yearInput = document.getElementById('modalYearInput');
     if (yearInput) {
         yearInput.addEventListener('input', renderModalMonths);
@@ -1738,9 +2033,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initResizer();
     setupRowHighlight();
     setupColumnHighlight();
-    setupScrollButtons(); // New: Setup scroll buttons
-
-    // TAMBAHAN: Setup sticky header effect
+    setupScrollButtons();
     setupStickyHeaderEffect();
 
     document.querySelectorAll('.task-children.collapsed').forEach(container => {
@@ -1756,9 +2049,26 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeTaskIconColors();
         updateTaskIconColors();
     }, 100);
+    
+    // Check for Laravel session flash messages
+    @if(session('success'))
+        ToastNotification.success('Berhasil!', '{{ session('success') }}', 5000);
+    @endif
+
+    @if(session('error'))
+        ToastNotification.error('Error!', '{{ session('error') }}', 5000);
+    @endif
+
+    @if(session('warning'))
+        ToastNotification.warning('Perhatian!', '{{ session('warning') }}', 5000);
+    @endif
+
+    @if(session('info'))
+        ToastNotification.info('Info', '{{ session('info') }}', 5000);
+    @endif
 });
 
-// New function to setup scroll buttons
+// ===== SCROLL BUTTONS =====
 function setupScrollButtons() {
     const ganttContent = document.getElementById('ganttContent');
     const scrollLeftBtn = document.getElementById('scrollLeftBtn');
@@ -1781,7 +2091,6 @@ function setupScrollButtons() {
     updateButtonStates();
 }
 
-// New function to scroll horizontally
 function scrollHorizontal(delta) {
     const ganttContent = document.getElementById('ganttContent');
     if (ganttContent) {
@@ -1792,6 +2101,7 @@ function scrollHorizontal(delta) {
     }
 }
 
+// ===== TIMELINE MANAGEMENT =====
 function initializeTimeline() {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     timelineData.startDate = new Date(startOfMonth);
@@ -1871,8 +2181,6 @@ function renderMonthHeaders() {
     
     let monthHeaderHTML = '<div class="month-header">';
     Object.values(monthGroups).forEach(month => {
-        // Karena box-sizing: border-box, border sudah included dalam dayWidth
-        // Jadi lebar bulan = jumlah hari × dayWidth
         const monthWidth = month.days.length * dayWidth;
         
         monthHeaderHTML += `
@@ -1886,12 +2194,6 @@ function renderMonthHeaders() {
     monthHeaderHTML += '</div>';
 
     monthHeaderContainer.innerHTML = monthHeaderHTML;
-    
-    console.log('Month headers rendered:', Object.values(monthGroups).map(m => ({
-        name: m.name,
-        days: m.days.length,
-        width: m.days.length * dayWidth
-    })));
 }
 
 function renderDayHeaders() {
@@ -1942,24 +2244,21 @@ function getDayWidth() {
     return 24 * (currentZoom / 100);
 }
 
+// ===== TASK VISIBILITY =====
 function isTaskVisible(task) {
-    // Jika tidak punya parent, pasti visible
     if (!task.parent_id) {
         return true;
     }
     
-    // Cari parent dari task
     const parent = tasksData.find(t => t.id === task.parent_id);
     if (!parent) {
         return false;
     }
     
-    // Jika parent di-collapse, task tidak visible
     if (collapsedTasks.has(parent.id.toString())) {
         return false;
     }
     
-    // Rekursif cek parent-parent di atasnya
     return isTaskVisible(parent);
 }
 
@@ -1978,20 +2277,18 @@ function getTasksInDOMOrder() {
     return orderedTasks;
 }
 
-// UPDATE fungsi updateGanttChart() jadi seperti ini:
+// ===== GANTT CHART RENDERING =====
 function updateGanttChart() {
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (!ganttRowsContainer) return;
 
-    // Ambil tasks sesuai urutan DOM, bukan dari tasksData
     const orderedTasks = getTasksInDOMOrder();
     
-    console.log('DOM Order:', orderedTasks.map(t => t.name)); // Debug
+    console.log('DOM Order:', orderedTasks.map(t => t.name));
     
     let ganttHTML = '';
     if (orderedTasks.length > 0) {
         orderedTasks.forEach(task => {
-            // Cek visibility untuk collapse/expand
             const taskRow = document.querySelector(`.task-row[data-task-id="${task.id}"]`);
             const isVisible = taskRow && taskRow.offsetParent !== null;
             
@@ -2040,7 +2337,6 @@ function generateTaskBar(task, dayWidth) {
     const startDayOffset = Math.max(0, Math.floor((taskStart - timelineStart) / (24 * 60 * 60 * 1000)));
     const endDayOffset = Math.min(timelineData.days.length - 1, Math.floor((taskEnd - timelineStart) / (24 * 60 * 60 * 1000)));
     
-    // Karena box-sizing: border-box, semua perhitungan menggunakan dayWidth langsung
     const barLeft = startDayOffset * dayWidth;
     const barWidth = Math.max(dayWidth, (endDayOffset - startDayOffset + 1) * dayWidth - 2);
 
@@ -2081,6 +2377,7 @@ function addTodayIndicator() {
     }
 }
 
+// ===== NAVIGATION =====
 function navigateMonth(direction) {
     currentDate.setMonth(currentDate.getMonth() + direction);
     initializeTimeline();
@@ -2099,6 +2396,7 @@ function goToToday() {
     updateGanttChart();
 }
 
+// ===== ZOOM =====
 const minZoom = 50;
 const maxZoom = 200;
 const zoomStep = 25;
@@ -2138,39 +2436,30 @@ function updateGanttWidths() {
     const dayWidth = getDayWidth();
     const totalWidth = timelineData.days.length * dayWidth;
     
-    console.log('=== UPDATE GANTT WIDTHS ===');
-    console.log('Day width:', dayWidth, 'px');
-    console.log('Total days:', timelineData.days.length);
-    console.log('Total width:', totalWidth, 'px');
-    console.log('=========================');
-    
-    // Update gantt rows container
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (ganttRowsContainer) {
         ganttRowsContainer.style.width = `${totalWidth}px`;
         ganttRowsContainer.style.minWidth = `${totalWidth}px`;
     }
     
-    // Update timeline header container
     const timelineHeaderContainer = document.querySelector('.timeline-header-container');
     if (timelineHeaderContainer) {
         timelineHeaderContainer.style.width = `${totalWidth}px`;
         timelineHeaderContainer.style.minWidth = `${totalWidth}px`;
     }
     
-    // Update month header
     const monthHeader = document.querySelector('.month-header');
     if (monthHeader) {
         monthHeader.style.width = `${totalWidth}px`;
     }
     
-    // Update day header
     const dayHeader = document.querySelector('.day-header');
     if (dayHeader) {
         dayHeader.style.width = `${totalWidth}px`;
     }
 }
 
+// ===== SCROLL SYNCHRONIZATION =====
 function setupScrollSynchronization() {
     const taskListBody = document.getElementById('taskListBody');
     const ganttContent = document.getElementById('ganttContent');
@@ -2183,7 +2472,6 @@ function setupScrollSynchronization() {
         timelineHeaderSection.scrollLeft = ganttContent.scrollLeft;
     });
 
-    // Sync scroll from header to content for top scrollbar
     timelineHeaderSection.addEventListener('scroll', () => {
         ganttContent.scrollLeft = timelineHeaderSection.scrollLeft;
     });
@@ -2196,29 +2484,62 @@ function setDefaultScrollPosition() {
     }
 }
 
+// ===== TASK COLLAPSE/EXPAND =====
 function toggleTaskCollapse(taskId) {
     const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
     const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
     
     if (toggleIcon && childrenContainer) {
-        // Toggle class
         toggleIcon.classList.toggle('rotate-90');
         childrenContainer.classList.toggle('collapsed');
         
-        // Update collapsedTasks Set
         if (childrenContainer.classList.contains('collapsed')) {
             collapsedTasks.add(taskId.toString());
         } else {
             collapsedTasks.delete(taskId.toString());
         }
         
-        // Update gantt chart dengan delay
         setTimeout(() => {
             updateGanttChart();
         }, 50);
     }
 }
 
+function expandAll() {
+    document.querySelectorAll('.task-children').forEach(container => {
+        container.classList.remove('collapsed');
+    });
+    
+    document.querySelectorAll('.toggle-collapse').forEach(icon => {
+        icon.classList.add('rotate-90');
+    });
+    
+    collapsedTasks.clear();
+    
+    setTimeout(() => {
+        updateGanttChart();
+    }, 50);
+}
+
+function collapseAll() {
+    document.querySelectorAll('.task-children').forEach(container => {
+        container.classList.add('collapsed');
+        const parentId = container.getAttribute('data-parent-id');
+        if (parentId) {
+            collapsedTasks.add(parentId);
+        }
+    });
+    
+    document.querySelectorAll('.toggle-collapse').forEach(icon => {
+        icon.classList.remove('rotate-90');
+    });
+    
+    setTimeout(() => {
+        updateGanttChart();
+    }, 50);
+}
+
+// ===== EVENT LISTENERS =====
 document.addEventListener('click', function(e) {
     if (e.target.closest('.toggle-collapse')) {
         const taskId = e.target.closest('.toggle-collapse').getAttribute('data-task-id');
@@ -2232,7 +2553,6 @@ document.addEventListener('click', function(e) {
         const taskId = e.target.closest('.task-name-cell').getAttribute('data-task-id');
         const task = tasksData.find(t => t.id == taskId);
         if (task) {
-            console.log('Task from name cell:', task);
             openTaskModal(task);
         }
     }
@@ -2244,55 +2564,12 @@ document.addEventListener('click', function(e) {
 function handleTaskBarClick(taskId) {
     const task = tasksData.find(t => t.id == taskId);
     if (task) {
-        console.log('Task from gantt bar:', task);
         openTaskModal(task);
         document.dispatchEvent(new CustomEvent('taskSelected', { detail: { task } }));
     }
 }
 
-// Ganti fungsi expandAll() dan collapseAll() yang lama dengan yang ini:
-
-function expandAll() {
-    // Hapus class collapsed dari semua task-children
-    document.querySelectorAll('.task-children').forEach(container => {
-        container.classList.remove('collapsed');
-    });
-    
-    // Rotate semua toggle icon
-    document.querySelectorAll('.toggle-collapse').forEach(icon => {
-        icon.classList.add('rotate-90');
-    });
-    
-    // Clear collapsedTasks Set
-    collapsedTasks.clear();
-    
-    // Update Gantt chart setelah delay singkat untuk memastikan DOM sudah terupdate
-    setTimeout(() => {
-        updateGanttChart();
-    }, 50);
-}
-
-function collapseAll() {
-    // Tambahkan class collapsed ke semua task-children
-    document.querySelectorAll('.task-children').forEach(container => {
-        container.classList.add('collapsed');
-        const parentId = container.getAttribute('data-parent-id');
-        if (parentId) {
-            collapsedTasks.add(parentId);
-        }
-    });
-    
-    // Remove rotate dari semua toggle icon
-    document.querySelectorAll('.toggle-collapse').forEach(icon => {
-        icon.classList.remove('rotate-90');
-    });
-    
-    // Update Gantt chart setelah delay singkat untuk memastikan DOM sudah terupdate
-    setTimeout(() => {
-        updateGanttChart();
-    }, 50);
-}
-
+// ===== KEYBOARD SHORTCUTS =====
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey || e.metaKey) {
         if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); }
@@ -2303,13 +2580,25 @@ document.addEventListener('keydown', function(e) {
         else if (e.key === 'ArrowRight') { e.preventDefault(); navigateMonth(1); }
         else if (e.key === 'Home') { e.preventDefault(); goToToday(); }
     }
-    if (e.key === 'Escape') {
+    if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreenMode();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreenMode();
+    }
+    if (e.key === 'Escape' && isFullscreenMode) {
+        toggleFullscreenMode();
+    }
+    if (e.key === 'Escape' && !isFullscreenMode) {
         const modal = document.getElementById('taskModal');
         if (modal?.classList.contains('opening') && !isModalAnimating) closeTaskModal();
         document.querySelectorAll('.gantt-bar.selected').forEach(bar => bar.classList.remove('selected'));
     }
 });
 
+// ===== UTILITY FUNCTIONS =====
 function formatDate(dateString) {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -2337,6 +2626,7 @@ document.addEventListener('touchend', function(e) {
     if (e.target.closest('.modal-btn') || e.target.closest('.modal-close-x')) e.preventDefault();
 });
 
+// ===== GANTT CHART API =====
 window.GanttChart = {
     navigateMonth,
     changePeriod,
@@ -2379,16 +2669,13 @@ window.GanttChart = {
     },
     getVisibleTasks: function() {
         return tasksData.filter(task => {
-            // Root task selalu visible
             if (!task.parent_id) return true;
             
-            // Cek apakah parent di-collapse
             let currentParentId = task.parent_id;
             while (currentParentId) {
                 if (collapsedTasks.has(currentParentId.toString())) {
                     return false;
                 }
-                // Cari parent berikutnya
                 const parentTask = tasksData.find(t => t.id === currentParentId);
                 currentParentId = parentTask ? parentTask.parent_id : null;
             }
@@ -2402,20 +2689,25 @@ window.GanttChart = {
     }
 };
 
+// ===== TASK EVENTS =====
 document.addEventListener('taskSelected', function(e) {
     console.log('Task selected:', e.detail.task);
 });
+
 document.addEventListener('taskUpdated', function(e) {
     console.log('Task updated:', e.detail.task);
     updateGanttChart();
 });
+
 document.addEventListener('taskDeleted', function(e) {
     window.GanttChart.removeTask(e.detail.taskId);
 });
+
 document.addEventListener('taskAdded', function(e) {
     window.GanttChart.addTask(e.detail.task);
 });
 
+// ===== MODAL FUNCTIONS =====
 function openTaskModal(task) {
     if (isModalAnimating) return;
     const modal = document.getElementById('taskModal');
@@ -2470,7 +2762,7 @@ function populateModalContent(task) {
 
     const finishDateEl = document.getElementById('taskFinishDate');
     if (finishDateEl) {
-        finishDateEl.textContent = task.endDate ? formatDate(task.endDate) : 'Not set';
+        finishDateEl.textContent = task.endDate ? formatDate(task.endDate) : 'Tidak diatur';
         finishDateEl.className = task.endDate ? 'modal-field-value' : 'modal-field-value empty';
     }
 
@@ -2483,12 +2775,20 @@ function populateModalContent(task) {
     const editBtn = document.getElementById('editTaskBtn');
     const deleteBtn = document.getElementById('deleteTaskBtn');
     if (editBtn && task.id) editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
+    
     if (deleteBtn && task.id) {
         deleteBtn.onclick = function(e) {
             e.preventDefault();
             if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
                 const form = document.getElementById('deleteTaskForm');
                 if (form) {
+                    // Show deleting toast
+                    ToastNotification.info(
+                        'Menghapus...',
+                        `Sedang menghapus task "${task.name}"`,
+                        2000
+                    );
+                    
                     form.action = `/tasks/${task.id}`;
                     form.submit();
                 }
@@ -2529,7 +2829,7 @@ function populateModalContent(task) {
             localStorage.setItem(`${colorKey}-border`, newBorder);
             if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${newBg} 0%, ${newBorder} 100%)`;
             updateGanttChart();
-            updateTaskIconColors(); // Update icon colors instead of badges
+            updateTaskIconColors();
         });
     }
 
@@ -2543,7 +2843,7 @@ function populateModalContent(task) {
             if (colorPicker) colorPicker.value = defaultBg;
             if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${defaultBg} 0%, ${defaultBorder} 100%)`;
             updateGanttChart();
-            updateTaskIconColors(); // Update icon colors instead of badges
+            updateTaskIconColors();
         });
     }
 }
@@ -2566,6 +2866,7 @@ function trapFocus(element) {
     });
 }
 
+// ===== COLOR FUNCTIONS =====
 function darkenColor(color, amount = 0.1) {
     let [r, g, b] = color.match(/\w\w/g).map(x => parseInt(x, 16));
     r = Math.max(0, Math.round(r * (1 - amount)));
@@ -2609,9 +2910,7 @@ function getColorForRootAndLevel(rootId, relLevel) {
     return { bg, border };
 }
 
-// Initialize task icon colors on page load to match gantt chart colors
 function initializeTaskIconColors() {
-    // Loop through all task rows and set initial colors based on task data
     document.querySelectorAll('.task-row').forEach(taskRow => {
         const taskId = taskRow.getAttribute('data-task-id');
         const task = tasksData.find(t => t.id == taskId);
@@ -2621,19 +2920,16 @@ function initializeTaskIconColors() {
             const relLevel = getRelativeLevel(task);
             const { bg, border } = getColorForRootAndLevel(rootId, relLevel);
             
-            // Find the icon within this task row
             const iconElement = taskRow.querySelector('.task-icon-square');
             if (iconElement) {
                 iconElement.style.backgroundColor = bg;
                 iconElement.style.borderColor = border;
-                // Remove default color classes
                 iconElement.classList.remove('task-icon-blue', 'task-icon-green');
             }
         }
     });
 }
 
-// Update task icon colors instead of duration badges
 function updateTaskIconColors() {
     tasksData.forEach(task => {
         const rootId = getRootId(task);
@@ -2641,7 +2937,6 @@ function updateTaskIconColors() {
         const colorKey = `color-root-${rootId}-rellevel-${relLevel}`;
         const bgColor = localStorage.getItem(`${colorKey}-bg`) || defaultColors[relLevel % 6].bg;
         
-        // Update the task icon square color by finding the task row first
         const taskRow = document.querySelector(`[data-task-id="${task.id}"].task-row`);
         if (taskRow) {
             const iconElement = taskRow.querySelector('.task-icon-square');
@@ -2654,6 +2949,7 @@ function updateTaskIconColors() {
     });
 }
 
+// ===== DATE MODAL =====
 function openDateModal() {
     const modal = document.getElementById('dateModal');
     if (!modal) return;
@@ -2723,6 +3019,7 @@ function setMonthYear(month, year) {
     updateGanttChart();
 }
 
+// ===== RESIZER =====
 function initResizer() {
     const resizer = document.getElementById('resizerMain');
     const taskListContainer = document.querySelector('.task-list-container');
@@ -2822,36 +3119,30 @@ function initResizer() {
     });
 }
 
-// 1. Fungsi untuk highlight row
+// ===== HIGHLIGHT FUNCTIONS =====
 function highlightRow(taskId) {
-    // Remove existing highlights
     removeAllHighlights();
     
     if (!taskId) return;
     
-    // Highlight task row di task list
     const taskRow = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
     if (taskRow) {
         taskRow.classList.add('row-highlighted');
     }
     
-    // Highlight gantt row
     const ganttRow = document.querySelector(`.gantt-row[data-task-id="${taskId}"]`);
     if (ganttRow) {
         ganttRow.classList.add('row-highlighted');
     }
 }
 
-// 2. Fungsi untuk remove highlight
 function removeAllHighlights() {
     document.querySelectorAll('.row-highlighted').forEach(el => {
         el.classList.remove('row-highlighted');
     });
 }
 
-// 3. Setup event listeners untuk hover
 function setupRowHighlight() {
-    // Hover pada task rows
     document.addEventListener('mouseover', function(e) {
         const taskRow = e.target.closest('.task-row');
         if (taskRow) {
@@ -2859,14 +3150,12 @@ function setupRowHighlight() {
             highlightRow(taskId);
         }
         
-        // Hover pada gantt bars
         const ganttBar = e.target.closest('.gantt-bar');
         if (ganttBar) {
             const taskId = ganttBar.getAttribute('data-task-id');
             highlightRow(taskId);
         }
         
-        // Hover pada gantt rows (cells)
         const ganttRow = e.target.closest('.gantt-row');
         if (ganttRow && !ganttBar) {
             const taskId = ganttRow.getAttribute('data-task-id');
@@ -2874,13 +3163,11 @@ function setupRowHighlight() {
         }
     });
     
-    // Remove highlight saat mouse leave gantt container
     const ganttContainer = document.querySelector('.gantt-container');
     if (ganttContainer) {
         ganttContainer.addEventListener('mouseleave', removeAllHighlights);
     }
     
-    // Remove highlight saat mouse leave task list
     const taskListBody = document.getElementById('taskListBody');
     if (taskListBody) {
         taskListBody.addEventListener('mouseleave', removeAllHighlights);
@@ -2888,18 +3175,15 @@ function setupRowHighlight() {
 }
 
 function highlightTimelineColumn(dayIndex) {
-    // Remove existing column highlights
     removeAllColumnHighlights();
     
     if (dayIndex === null || dayIndex === undefined) return;
     
-    // Highlight timeline day header
     const timelineDays = document.querySelectorAll('.timeline-day');
     if (timelineDays[dayIndex]) {
         timelineDays[dayIndex].classList.add('column-highlighted');
     }
     
-    // Highlight semua gantt-grid-cell di kolom yang sama
     document.querySelectorAll('.gantt-row').forEach(row => {
         const cells = row.querySelectorAll('.gantt-grid-cell');
         if (cells[dayIndex]) {
@@ -2915,18 +3199,15 @@ function removeAllColumnHighlights() {
 }
 
 function setupColumnHighlight() {
-    // Hover pada timeline day header
     document.addEventListener('mouseover', function(e) {
         const timelineDay = e.target.closest('.timeline-day');
         if (timelineDay) {
-            // Ambil index dari parent container yang benar
             const dayContainer = timelineDay.closest('.day-header');
             const allDays = dayContainer.querySelectorAll('.timeline-day');
             const dayIndex = Array.from(allDays).indexOf(timelineDay);
             highlightTimelineColumn(dayIndex);
         }
         
-        // Hover pada gantt grid cell
         const ganttCell = e.target.closest('.gantt-grid-cell');
         if (ganttCell && !e.target.closest('.gantt-bar')) {
             const row = ganttCell.closest('.gantt-row');
@@ -2936,13 +3217,11 @@ function setupColumnHighlight() {
         }
     });
     
-    // Remove highlight saat mouse leave dari timeline header
     const timelineHeader = document.querySelector('.timeline-header-section');
     if (timelineHeader) {
         timelineHeader.addEventListener('mouseleave', removeAllColumnHighlights);
     }
     
-    // Remove highlight saat mouse leave dari gantt content
     const ganttContent = document.getElementById('ganttContent');
     if (ganttContent) {
         ganttContent.addEventListener('mouseleave', removeAllColumnHighlights);
@@ -2960,7 +3239,6 @@ function setupStickyHeaderEffect() {
         return;
     }
     
-    // Detect scroll dan tambahkan shadow effect
     function handleScroll() {
         const scrollTop = this.scrollTop;
         if (scrollTop > 10) {
@@ -2976,7 +3254,7 @@ function setupStickyHeaderEffect() {
     console.log('✓ Sticky header effect initialized');
 }
 
-
+// ===== FULLSCREEN MODE =====
 function toggleFullscreenMode() {
     const ganttContainer = document.querySelector('.gantt-container');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
@@ -2987,68 +3265,28 @@ function toggleFullscreenMode() {
     isFullscreenMode = !isFullscreenMode;
     
     if (isFullscreenMode) {
-        // Aktifkan fullscreen mode
         ganttContainer.classList.add('fullscreen-mode');
         fullscreenBtn.classList.add('fullscreen-active');
         if (fullscreenText) fullscreenText.textContent = 'Perkecil';
         
-        // Update gantt chart untuk menyesuaikan lebar baru
         setTimeout(() => {
             updateGanttChart();
             renderTimelineHeaders();
-        }, 350); // Tunggu animasi selesai
+        }, 350);
         
         console.log('✓ Fullscreen mode activated');
     } else {
-        // Nonaktifkan fullscreen mode
         ganttContainer.classList.remove('fullscreen-mode');
         fullscreenBtn.classList.remove('fullscreen-active');
         if (fullscreenText) fullscreenText.textContent = 'Fullscreen';
         
-        // Update gantt chart kembali ke ukuran normal
         setTimeout(() => {
             updateGanttChart();
             renderTimelineHeaders();
-        }, 350); // Tunggu animasi selesai
+        }, 350);
         
         console.log('✓ Fullscreen mode deactivated');
     }
 }
-
-// Keyboard shortcut untuk fullscreen (F11 atau Ctrl+Shift+F)
-document.addEventListener('keydown', function(e) {
-    // F11 untuk toggle fullscreen
-    if (e.key === 'F11') {
-        e.preventDefault();
-        toggleFullscreenMode();
-    }
-    
-    // Ctrl+Shift+F untuk toggle fullscreen
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') {
-        e.preventDefault();
-        toggleFullscreenMode();
-    }
-    
-    // ESC untuk keluar dari fullscreen mode
-    if (e.key === 'Escape' && isFullscreenMode) {
-        toggleFullscreenMode();
-    }
-    
-    // Existing keyboard shortcuts...
-    if (e.ctrlKey || e.metaKey) {
-        if (e.key === '=' || e.key === '+') { e.preventDefault(); zoomIn(); }
-        else if (e.key === '-') { e.preventDefault(); zoomOut(); }
-    }
-    if (e.altKey) {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); navigateMonth(-1); }
-        else if (e.key === 'ArrowRight') { e.preventDefault(); navigateMonth(1); }
-        else if (e.key === 'Home') { e.preventDefault(); goToToday(); }
-    }
-    if (e.key === 'Escape' && !isFullscreenMode) {
-        const modal = document.getElementById('taskModal');
-        if (modal?.classList.contains('opening') && !isModalAnimating) closeTaskModal();
-        document.querySelectorAll('.gantt-bar.selected').forEach(bar => bar.classList.remove('selected'));
-    }scroll-controls
-});
 </script>
 @endsection
