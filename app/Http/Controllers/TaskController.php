@@ -213,17 +213,44 @@ class TaskController extends Controller
         $task->start = $task->original_start_date;
         $task->finish = $task->original_finish_date;
 
-        $parents = Task::where('user_id', Auth::id())
-            ->where('id', '!=', $task->id)
-            ->whereNotIn('id', $this->getDescendantIds($task))
-            ->get()
-            ->map(function ($t) {
-                $t->start = $t->start ? \Carbon\Carbon::parse($t->start)->format('d-m-Y') : null;
-                $t->finish = $t->finish ? \Carbon\Carbon::parse($t->finish)->format('d-m-Y') : null;
-                return $t;
-            });
+        // Dapatkan root task
+        $root = $this->getRootTask($task);
+
+        $parents = collect();
+
+        if ($root->id == $task->id) {
+            // Jika task adalah root, tampilkan semua root lain sebagai opsi parent
+            $parents = Task::where('user_id', Auth::id())
+                ->whereNull('parent_id')
+                ->where('id', '!=', $task->id)
+                ->get();
+        } else {
+            // Jika bukan root, batasi opsi parent ke hierarchy yang sama (root yang sama)
+            $hierarchyIds = $this->getAllIdsInHierarchy($root);
+            $parents = Task::where('user_id', Auth::id())
+                ->whereIn('id', $hierarchyIds)
+                ->where('id', '!=', $task->id)
+                ->whereNotIn('id', $this->getDescendantIds($task))
+                ->get();
+        }
+
+        $parents = $parents->map(function ($t) {
+            $t->start = $t->start ? \Carbon\Carbon::parse($t->start)->format('d-m-Y') : null;
+            $t->finish = $t->finish ? \Carbon\Carbon::parse($t->finish)->format('d-m-Y') : null;
+            return $t;
+        });
 
         return view('projects.edit', compact('task', 'parents'));
+    }
+
+    /**
+     * Dapatkan semua ID di hierarchy yang sama (root + semua descendants)
+     */
+    private function getAllIdsInHierarchy(Task $root)
+    {
+        $ids = [$root->id];
+        $descendants = $this->getDescendantIds($root);
+        return array_merge($ids, $descendants);
     }
 
     public function update(Request $request, Task $task)
