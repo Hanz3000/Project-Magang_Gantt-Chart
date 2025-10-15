@@ -2048,6 +2048,29 @@ const ToastNotification = {
     }
 };
 
+// ===== UTILITY FOR COLLAPSED TASKS PERSISTENCE =====
+function saveCollapsedTasks() {
+    localStorage.setItem('collapsedTasks', JSON.stringify(Array.from(collapsedTasks)));
+}
+
+function loadCollapsedTasks() {
+    const saved = localStorage.getItem('collapsedTasks');
+    if (saved) {
+        JSON.parse(saved).forEach(id => collapsedTasks.add(id.toString()));
+    }
+}
+
+function applyCollapsedStates() {
+    collapsedTasks.forEach(taskId => {
+        const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
+        const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
+        if (toggleIcon && childrenContainer) {
+            toggleIcon.classList.remove('rotate-90');
+            childrenContainer.classList.add('collapsed');
+        }
+    });
+}
+
 // ===== DOCUMENT READY =====
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Tasks data:', tasksData);
@@ -2068,6 +2091,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (border) document.documentElement.style.setProperty(`--level-${i}-border`, border);
     }
 
+    // Load and apply collapsed tasks state
+    loadCollapsedTasks();
+    applyCollapsedStates();
+
     initializeTimeline();
     setupScrollSynchronization();
     updateGanttChart();
@@ -2077,11 +2104,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupColumnHighlight();
     setupScrollButtons();
     setupStickyHeaderEffect();
-
-    document.querySelectorAll('.task-children.collapsed').forEach(container => {
-        const parentId = container.getAttribute('data-parent-id');
-        if (parentId) collapsedTasks.add(parentId);
-    });
 
     const modal = document.getElementById('taskModal');
     if (modal) trapFocus(modal);
@@ -2409,7 +2431,6 @@ function generateTaskBar(task, dayWidth) {
     `;
 }
 
-
 function addTodayIndicator() {
     const today = new Date();
     const todayIndex = timelineData.days.findIndex(day =>
@@ -2553,6 +2574,9 @@ function toggleTaskCollapse(taskId) {
             collapsedTasks.delete(taskId.toString());
         }
         
+        // Save to localStorage
+        saveCollapsedTasks();
+        
         setTimeout(() => {
             updateGanttChart();
         }, 50);
@@ -2569,6 +2593,9 @@ function expandAll() {
     });
     
     collapsedTasks.clear();
+    
+    // Save to localStorage
+    saveCollapsedTasks();
     
     setTimeout(() => {
         updateGanttChart();
@@ -2587,6 +2614,9 @@ function collapseAll() {
     document.querySelectorAll('.toggle-collapse').forEach(icon => {
         icon.classList.remove('rotate-90');
     });
+    
+    // Save to localStorage
+    saveCollapsedTasks();
     
     setTimeout(() => {
         updateGanttChart();
