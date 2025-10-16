@@ -109,7 +109,7 @@
                                     <p class="font-medium">Informasi Task Utama</p>
                                     <p id="parentInfoText">
                                         @if($task->parent_id && $task->parent)
-                                            Sub-task dimulai {{ \Carbon\Carbon::parse($task->parent->start)->format('d-m-Y') }} dan selesai {{ \Carbon\Carbon::parse($task->parent->finish)->format('d-m-Y') }}.
+                                            Sub-task dimulai {{ $task->parent->start->format('d-m-Y') }} dan selesai {{ $task->parent->finish->format('d-m-Y') }}.
                                         @endif
                                     </p>
                                 </div>
@@ -133,7 +133,7 @@
                                             <div class="text-xs bg-white/50 px-2 py-1 rounded">
                                                 • {{ $child->name }} 
                                                 <span class="text-amber-600">
-                                                    ({{ $child->start ? $child->start->format('d/m/Y') : '-' }} - {{ $child->finish ? $child->finish->format('d/m/Y') : '-' }})
+                                                    ({{ $child->start ? $child->start->format('d-m-Y') : '-' }} - {{ $child->finish ? $child->finish->format('d-m-Y') : '-' }})
                                                 </span>
                                             </div>
                                             @endforeach
@@ -158,7 +158,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <!-- Start Date -->
                         <div class="space-y-3">
-                            <label for="start" class="flex items-center text-sm font-semibold text-slate-700">
+                            <label for="start_display" class="flex items-center text-sm font-semibold text-slate-700">
                                 <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path>
@@ -166,9 +166,14 @@
                                 Tanggal Mulai <span class="text-red-500 text-sm ml-1">*</span>
                             </label>
                             <div class="relative">
-                                <input type="date" name="start" id="start"
-                                       value="{{ old('start', $task->start ? $task->start->format('Y-m-d') : '') }}"
-                                       class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900
+                                <!-- Input hidden untuk value sebenarnya -->
+                                <input type="hidden" name="start" id="start" value="{{ old('start', $task->start ? $task->start->format('Y-m-d') : '') }}">
+                                
+                                <!-- Input text untuk display dengan format dd-mm-yyyy -->
+                                <input type="text" id="start_display" 
+                                       value="{{ old('start', $task->start ? $task->start->format('d-m-Y') : '') }}"
+                                       placeholder="dd-mm-yyyy"
+                                       class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
                                               focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200
                                               @error('start') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror"
                                        required>
@@ -185,7 +190,7 @@
 
                         <!-- End Date -->
                         <div class="space-y-3">
-                            <label for="finish" class="flex items-center text-sm font-semibold text-slate-700">
+                            <label for="finish_display" class="flex items-center text-sm font-semibold text-slate-700">
                                 <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -193,9 +198,14 @@
                                 Tanggal Selesai
                             </label>
                             <div class="relative">
-                                <input type="date" name="finish" id="finish"
-                                       value="{{ old('finish', $task->finish ? $task->finish->format('Y-m-d') : '') }}"
-                                       class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900
+                                <!-- Input hidden untuk value sebenarnya -->
+                                <input type="hidden" name="finish" id="finish" value="{{ old('finish', $task->finish ? $task->finish->format('Y-m-d') : '') }}">
+                                
+                                <!-- Input text untuk display dengan format dd-mm-yyyy -->
+                                <input type="text" id="finish_display"
+                                       value="{{ old('finish', $task->finish ? $task->finish->format('d-m-Y') : '') }}"
+                                       placeholder="dd-mm-yyyy"
+                                       class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
                                               focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200
                                               @error('finish') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror">
                                 @error('finish')
@@ -365,6 +375,93 @@
 
         let lastChanged = ''; // Lacak field terakhir diubah
 
+        // Fungsi untuk format tanggal ke dd-mm-yyyy
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        // Fungsi untuk convert dd-mm-yyyy ke yyyy-mm-dd
+        function convertToISO(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`; // yyyy-mm-dd
+            }
+            return dateString;
+        }
+
+        // Fungsi untuk validasi format tanggal dd-mm-yyyy
+        function isValidDate(dateString) {
+            const regex = /^(\d{2})-(\d{2})-(\d{4})$/;
+            if (!regex.test(dateString)) return false;
+            
+            const parts = dateString.match(regex);
+            const day = parseInt(parts[1], 10);
+            const month = parseInt(parts[2], 10);
+            const year = parseInt(parts[3], 10);
+            
+            if (month < 1 || month > 12) return false;
+            const daysInMonth = new Date(year, month, 0).getDate();
+            return day >= 1 && day <= daysInMonth;
+        }
+
+        // Event handler untuk input tanggal mulai
+        $('#start_display').on('blur', function() {
+            let value = $(this).val().trim();
+            if (value && isValidDate(value)) {
+                const isoDate = convertToISO(value);
+                $('#start').val(isoDate);
+                lastChanged = 'start';
+                updateDatePickers();
+            } else if (value) {
+                alert('Format tanggal tidak valid! Gunakan format dd-mm-yyyy (contoh: 20-10-2025)');
+                $(this).val('');
+                $('#start').val('');
+            }
+        });
+
+        // Event handler untuk input tanggal selesai
+        $('#finish_display').on('blur', function() {
+            let value = $(this).val().trim();
+            if (value && isValidDate(value)) {
+                const isoDate = convertToISO(value);
+                $('#finish').val(isoDate);
+                lastChanged = 'finish';
+                updateDatePickers();
+            } else if (value) {
+                alert('Format tanggal tidak valid! Gunakan format dd-mm-yyyy (contoh: 24-10-2025)');
+                $(this).val('');
+                $('#finish').val('');
+            }
+        });
+
+        // Allow date picker on click
+        $('#start_display, #finish_display').on('click', function() {
+            const inputId = $(this).attr('id').replace('_display', '');
+            const hiddenInput = $('<input type="date" style="position:absolute;opacity:0;width:0;height:0;">');
+            hiddenInput.val($('#' + inputId).val());
+            $(this).after(hiddenInput);
+            
+            hiddenInput.on('change', function() {
+                const selectedDate = $(this).val();
+                if (selectedDate) {
+                    $('#' + inputId).val(selectedDate);
+                    $('#' + inputId + '_display').val(formatDate(selectedDate));
+                    lastChanged = inputId;
+                    updateDatePickers();
+                }
+                $(this).remove();
+            });
+            
+            hiddenInput.focus();
+            hiddenInput[0].showPicker();
+        });
+
         // Sync checkbox dengan hidden input
         $('#move_children_checkbox').on('change', function() {
             $('#move_children').val(this.checked ? '1' : '0');
@@ -380,22 +477,28 @@
                 parentInfo.show();
                 const parentStart = $(this).find('option:selected').data('start');
                 const parentFinish = $(this).find('option:selected').data('finish');
-                const startFormatted = new Date(parentStart).toLocaleDateString('en-GB'); // ✅ BENAR
-const finishFormatted = new Date(parentFinish).toLocaleDateString('en-GB');
+                const startFormatted = formatDate(parentStart);
+                const finishFormatted = formatDate(parentFinish);
+                
                 parentInfoText.text(
-                    `Sub-task mulai ${startFormatted}, selesai idealnya ${finishFormatted}. 
-                     Melebihi, task utama diperpanjang.`
+                    `Sub-task dimulai ${startFormatted} dan selesai ${finishFormatted}.`
                 );
+                
                 // Autofit tanggal mulai ke hari setelah tanggal selesai parent
                 if (parentFinish) {
                     const start = new Date(parentFinish);
                     start.setDate(start.getDate() + 1); // Tambah 1 hari setelah tanggal selesai parent
-                    $('#start').val(start.toISOString().split('T')[0]);
+                    const isoStart = start.toISOString().split('T')[0];
+                    $('#start').val(isoStart);
+                    $('#start_display').val(formatDate(isoStart));
+                    
                     const durationVal = $('#duration').val();
                     if (durationVal) {
                         const finish = new Date(start);
                         finish.setDate(start.getDate() + parseInt(durationVal) - 1);
-                        $('#finish').val(finish.toISOString().split('T')[0]);
+                        const isoFinish = finish.toISOString().split('T')[0];
+                        $('#finish').val(isoFinish);
+                        $('#finish_display').val(formatDate(isoFinish));
                     }
                 }
             } else {
@@ -406,13 +509,11 @@ const finishFormatted = new Date(parentFinish).toLocaleDateString('en-GB');
         });
 
         // Tracking perubahan field
-        $('#start').on('change', function() {
-            lastChanged = 'start';
-            updateDatePickers();
+        $('#start_display').on('keyup change', function() {
+            // Validasi dilakukan di blur event
         });
-        $('#finish').on('change', function() {
-            lastChanged = 'finish';
-            updateDatePickers();
+        $('#finish_display').on('keyup change', function() {
+            // Validasi dilakukan di blur event
         });
         $('#duration').on('change', function() {
             lastChanged = 'duration';
@@ -425,16 +526,14 @@ const finishFormatted = new Date(parentFinish).toLocaleDateString('en-GB');
             const finishVal = $('#finish').val();
             const durationVal = $('#duration').val();
 
-            // Hapus batasan min untuk start dan finish
-            $('#start').removeAttr('min');
-            $('#finish').removeAttr('min');
-
             // Durasi → hitung finish
             if ((lastChanged === 'start' || lastChanged === 'duration' || lastChanged === 'parent') && durationVal && startVal) {
                 const start = new Date(startVal);
                 const finish = new Date(start);
                 finish.setDate(start.getDate() + parseInt(durationVal) - 1);
-                $('#finish').val(finish.toISOString().split('T')[0]);
+                const isoFinish = finish.toISOString().split('T')[0];
+                $('#finish').val(isoFinish);
+                $('#finish_display').val(formatDate(isoFinish));
             }
 
             // Finish → hitung durasi
@@ -444,19 +543,29 @@ const finishFormatted = new Date(parentFinish).toLocaleDateString('en-GB');
                 const diff = Math.ceil((finish - start) / (1000 * 60 * 60 * 24)) + 1;
                 if (diff > 0) $('#duration').val(diff);
             }
+
+            // Update display fields jika ada perubahan
+            if (startVal) {
+                $('#start_display').val(formatDate(startVal));
+            }
+            if (finishVal) {
+                $('#finish_display').val(formatDate(finishVal));
+            }
         }
 
         // Validasi tanggal saat input
         function validateDateInputs() {
-            // Validasi input finish (pastikan tidak sebelum start)
-            $('#finish').off('input').on('input', function() {
+            // Validasi dilakukan di blur event untuk start_display dan finish_display
+            $('#finish_display').on('blur', function() {
                 const startVal = $('#start').val();
-                if (startVal) {
+                const finishVal = $('#finish').val();
+                if (startVal && finishVal) {
                     const minDateObj = new Date(startVal);
-                    const selectedDate = new Date(this.value);
+                    const selectedDate = new Date(finishVal);
                     if (selectedDate < minDateObj) {
-                        this.value = startVal;
                         alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
+                        $(this).val('');
+                        $('#finish').val('');
                         updateDatePickers();
                     }
                 }
