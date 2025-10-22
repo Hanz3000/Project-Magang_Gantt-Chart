@@ -21,7 +21,7 @@
     /* ===== TASK LIST STYLING (GAMBAR STYLE) ===== */
     .task-row {
         display: grid;
-        grid-template-columns: 40px 1fr 150px 110px 110px; /* Increased Durasi column to 150px */
+        grid-template-columns: 50px 1fr 150px 110px 110px; /* Adjusted first column to 50px for extra button */
         height: 40px;
         align-items: center; /* Center content vertically */
         padding: 0;
@@ -58,13 +58,14 @@
         height: 100%;
     }
 
-    /* Task Toggle Cell */
+    /* Task Toggle Cell - Adjusted for two buttons */
     .task-toggle-cell {
         justify-content: center;
-        padding: 0;
+        padding: 4px;
         border-right: 1px solid #e0e0e0;
         display: flex;
         align-items: center; /* Center content vertically */
+        gap: 4px;
     }
 
     .toggle-collapse {
@@ -73,8 +74,8 @@
         border-radius: 4px;
         transition: all 0.15s ease;
         color: #424242;
-        width: 28px;
-        height: 28px;
+        width: 20px;
+        height: 20px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -88,6 +89,37 @@
 
     .toggle-collapse.rotate-90 {
         transform: rotate(90deg);
+    }
+
+    /* Full Chart Button */
+    .full-chart-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 2px;
+        border-radius: 2px;
+        color: #666;
+        transition: all 0.2s ease;
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+
+    .full-chart-btn:hover {
+        color: #0078d4;
+        background: #f0f0f0;
+    }
+
+    .gantt-container.chart-only-mode .full-chart-btn {
+        color: #dc2626;
+    }
+
+    .gantt-container.chart-only-mode .full-chart-btn:hover {
+        color: #b91c1c;
+        background: #fef2f2;
     }
 
     /* Task Name Cell */
@@ -231,6 +263,21 @@
         overflow: hidden;
     }
 
+    /* Chart Only Mode Styles */
+    .gantt-container.chart-only-mode .task-list-container,
+    .gantt-container.chart-only-mode .task-list-header-section,
+    .gantt-container.chart-only-mode .resizer {
+        display: none !important;
+    }
+
+    .gantt-container.chart-only-mode .combined-header-container .timeline-header-section {
+        width: 100% !important;
+    }
+
+    .gantt-container.chart-only-mode .gantt-main-content .gantt-view-container {
+        width: 100% !important;
+    }
+
     .gantt-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-bottom: 1px solid #d1d5db;
@@ -302,10 +349,10 @@
         display: none;
     }
 
-    /* Modern Task Header Row */
+    /* Modern Task Header Row - Adjusted grid */
     .task-header-row {
         display: grid;
-        grid-template-columns: 40px 1fr 150px 110px 110px; /* Increased Durasi column to 150px */
+        grid-template-columns: 50px 1fr 150px 110px 110px; /* Adjusted first column to 50px */
         height: 40px;
         align-items: center;
         padding: 0;
@@ -313,6 +360,8 @@
         position: relative;
         background: #fafafa;
     }
+
+    /* ... (rest of the styles remain unchanged) ... */
 
     .task-header-cell {
         padding: 8px 12px;
@@ -333,6 +382,7 @@
 
     .task-header-cell:first-child {
         justify-content: center;
+        gap: 4px; /* For header alignment */
     }
 
     .task-header-cell:nth-child(4),
@@ -1260,6 +1310,11 @@
         outline-offset: 2px;
     }
 
+    .full-chart-btn:focus {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+    }
+
     /* Smooth scrollbar for modal body */
     .modal-body::-webkit-scrollbar {
         width: 6px;
@@ -1570,7 +1625,13 @@
         <!-- Task List Header Section -->
         <div class="task-list-header-section">
             <div class="task-header-row">
-                <div class="task-header-cell"></div>
+                <div class="task-header-cell" style="justify-content: center;">
+                    <button class="full-chart-btn" onclick="toggleChartOnlyMode()" title="Sembunyikan Daftar Tugas (Full Chart Mode)">
+                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM13 5a1 1 0 00-1 1v6a1 1 0 102 0V6a1 1 0 00-1-1zM15 7a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1zM15 12a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
                 <div class="task-header-cell">Nama Task</div>
                 <div class="task-header-cell">Tanggal Mulai</div>
                 <div class="task-header-cell">Tanggal Selesai</div>
@@ -1682,6 +1743,50 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTaskIconColors();
     }, 100);
 });
+
+function toggleChartOnlyMode() {
+    const container = document.querySelector('.gantt-container');
+    if (!container) return;
+
+    const isActive = container.classList.contains('chart-only-mode');
+    container.classList.toggle('chart-only-mode');
+
+    const toolbarRight = document.querySelector('.toolbar-right');
+    let exitBtn = document.querySelector('.exit-chart-only');
+
+    if (!isActive) {
+        // Entering mode: add exit button to toolbar
+        if (!exitBtn) {
+            exitBtn = document.createElement('button');
+            exitBtn.className = 'control-button exit-chart-only';
+            exitBtn.innerHTML = `
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+                Tampilkan Daftar Tugas
+            `;
+            exitBtn.title = 'Kembalikan Daftar Tugas';
+            exitBtn.onclick = toggleChartOnlyMode;
+            toolbarRight.appendChild(exitBtn);
+        }
+        document.querySelectorAll('.full-chart-btn').forEach(btn => {
+            btn.title = 'Tampilkan Daftar Tugas';
+        });
+    } else {
+        // Exiting mode: remove exit button
+        if (exitBtn) {
+            exitBtn.remove();
+        }
+        document.querySelectorAll('.full-chart-btn').forEach(btn => {
+            btn.title = 'Sembunyikan Daftar Tugas (Full Chart Mode)';
+        });
+    }
+
+    // Re-sync scroll after layout change
+    setTimeout(setupScrollSynchronization, 100);
+}
+
+// ... (all other functions remain unchanged) ...
 
 function initializeTimeline() {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -2041,7 +2146,9 @@ function setupScrollSynchronization() {
 
     // Enhanced synchronization for better alignment, especially in fullscreen
     const syncScroll = () => {
-        taskListBody.scrollTop = ganttContent.scrollTop;
+        if (taskListBody.style.display !== 'none') {
+            taskListBody.scrollTop = ganttContent.scrollTop;
+        }
         timelineHeaderSection.scrollLeft = ganttContent.scrollLeft;
     };
 
