@@ -1786,8 +1786,6 @@ function toggleChartOnlyMode() {
     setTimeout(setupScrollSynchronization, 100);
 }
 
-// ... (all other functions remain unchanged) ...
-
 function initializeTimeline() {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     timelineData.startDate = new Date(startOfMonth);
@@ -1974,7 +1972,9 @@ function getTasksInDOMOrder() {
     return orderedTasks;
 }
 
-// UPDATE fungsi updateGanttChart() jadi seperti ini:
+// =================================================================
+// ===== FUNGSI YANG DIPERBAIKI ADA DI BAWAH INI =====
+// =================================================================
 function updateGanttChart() {
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (!ganttRowsContainer) return;
@@ -1987,13 +1987,16 @@ function updateGanttChart() {
     let ganttHTML = '';
     if (orderedTasks.length > 0) {
         orderedTasks.forEach(task => {
-            // Cek visibility untuk collapse/expand
-            const taskRow = document.querySelector(`.task-row[data-task-id="${task.id}"]`);
-            const isVisible = taskRow && taskRow.offsetParent !== null;
+            // =================================================================
+            // PERBAIKAN: Pengecekan 'isVisible' yang lama dihapus.
+            // Pengecekan 'const isVisible = taskRow && taskRow.offsetParent !== null;'
+            // adalah sumber bug, karena taskRow tidak terlihat di 'chart-only-mode'.
+            // Fungsi generateGanttRow() sudah benar menangani status collapse/expand
+            // secara internal dengan kelas 'hidden-gantt-row'.
+            // =================================================================
             
-            if (isVisible) {
-                ganttHTML += generateGanttRow(task);
-            }
+            // Cukup panggil generateGanttRow untuk setiap task di DOM order
+            ganttHTML += generateGanttRow(task);
         });
     }
     
@@ -2001,6 +2004,9 @@ function updateGanttChart() {
     addTodayIndicator();
     updateGanttWidths();
 }
+// =================================================================
+// ===== AKHIR DARI FUNGSI YANG DIPERBAIKI =====
+// =================================================================
 
 function generateGanttRow(task) {
     const dayWidth = getDayWidth();
@@ -2923,8 +2929,8 @@ function setupColumnHighlight() {
         if (timelineDay) {
             // Ambil index dari parent container yang benar
             const dayContainer = timelineDay.closest('.day-header');
-            const allDays = dayContainer.querySelectorAll('.timeline-day');
-            const dayIndex = Array.from(allDays).indexOf(timelineDay);
+            const allDays = Array.from(dayContainer.querySelectorAll('.timeline-day'));
+            const dayIndex = allDays.indexOf(timelineDay);
             highlightTimelineColumn(dayIndex);
         }
         
@@ -2932,8 +2938,8 @@ function setupColumnHighlight() {
         const ganttCell = e.target.closest('.gantt-grid-cell');
         if (ganttCell && !e.target.closest('.gantt-bar')) {
             const row = ganttCell.closest('.gantt-row');
-            const cells = row.querySelectorAll('.gantt-grid-cell');
-            const dayIndex = Array.from(cells).indexOf(ganttCell);
+            const cells = Array.from(row.querySelectorAll('.gantt-grid-cell'));
+            const dayIndex = cells.indexOf(ganttCell);
             highlightTimelineColumn(dayIndex);
         }
     });
