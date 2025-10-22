@@ -1713,7 +1713,7 @@ document.addEventListener('DOMContentLoaded', function() {
         yearInput.addEventListener('input', renderModalMonths);
     }
 
-    // Load saved colors from localStorage
+    // Load saved colors (ini sudah ada)
     for (let i = 0; i < 6; i++) {
         const bg = localStorage.getItem(`level-${i}-bg`);
         const border = localStorage.getItem(`level-${i}-border`);
@@ -1721,69 +1721,145 @@ document.addEventListener('DOMContentLoaded', function() {
         if (border) document.documentElement.style.setProperty(`--level-${i}-border`, border);
     }
 
-    initializeTimeline();
+    // ===== TAMBAHAN: Restore Zoom Level =====
+    const savedZoom = localStorage.getItem('ganttZoomLevel');
+    if (savedZoom) {
+        const zoom = parseInt(savedZoom, 10);
+        if (zoom >= minZoom && zoom <= maxZoom) {
+            currentZoom = zoom;
+            console.log('Restored Zoom:', currentZoom);
+        }
+    }
+    updateZoomLevel(); // Update display based on restored/default zoom
+    // =========================================
+
+    initializeTimeline(); // Jalankan setelah zoom di-restore agar width benar
     setupScrollSynchronization();
-    updateGanttChart();
+    // updateGanttChart(); // Dihapus dari sini, dipanggil setelah restore collapse
+
     updateZoomButtons();
     initResizer();
     setupRowHighlight();
     setupColumnHighlight();
 
-    document.querySelectorAll('.task-children.collapsed').forEach(container => {
-        const parentId = container.getAttribute('data-parent-id');
-        if (parentId) collapsedTasks.add(parentId);
-    });
+    // ===== PINDAHKAN dan MODIFIKASI: Restore Collapse State =====
+    const savedCollapsed = localStorage.getItem('collapsedTaskIds');
+    if (savedCollapsed) {
+        try {
+            const collapsedIds = JSON.parse(savedCollapsed);
+            if (Array.isArray(collapsedIds)) {
+                collapsedTasks = new Set(collapsedIds.map(String)); // Pastikan ID adalah string
+                console.log('Restored Collapsed Tasks:', collapsedTasks);
+                // Apply collapsed state to DOM elements
+                collapsedIds.forEach(taskId => {
+                    const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
+                    const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
+                    if (childrenContainer) childrenContainer.classList.add('collapsed');
+                    if (toggleIcon) toggleIcon.classList.remove('rotate-90'); // Remove rotate for collapsed
+                });
+            }
+        } catch (e) {
+            console.error('Error parsing collapsed tasks:', e);
+            localStorage.removeItem('collapsedTaskIds'); // Hapus data rusak
+        }
+    } else {
+         // Jika tidak ada data tersimpan, cek dari HTML (seperti kode awal)
+         document.querySelectorAll('.task-children.collapsed').forEach(container => {
+             const parentId = container.getAttribute('data-parent-id');
+             if (parentId) collapsedTasks.add(parentId);
+         });
+    }
+    // Panggil updateGanttChart setelah collapse state dipulihkan
+    updateGanttChart();
+    // ==========================================================
 
     const modal = document.getElementById('taskModal');
     if (modal) trapFocus(modal);
 
-    // Initialize task icon colors after page load
+    // Initialize task icon colors (ini sudah ada)
     setTimeout(() => {
         initializeTaskIconColors();
         updateTaskIconColors();
     }, 100);
-});
+
+    // ===== TAMBAHAN: Restore Chart Only Mode =====
+    const savedChartOnly = localStorage.getItem('isChartOnly');
+    if (savedChartOnly === 'true') {
+        // Panggil fungsi toggle tanpa animasi/timeout agar langsung apply
+        applyChartOnlyMode(true);
+        console.log('Restored Chart Only Mode');
+    }
+    // ============================================
+
+    // ===== TAMBAHAN: Restore Fullscreen Class (Bukan Fullscreen API) =====
+    // Catatan: Browser membatasi masuk fullscreen API otomatis saat load.
+    // Kita hanya bisa restore class CSS-nya.
+    const savedFullscreen = localStorage.getItem('isFullscreen');
+    if (savedFullscreen === 'true') {
+        const container = document.querySelector('.gantt-container');
+        if (container) {
+             container.classList.add('fullscreen');
+             document.body.classList.add('no-scroll'); // Mungkin perlu style tambahan
+             // Update tombol jika perlu (misalnya teks jadi "Exit Fullscreen")
+             console.log('Restored Fullscreen Class');
+        }
+    }
+    // ====================================================================
+
+}); // Akhir dari DOMContentLoaded
 
 function toggleChartOnlyMode() {
     const container = document.querySelector('.gantt-container');
     if (!container) return;
 
-    const isActive = container.classList.contains('chart-only-mode');
-    container.classList.toggle('chart-only-mode');
+    // Panggil fungsi terpisah untuk apply class & tombol
+    const newState = !container.classList.contains('chart-only-mode');
+    applyChartOnlyMode(newState);
 
-    const toolbarRight = document.querySelector('.toolbar-right');
-    let exitBtn = document.querySelector('.exit-chart-only');
-
-    if (!isActive) {
-        // Entering mode: add exit button to toolbar
-        if (!exitBtn) {
-            exitBtn = document.createElement('button');
-            exitBtn.className = 'control-button exit-chart-only';
-            exitBtn.innerHTML = `
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                </svg>
-                Tampilkan Daftar Tugas
-            `;
-            exitBtn.title = 'Kembalikan Daftar Tugas';
-            exitBtn.onclick = toggleChartOnlyMode;
-            toolbarRight.appendChild(exitBtn);
-        }
-        document.querySelectorAll('.full-chart-btn').forEach(btn => {
-            btn.title = 'Tampilkan Daftar Tugas';
-        });
-    } else {
-        // Exiting mode: remove exit button
-        if (exitBtn) {
-            exitBtn.remove();
-        }
-        document.querySelectorAll('.full-chart-btn').forEach(btn => {
-            btn.title = 'Sembunyikan Daftar Tugas (Full Chart Mode)';
-        });
-    }
+    // ===== TAMBAHAN: Simpan state =====
+    localStorage.setItem('isChartOnly', newState);
+    console.log('Saved Chart Only Mode:', newState);
+    // ===================================
 
     // Re-sync scroll after layout change
     setTimeout(setupScrollSynchronization, 100);
+}
+
+// Fungsi baru untuk apply class & tombol (dipisah dari toggle)
+function applyChartOnlyMode(isChartOnly) {
+     const container = document.querySelector('.gantt-container');
+     const toolbarRight = document.querySelector('.toolbar-right');
+     let exitBtn = document.querySelector('.exit-chart-only');
+
+     if (isChartOnly) {
+         container.classList.add('chart-only-mode');
+         // Add exit button if not exists
+         if (!exitBtn) {
+             exitBtn = document.createElement('button');
+             exitBtn.className = 'control-button exit-chart-only';
+             exitBtn.innerHTML = `
+                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                 </svg>
+                 Tampilkan Daftar Tugas
+             `;
+             exitBtn.title = 'Kembalikan Daftar Tugas';
+             exitBtn.onclick = toggleChartOnlyMode; // Tetap panggil toggle asli
+             toolbarRight.appendChild(exitBtn);
+         }
+         document.querySelectorAll('.full-chart-btn').forEach(btn => {
+             btn.title = 'Tampilkan Daftar Tugas';
+         });
+     } else {
+         container.classList.remove('chart-only-mode');
+         // Remove exit button if exists
+         if (exitBtn) {
+             exitBtn.remove();
+         }
+         document.querySelectorAll('.full-chart-btn').forEach(btn => {
+             btn.title = 'Sembunyikan Daftar Tugas (Full Chart Mode)';
+         });
+     }
 }
 
 function initializeTimeline() {
@@ -2102,6 +2178,11 @@ function updateZoomLevel() {
     const zoomLevelElement = document.getElementById('zoomLevel');
     if (zoomLevelElement) zoomLevelElement.textContent = `${currentZoom}%`;
     updateZoomButtons();
+
+    // ===== TAMBAHAN: Simpan state zoom =====
+    localStorage.setItem('ganttZoomLevel', currentZoom);
+    console.log('Saved Zoom Level:', currentZoom);
+    // ======================================
 }
 
 function updateZoomButtons() {
@@ -2114,7 +2195,7 @@ function updateZoomButtons() {
 function zoomIn() {
     if (currentZoom < maxZoom) {
         currentZoom += zoomStep;
-        updateZoomLevel();
+        updateZoomLevel(); // UpdateZoomLevel sekarang juga menyimpan
         renderTimelineHeaders();
         updateGanttChart();
     }
@@ -2123,7 +2204,7 @@ function zoomIn() {
 function zoomOut() {
     if (currentZoom > minZoom) {
         currentZoom -= zoomStep;
-        updateZoomLevel();
+        updateZoomLevel(); // UpdateZoomLevel sekarang juga menyimpan
         renderTimelineHeaders();
         updateGanttChart();
     }
@@ -2183,19 +2264,25 @@ function setDefaultScrollPosition() {
 function toggleTaskCollapse(taskId) {
     const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
     const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
-    
+
     if (toggleIcon && childrenContainer) {
+        const isCollapsing = !childrenContainer.classList.contains('collapsed');
+
         // Toggle class
-        toggleIcon.classList.toggle('rotate-90');
-        childrenContainer.classList.toggle('collapsed');
-        
+        toggleIcon.classList.toggle('rotate-90', !isCollapsing); // Add rotate if expanding, remove if collapsing
+        childrenContainer.classList.toggle('collapsed', isCollapsing);
+
         // Update collapsedTasks Set
-        if (childrenContainer.classList.contains('collapsed')) {
+        if (isCollapsing) {
             collapsedTasks.add(taskId.toString());
         } else {
             collapsedTasks.delete(taskId.toString());
         }
-        
+
+        // ===== TAMBAHAN: Simpan state collapse =====
+        saveCollapsedState();
+        // =========================================
+
         // Update gantt chart dengan delay
         setTimeout(() => {
             updateGanttChart();
@@ -2241,16 +2328,20 @@ function expandAll() {
     document.querySelectorAll('.task-children').forEach(container => {
         container.classList.remove('collapsed');
     });
-    
+
     // Rotate semua toggle icon
     document.querySelectorAll('.toggle-collapse').forEach(icon => {
         icon.classList.add('rotate-90');
     });
-    
+
     // Clear collapsedTasks Set
     collapsedTasks.clear();
-    
-    // Update Gantt chart setelah delay singkat untuk memastikan DOM sudah terupdate
+
+    // ===== TAMBAHAN: Simpan state collapse =====
+    saveCollapsedState();
+    // =========================================
+
+    // Update Gantt chart setelah delay singkat
     setTimeout(() => {
         updateGanttChart();
     }, 50);
@@ -2262,16 +2353,28 @@ function collapseAll() {
         container.classList.add('collapsed');
         const parentId = container.getAttribute('data-parent-id');
         if (parentId) {
-            collapsedTasks.add(parentId);
+            // Pastikan hanya parent task yang punya children yang ditambahkan
+            const parentTaskHasChildren = tasksData.some(t => t.parent_id == parentId);
+            if (parentTaskHasChildren) {
+                 collapsedTasks.add(parentId.toString());
+            }
         }
     });
-    
-    // Remove rotate dari semua toggle icon
+
+    // Remove rotate dari semua toggle icon yang memiliki children
     document.querySelectorAll('.toggle-collapse').forEach(icon => {
-        icon.classList.remove('rotate-90');
+         const taskId = icon.getAttribute('data-task-id');
+         const taskHasChildren = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
+         if(taskHasChildren) {
+              icon.classList.remove('rotate-90');
+         }
     });
-    
-    // Update Gantt chart setelah delay singkat untuk memastikan DOM sudah terupdate
+
+    // ===== TAMBAHAN: Simpan state collapse =====
+    saveCollapsedState();
+    // =========================================
+
+    // Update Gantt chart setelah delay singkat
     setTimeout(() => {
         updateGanttChart();
     }, 50);
@@ -2329,8 +2432,9 @@ document.addEventListener('touchend', function(e) {
 function toggleFullscreen() {
     const container = document.querySelector('.gantt-container');
     if (!container) return;
+    let enteringFullscreen = !document.fullscreenElement && !container.classList.contains('fullscreen'); // Check class too
 
-    if (!document.fullscreenElement) {
+    if (enteringFullscreen) {
         // Enter fullscreen
         const scrollY = window.scrollY;
         document.body.classList.add('no-scroll');
@@ -2338,28 +2442,57 @@ function toggleFullscreen() {
         document.body.dataset.scrollY = scrollY;
         container.classList.add('fullscreen');
         container.requestFullscreen().catch(err => {
-            console.error('Error entering fullscreen:', err);
-            // Fallback: just use the class for styling
+            console.error('Error entering fullscreen API:', err);
+            // Fallback: class sudah ditambahkan
         });
+        // ===== TAMBAHAN: Simpan state fullscreen =====
+        localStorage.setItem('isFullscreen', 'true');
+        console.log('Saved Fullscreen State: true');
+        // ===========================================
     } else {
         // Exit fullscreen
-        document.exitFullscreen().then(() => {
-            document.body.classList.remove('no-scroll');
-            const scrollY = document.body.dataset.scrollY || 0;
-            document.body.style.top = '';
-            window.scrollTo(0, parseInt(scrollY));
-            container.classList.remove('fullscreen');
-        }).catch(err => {
-            console.error('Error exiting fullscreen:', err);
-            // Fallback: remove class
-            document.body.classList.remove('no-scroll');
-            const scrollY = document.body.dataset.scrollY || 0;
-            document.body.style.top = '';
-            window.scrollTo(0, parseInt(scrollY));
-            container.classList.remove('fullscreen');
-        });
+        if (document.fullscreenElement) { // Hanya exit API jika memang aktif
+            document.exitFullscreen().catch(err => {
+                 console.error('Error exiting fullscreen API:', err);
+            });
+        }
+        // Selalu bersihkan style & class (termasuk jika exit dari class saja)
+        document.body.classList.remove('no-scroll');
+        const scrollY = document.body.dataset.scrollY || 0;
+        document.body.style.top = '';
+        window.scrollTo(0, parseInt(scrollY));
+        container.classList.remove('fullscreen');
+        // ===== TAMBAHAN: Simpan state fullscreen =====
+        localStorage.setItem('isFullscreen', 'false');
+        console.log('Saved Fullscreen State: false');
+        // ===========================================
     }
 }
+
+// Listener tambahan untuk handle exit fullscreen via ESC key atau F11 browser
+document.addEventListener('fullscreenchange', () => {
+    const container = document.querySelector('.gantt-container');
+    if (!document.fullscreenElement && container && container.classList.contains('fullscreen')) {
+        // Keluar dari fullscreen API tapi class masih ada (misal via ESC)
+        console.log('Exited fullscreen API externally (e.g., ESC key)');
+        document.body.classList.remove('no-scroll');
+        const scrollY = document.body.dataset.scrollY || 0;
+        document.body.style.top = '';
+        window.scrollTo(0, parseInt(scrollY));
+        container.classList.remove('fullscreen');
+        localStorage.setItem('isFullscreen', 'false');
+        console.log('Saved Fullscreen State: false (external exit)');
+         // updateFullscreenButtonState(false); // Update tombol jika perlu
+    }
+});
+
+// ===== Fungsi Baru =====
+function saveCollapsedState() {
+    const collapsedIdsArray = Array.from(collapsedTasks);
+    localStorage.setItem('collapsedTaskIds', JSON.stringify(collapsedIdsArray));
+    console.log('Saved Collapsed Tasks:', collapsedIdsArray);
+}
+// ======================
 
 window.GanttChart = {
     navigateMonth,
