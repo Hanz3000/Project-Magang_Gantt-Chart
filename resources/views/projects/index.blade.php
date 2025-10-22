@@ -1,6 +1,48 @@
 @extends('layouts.app')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: '{{ session('success') }}',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: '{{ session('error') }}',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+    });
+</script>
+@endif
+
 <style>
     :root {
         --level-0-bg: #0078d4;
@@ -18,12 +60,11 @@
         --day-width: 24px;
     }
 
-    /* ===== TASK LIST STYLING (GAMBAR STYLE) ===== */
     .task-row {
         display: grid;
-        grid-template-columns: 50px 1fr 150px 110px 110px; /* Adjusted first column to 50px for extra button */
+        grid-template-columns: 50px 1fr 150px 110px 110px;
         height: 40px;
-        align-items: center; /* Center content vertically */
+        align-items: center;
         padding: 0;
         border-bottom: 1px solid #e0e0e0;
         background: white;
@@ -49,22 +90,20 @@
         background-color: #f5f5f5 !important;
     }
 
-    /* Task Cell Base */
     .task-cell {
         padding: 8px 12px;
         border-right: 1px solid #e0e0e0;
         display: flex;
-        align-items: center; /* Center content vertically */
+        align-items: center;
         height: 100%;
     }
 
-    /* Task Toggle Cell - Adjusted for two buttons */
     .task-toggle-cell {
         justify-content: center;
         padding: 4px;
         border-right: 1px solid #e0e0e0;
         display: flex;
-        align-items: center; /* Center content vertically */
+        align-items: center;
         gap: 4px;
     }
 
@@ -91,7 +130,6 @@
         transform: rotate(90deg);
     }
 
-    /* Full Chart Button */
     .full-chart-btn {
         background: none;
         border: none;
@@ -122,7 +160,6 @@
         background: #fef2f2;
     }
 
-    /* Task Name Cell */
     .task-name-cell {
         text-align: left;
         justify-content: flex-start;
@@ -130,7 +167,7 @@
         cursor: pointer;
         border-right: 1px solid #e0e0e0;
         display: flex;
-        align-items: center; /* Center content vertically */
+        align-items: center;
         gap: 8px;
         position: relative;
     }
@@ -148,7 +185,6 @@
         font-weight: 400;
     }
 
-    /* Task Icon Square (akan berubah warna sesuai level) */
     .task-icon-square {
         width: 16px;
         height: 16px;
@@ -158,7 +194,6 @@
         transition: all 0.2s ease;
     }
 
-    /* Task Indicator - digunakan di partial yang ada */
     .task-indicator {
         width: 16px;
         height: 16px;
@@ -169,13 +204,12 @@
         margin-right: 8px;
     }
 
-    /* Date Cell */
     .task-date-cell {
         justify-content: flex-start;
         padding: 8px 12px;
         border-right: 1px solid #e0e0e0;
         display: flex;
-        align-items: center; /* Center content vertically */
+        align-items: center;
     }
 
     .task-date-text {
@@ -184,16 +218,14 @@
         font-weight: 400;
     }
 
-    /* Task Duration Cell */
     .task-duration-cell {
         justify-content: center;
         padding: 8px 12px;
         border-right: none;
         display: flex;
-        align-items: center; /* Center content vertically */
+        align-items: center;
     }
 
-    /* Duration Badge Modern - Dibuat netral tanpa warna dinamis */
     .duration-badge-modern {
         display: inline-flex;
         align-items: center;
@@ -215,7 +247,6 @@
         border-color: #d1d5db;
     }
 
-    /* Duration Badge Simple (tetap untuk backward compatibility) */
     .duration-badge-simple {
         display: inline-flex;
         align-items: center;
@@ -232,7 +263,6 @@
         transition: all 0.2s ease;
     }
 
-    /* ===== GANTT CONTAINER ===== */
     .gantt-container {
         display: flex;
         flex-direction: column;
@@ -241,7 +271,7 @@
         overflow-x: hidden;
         background: #ffffff;
         border: 1px solid #d1d5db;
-        border-radius: 12px; /* Rounded corners */
+        border-radius: 12px;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         max-width: 100vw;
         box-sizing: border-box;
@@ -263,7 +293,6 @@
         overflow: hidden;
     }
 
-    /* Chart Only Mode Styles */
     .gantt-container.chart-only-mode .task-list-container,
     .gantt-container.chart-only-mode .task-list-header-section,
     .gantt-container.chart-only-mode .resizer {
@@ -295,9 +324,8 @@
         overflow: hidden;
     }
 
-    /* Task List Container */
     .task-list-container {
-        width: 550px; /* Lebih lebar untuk menampung kolom baru */
+        width: 550px;
         min-width: 400px;
         max-width: 80%;
         display: flex;
@@ -308,7 +336,6 @@
         flex-shrink: 0;
     }
 
-    /* Gantt View Container */
     .gantt-view-container {
         flex: 1;
         display: flex;
@@ -318,7 +345,6 @@
         min-width: 0;
     }
 
-    /* Combined Header Container */
     .combined-header-container {
         display: flex;
         width: 100%;
@@ -330,7 +356,7 @@
     }
 
     .task-list-header-section {
-        width: 550px; /* Match task-list-container */
+        width: 550px;
         min-width: 400px;
         max-width: 80%;
         border-right: 1px solid #e0e0e0;
@@ -349,10 +375,9 @@
         display: none;
     }
 
-    /* Modern Task Header Row - Adjusted grid */
     .task-header-row {
         display: grid;
-        grid-template-columns: 50px 1fr 150px 110px 110px; /* Adjusted first column to 50px */
+        grid-template-columns: 50px 1fr 150px 110px 110px;
         height: 40px;
         align-items: center;
         padding: 0;
@@ -360,8 +385,6 @@
         position: relative;
         background: #fafafa;
     }
-
-    /* ... (rest of the styles remain unchanged) ... */
 
     .task-header-cell {
         padding: 8px 12px;
@@ -382,7 +405,7 @@
 
     .task-header-cell:first-child {
         justify-content: center;
-        gap: 4px; /* For header alignment */
+        gap: 4px;
     }
 
     .task-header-cell:nth-child(4),
@@ -407,7 +430,6 @@
         transition: left 0.3s ease;
     }
 
-    /* Task List Body */
     .task-list-body {
         flex: 1;
         min-height: 0 !important;
@@ -449,7 +471,6 @@
         height: 100%;
     }
 
-    /* Timeline Grid */
     .month-header {
         display: flex;
         border-bottom: 1px solid #d1d5db;
@@ -542,9 +563,8 @@
         font-weight: 700;
     }
 
-    /* Gantt Rows */
     .gantt-row {
-        height: 40px; /* Match task row height exactly */
+        height: 40px;
         position: relative;
         border-bottom: 1px solid #f1f5f9;
         background: white;
@@ -569,7 +589,7 @@
         width: var(--day-width);
         min-width: var(--day-width);
         max-width: var(--day-width);
-        height: 40px; /* Match exact height */
+        height: 40px;
         border-right: 1px solid #f1f5f9;
         flex-shrink: 0;
     }
@@ -584,10 +604,9 @@
         border-right: 2px solid #1e40af;
     }
 
-    /* Task Bars - Enhanced */
     .gantt-bar {
         position: absolute;
-        top: 8px; /* Centered vertically */
+        top: 8px;
         height: 20px;
         border-radius: 4px;
         display: flex;
@@ -615,7 +634,6 @@
         z-index: 10;
     }
 
-    /* Task Colors by Level */
     .level-0 {
         background: var(--level-0-bg);
         border-color: var(--level-0-border);
@@ -646,7 +664,6 @@
         border-color: var(--level-5-border);
     }
 
-    /* Task Indicators */
     .task-indicator {
         width: 12px;
         height: 12px;
@@ -663,7 +680,6 @@
     .indicator-level-4 { background: var(--level-4-bg); }
     .indicator-level-5 { background: var(--level-5-bg); }
 
-    /* Task Children Container */
     .task-children {
         display: block;
     }
@@ -672,7 +688,6 @@
         display: none;
     }
 
-    /* Resizer Styles */
     .resizer {
         width: 5px;
         background-color: #d1d5db;
@@ -699,7 +714,6 @@
         background: transparent;
     }
 
-    /* Modern Toolbar */
     .toolbar {
         background: #f8f9fa;
         border-bottom: 1px solid #e5e7eb;
@@ -728,7 +742,6 @@
         border: 1px solid #e5e7eb;
     }
 
-    /* Month Navigation */
     .month-navigation {
         display: flex;
         align-items: center;
@@ -829,7 +842,6 @@
         background: #106ebe;
     }
 
-    /* Zoom Controls */
     .zoom-controls {
         display: inline-flex;
         align-items: center;
@@ -875,7 +887,6 @@
         background: #fff;
     }
 
-    /* Loading States */
     .gantt-bar.loading {
         background: #e5e7eb !important;
         animation: pulse 1.5s ease-in-out infinite;
@@ -893,7 +904,6 @@
         display: block;
     }
 
-    /* Enhanced Modal Styles with Smooth Animations */
     .modal {
         position: fixed;
         z-index: 1000;
@@ -905,8 +915,8 @@
         backdrop-filter: blur(0px);
         opacity: 0;
         transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-            background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-            backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                    background-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    backdrop-filter 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1172,7 +1182,6 @@
         opacity: 1;
     }
 
-    /* Responsive Design */
     @media (max-width: 1200px) {
         .toolbar {
             flex-direction: column;
@@ -1287,7 +1296,6 @@
         }
     }
 
-    /* Accessibility improvements */
     .gantt-bar:focus {
         outline: 2px solid #2563eb;
         outline-offset: 1px;
@@ -1315,7 +1323,6 @@
         outline-offset: 2px;
     }
 
-    /* Smooth scrollbar for modal body */
     .modal-body::-webkit-scrollbar {
         width: 6px;
     }
@@ -1334,7 +1341,6 @@
         background: #94a3b8;
     }
 
-    /* High contrast mode support */
     @media (prefers-contrast: high) {
         .gantt-bar {
             border-width: 2px;
@@ -1348,7 +1354,6 @@
         }
     }
 
-    /* Reduced motion support */
     @media (prefers-reduced-motion: reduce) {
         .gantt-bar,
         .toggle-collapse,
@@ -1367,7 +1372,6 @@
         }
     }
 
-    /* Print styles */
     @media print {
         .gantt-container {
             height: auto !important;
@@ -1394,7 +1398,6 @@
         }
     }
 
-    /* Highlight untuk task row - Biru sangat soft */
     .task-row.row-highlighted {
         background-color: #eff6ff !important;
         transition: background-color 0.2s ease;
@@ -1404,13 +1407,11 @@
         background-color: #eff6ff !important;
     }
 
-    /* Highlight untuk gantt row - Biru sangat soft */
     .gantt-row.row-highlighted .gantt-grid-cell {
         background-color: #eff6ff !important;
         transition: background-color 0.2s ease;
     }
 
-    /* Highlight untuk gantt bar - Shadow biru halus */
     .gantt-row.row-highlighted .gantt-bar {
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         transform: scale(1.02);
@@ -1418,20 +1419,17 @@
         z-index: 10;
     }
 
-    /* Highlight untuk task name - Biru sedikit lebih gelap */
     .task-row.row-highlighted .task-name-text {
         color: #1e40af;
         font-weight: 600;
     }
 
-    /* Highlight untuk duration badge */
     .task-row.row-highlighted .duration-badge-modern {
         background: #dbeafe !important;
         border-color: #93c5fd !important;
         color: #1e40af !important;
     }
 
-    /* Highlight untuk kolom timeline */
     .timeline-day.column-highlighted {
         background-color: #bfdbfe !important;
         color: #1e40af !important;
@@ -1447,13 +1445,11 @@
         border-right: 2px solid #93c5fd !important;
     }
 
-    /* Kombinasi row dan column highlight (intersection) */
     .gantt-row.row-highlighted .gantt-grid-cell.column-highlighted {
         background-color: #93c5fd !important;
         box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.3);
     }
 
-    /* Fullscreen-specific adjustments for alignment and scrolling */
     .gantt-container.fullscreen .gantt-main-content {
         position: relative;
         overflow: hidden;
@@ -1465,65 +1461,61 @@
     }
 
     #ganttTooltip {
-  position: fixed; /* Posisi relatif ke viewport agar tidak terpotong */
-  display: block; /* Display diatur oleh JS */
-  padding: 10px 15px;
-  background: #2d3748; /* Latar belakang gelap */
-  color: white;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  font-size: 13px;
-  line-height: 1.5;
-  z-index: 99999; /* Tampil di atas segalanya */
-  pointer-events: none; /* Agar tidak menghalangi event mouse lain */
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  transform: translate(15px, 15px); /* Offset dari kursor */
-  max-width: 300px;
-  white-space: normal;
-  visibility: hidden; /* Sembunyikan by default */
-}
+        position: fixed;
+        display: block;
+        padding: 10px 15px;
+        background: #2d3748;
+        color: white;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        font-size: 13px;
+        line-height: 1.5;
+        z-index: 99999;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        transform: translate(15px, 15px);
+        max-width: 300px;
+        white-space: normal;
+        visibility: hidden;
+    }
 
-#ganttTooltip.show {
-  opacity: 1;
-  visibility: visible;
-}
+    #ganttTooltip.show {
+        opacity: 1;
+        visibility: visible;
+    }
 
-/* Judul Tooltip */
-#ganttTooltip strong.tooltip-title {
-    color: #90cdf4; /* Biru muda untuk judul */
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
-    font-weight: 600;
-    border-bottom: 1px solid #4a5568;
-    padding-bottom: 4px;
-}
+    #ganttTooltip strong.tooltip-title {
+        color: #90cdf4;
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        border-bottom: 1px solid #4a5568;
+        padding-bottom: 4px;
+    }
 
-/* Baris Info Tooltip */
-#ganttTooltip .tooltip-field {
-    margin-top: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    #ganttTooltip .tooltip-field {
+        margin-top: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-#ganttTooltip .tooltip-field span {
-    color: #a0aec0; /* Label abu-abu */
-    margin-right: 10px;
-    font-weight: 500;
-}
+    #ganttTooltip .tooltip-field span {
+        color: #a0aec0;
+        margin-right: 10px;
+        font-weight: 500;
+    }
 
-#ganttTooltip .tooltip-field .value {
-    font-weight: 600;
-    text-align: right;
-}
+    #ganttTooltip .tooltip-field .value {
+        font-weight: 600;
+        text-align: right;
+    }
 </style>
 
 <div class="gantt-container">
-    <!-- Toolbar -->
     <div class="toolbar">
-        <!-- Navigasi Bulan -->
         <div class="month-navigation">
             <button class="nav-button" id="prevBtn" onclick="navigateMonth(-1)" title="Bulan Sebelumnya (Alt + Panah Kiri)">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -1559,7 +1551,6 @@
         </div>
 
         <div class="toolbar-right">
-            <!-- Zoom + Perluas + Ciutkan + Tambah Tugas -->
             <div class="zoom-controls">
                 <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out">-</button>
                 <span class="zoom-level" id="zoomLevel">100%</span>
@@ -1574,13 +1565,13 @@
                 Ciutkan
             </button>
 
-           <button class="control-button" onclick="toggleFullscreen()" title="Fullscreen (F11)">
-    <svg class="w-4 h-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M16 40H6C4.89543 40 4 39.1046 4 38V10C4 8.89543 4.89543 8 6 8H42C43.1046 8 44 8.89543 44 10V16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        <rect x="24" y="24" width="20" height="16" rx="2" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
-    </svg>
-    Layar Penuh
-</button>
+            <button class="control-button" onclick="toggleFullscreen()" title="Fullscreen (F11)">
+                <svg class="w-4 h-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 40H6C4.89543 40 4 39.1046 4 38V10C4 8.89543 4.89543 8 6 8H42C43.1046 8 44 8.89543 44 10V16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="24" y="24" width="20" height="16" rx="2" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                </svg>
+                Layar Penuh
+            </button>
 
             @if(isset($createRoute))
             <a href="{{ $createRoute }}" class="control-button primary">
@@ -1590,7 +1581,6 @@
         </div>
     </div>
 
-    <!-- Enhanced Modal Structure -->
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1604,7 +1594,6 @@
                     <div class="modal-field-value" id="taskDuration">-</div>
                 </div>
 
-                <!-- Start Date dan Finish Date bersebelahan -->
                 <div class="date-fields-row">
                     <div class="date-field">
                         <div class="modal-field-label">Tanggal Mulai</div>
@@ -1637,8 +1626,7 @@
                     Edit
                 </a>
 
-                <a href="#" id="deleteTaskBtn"
-                    class="modal-btn modal-btn-danger">
+                <a href="#" id="deleteTaskBtn" class="modal-btn modal-btn-danger">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M6.5 3a1 1 0 00-1 1v1H4a1 1 0 000 2h1v9a2 2 0 002 2h6a2 2 0 002-2V7h1a1 1 0 100-2h-1.5V4a1 1 0 00-1-1h-5zM7.5 5h5V4h-5v1zM7 7v8h6V7H7z" clip-rule="evenodd"></path>
                         <path d="M9 9v4M11 9v4"></path>
@@ -1646,7 +1634,6 @@
                     <span>Hapus</span>
                 </a>
 
-                <!-- Form hapus task (hidden) -->
                 <form id="deleteTaskForm" method="POST" style="display:none;">
                     @csrf
                     @method('DELETE')
@@ -1655,7 +1642,6 @@
         </div>
     </div>
 
-    <!-- Modal Pemilih Bulan/Tahun -->
     <div id="dateModal" class="fixed inset-0 bg-black bg-opacity-0 backdrop-blur-none flex items-center justify-center z-[1000] transition-all duration-400 ease-in-out" role="dialog" aria-modal="true" aria-labelledby="dateModalTitle" style="display: none;">
         <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-xl transform translate-y-10 scale-95 opacity-0 transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]">
             <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
@@ -1676,17 +1662,15 @@
         </div>
     </div>
 
-    <!-- Combined Header -->
     <div class="combined-header-container">
-        <!-- Task List Header Section -->
         <div class="task-list-header-section">
             <div class="task-header-row">
                 <div class="task-header-cell" style="justify-content: center;">
                     <button class="full-chart-btn" onclick="toggleChartOnlyMode()" title="Sembunyikan Daftar Tugas (Full Chart Mode)">
-    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Zm-4.25 0a.75.75 0 0 1 0 1.06L3.81 10l3.72 3.72a.75.75 0 1 1-1.06 1.06L2.22 10.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
-    </svg>
-</button>
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Zm-4.25 0a.75.75 0 0 1 0 1.06L3.81 10l3.72 3.72a.75.75 0 1 1-1.06 1.06L2.22 10.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
                 </div>
                 <div class="task-header-cell">Nama Task</div>
                 <div class="task-header-cell">Tanggal Mulai</div>
@@ -1695,7 +1679,6 @@
             </div>
         </div>
 
-        <!-- Timeline Header Section -->
         <div class="timeline-header-section" id="timelineHeaderSection">
             <div class="timeline-header-container">
                 <div id="monthHeaderContainer"></div>
@@ -1704,18 +1687,12 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="gantt-main-content">
-        <!-- Task List -->
         <div class="task-list-container">
             <div class="task-list-body" id="taskListBody">
                 @if(isset($tasks) && $tasks->count() > 0)
                     @foreach($tasks->whereNull('parent_id') as $task)
-                        @include('partials.task-item', [
-                            'task' => $task, 
-                            'level' => 0,
-                            'allTasks' => $tasks
-                        ])
+                        @include('partials.task-item', ['task' => $task, 'level' => 0, 'allTasks' => $tasks])
                     @endforeach
                 @else
                     <div class="p-8 text-center text-gray-500">
@@ -1728,14 +1705,11 @@
             </div>
         </div>
 
-        <!-- Resizer -->
         <div class="resizer" id="resizerMain"></div>
 
-        <!-- Gantt View -->
         <div class="gantt-view-container">
             <div class="gantt-content-container" id="ganttContent">
                 <div class="gantt-rows-container" id="ganttRowsContainer">
-                    <!-- Gantt bars will be generated by JavaScript -->
                 </div>
             </div>
         </div>
@@ -1743,9 +1717,8 @@
 </div>
 
 <script>
-// Global variables for timeline management
 let currentDate = new Date();
-let timelinePeriod = 3; // months
+let timelinePeriod = 3;
 let currentZoom = 100;
 let timelineData = {
     startDate: null,
@@ -1769,7 +1742,6 @@ document.addEventListener('DOMContentLoaded', function() {
         yearInput.addEventListener('input', renderModalMonths);
     }
 
-    // Load saved colors (ini sudah ada)
     for (let i = 0; i < 6; i++) {
         const bg = localStorage.getItem(`level-${i}-bg`);
         const border = localStorage.getItem(`level-${i}-border`);
@@ -1777,157 +1749,129 @@ document.addEventListener('DOMContentLoaded', function() {
         if (border) document.documentElement.style.setProperty(`--level-${i}-border`, border);
     }
 
-const ganttContainer = document.querySelector('.gantt-container'); // 1. Ambil container
-    const tooltip = document.createElement('div');
-    tooltip.id = 'ganttTooltip';
-   
-    if (ganttContainer) {
-        ganttContainer.appendChild(tooltip); // 2. Masukkan tooltip ke DALAM container
-    } else {
-        // Fallback jika container tidak ditemukan
-        document.body.appendChild(tooltip);
-    }
+    const ganttContainer = document.querySelector('.gantt-container');
+    const tooltip = document.createElement('div');
+    tooltip.id = 'ganttTooltip';
+    if (ganttContainer) {
+        ganttContainer.appendChild(tooltip);
+    } else {
+        document.body.appendChild(tooltip);
+    }
 
-    // ===== TAMBAHAN: Restore Zoom Level =====
     const savedZoom = localStorage.getItem('ganttZoomLevel');
     if (savedZoom) {
         const zoom = parseInt(savedZoom, 10);
-        if (zoom >= minZoom && zoom <= maxZoom) {
+        if (zoom >= 50 && zoom <= 200) {
             currentZoom = zoom;
             console.log('Restored Zoom:', currentZoom);
         }
     }
-    updateZoomLevel(); // Update display based on restored/default zoom
-    // =========================================
+    updateZoomLevel();
 
-    initializeTimeline(); // Jalankan setelah zoom di-restore agar width benar
+    initializeTimeline();
     setupScrollSynchronization();
-    // updateGanttChart(); // Dihapus dari sini, dipanggil setelah restore collapse
-
     updateZoomButtons();
     initResizer();
     setupRowHighlight();
     setupColumnHighlight();
     setupGanttBarTooltip();
 
-    // ===== PINDAHKAN dan MODIFIKASI: Restore Collapse State =====
     const savedCollapsed = localStorage.getItem('collapsedTaskIds');
     if (savedCollapsed) {
         try {
             const collapsedIds = JSON.parse(savedCollapsed);
             if (Array.isArray(collapsedIds)) {
-                collapsedTasks = new Set(collapsedIds.map(String)); // Pastikan ID adalah string
+                collapsedTasks = new Set(collapsedIds.map(String));
                 console.log('Restored Collapsed Tasks:', collapsedTasks);
-                // Apply collapsed state to DOM elements
                 collapsedIds.forEach(taskId => {
                     const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
                     const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
                     if (childrenContainer) childrenContainer.classList.add('collapsed');
-                    if (toggleIcon) toggleIcon.classList.remove('rotate-90'); // Remove rotate for collapsed
+                    if (toggleIcon) toggleIcon.classList.remove('rotate-90');
                 });
             }
         } catch (e) {
             console.error('Error parsing collapsed tasks:', e);
-            localStorage.removeItem('collapsedTaskIds'); // Hapus data rusak
+            localStorage.removeItem('collapsedTaskIds');
         }
     } else {
-         // Jika tidak ada data tersimpan, cek dari HTML (seperti kode awal)
-         document.querySelectorAll('.task-children.collapsed').forEach(container => {
-             const parentId = container.getAttribute('data-parent-id');
-             if (parentId) collapsedTasks.add(parentId);
-         });
+        document.querySelectorAll('.task-children.collapsed').forEach(container => {
+            const parentId = container.getAttribute('data-parent-id');
+            if (parentId) collapsedTasks.add(parentId);
+        });
     }
-    // Panggil updateGanttChart setelah collapse state dipulihkan
     updateGanttChart();
-    // ==========================================================
 
     const modal = document.getElementById('taskModal');
     if (modal) trapFocus(modal);
 
-    // Initialize task icon colors (ini sudah ada)
     setTimeout(() => {
         initializeTaskIconColors();
         updateTaskIconColors();
     }, 100);
 
-    // ===== TAMBAHAN: Restore Chart Only Mode =====
     const savedChartOnly = localStorage.getItem('isChartOnly');
     if (savedChartOnly === 'true') {
-        // Panggil fungsi toggle tanpa animasi/timeout agar langsung apply
         applyChartOnlyMode(true);
         console.log('Restored Chart Only Mode');
     }
-    // ============================================
 
-    // ===== TAMBAHAN: Restore Fullscreen Class (Bukan Fullscreen API) =====
-    // Catatan: Browser membatasi masuk fullscreen API otomatis saat load.
-    // Kita hanya bisa restore class CSS-nya.
     const savedFullscreen = localStorage.getItem('isFullscreen');
     if (savedFullscreen === 'true') {
         const container = document.querySelector('.gantt-container');
         if (container) {
-             container.classList.add('fullscreen');
-             document.body.classList.add('no-scroll'); // Mungkin perlu style tambahan
-             // Update tombol jika perlu (misalnya teks jadi "Exit Fullscreen")
-             console.log('Restored Fullscreen Class');
+            container.classList.add('fullscreen');
+            document.body.classList.add('no-scroll');
+            console.log('Restored Fullscreen Class');
         }
     }
-    // ====================================================================
-
-}); // Akhir dari DOMContentLoaded
+});
 
 function toggleChartOnlyMode() {
     const container = document.querySelector('.gantt-container');
     if (!container) return;
 
-    // Panggil fungsi terpisah untuk apply class & tombol
     const newState = !container.classList.contains('chart-only-mode');
     applyChartOnlyMode(newState);
 
-    // ===== TAMBAHAN: Simpan state =====
     localStorage.setItem('isChartOnly', newState);
     console.log('Saved Chart Only Mode:', newState);
-    // ===================================
 
-    // Re-sync scroll after layout change
     setTimeout(setupScrollSynchronization, 100);
 }
 
-// Fungsi baru untuk apply class & tombol (dipisah dari toggle)
 function applyChartOnlyMode(isChartOnly) {
-     const container = document.querySelector('.gantt-container');
-     const toolbarRight = document.querySelector('.toolbar-right');
-     let exitBtn = document.querySelector('.exit-chart-only');
+    const container = document.querySelector('.gantt-container');
+    const toolbarRight = document.querySelector('.toolbar-right');
+    let exitBtn = document.querySelector('.exit-chart-only');
 
-     if (isChartOnly) {
-         container.classList.add('chart-only-mode');
-         // Add exit button if not exists
-         if (!exitBtn) {
-             exitBtn = document.createElement('button');
-             exitBtn.className = 'control-button exit-chart-only';
-             exitBtn.innerHTML = `
-                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                     <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                 </svg>
-                 Tampilkan Daftar Tugas
-             `;
-             exitBtn.title = 'Kembalikan Daftar Tugas';
-             exitBtn.onclick = toggleChartOnlyMode; // Tetap panggil toggle asli
-             toolbarRight.appendChild(exitBtn);
-         }
-         document.querySelectorAll('.full-chart-btn').forEach(btn => {
-             btn.title = 'Tampilkan Daftar Tugas';
-         });
-     } else {
-         container.classList.remove('chart-only-mode');
-         // Remove exit button if exists
-         if (exitBtn) {
-             exitBtn.remove();
-         }
-         document.querySelectorAll('.full-chart-btn').forEach(btn => {
-             btn.title = 'Sembunyikan Daftar Tugas (Full Chart Mode)';
-         });
-     }
+    if (isChartOnly) {
+        container.classList.add('chart-only-mode');
+        if (!exitBtn) {
+            exitBtn = document.createElement('button');
+            exitBtn.className = 'control-button exit-chart-only';
+            exitBtn.innerHTML = `
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+                Tampilkan Daftar Tugas
+            `;
+            exitBtn.title = 'Kembalikan Daftar Tugas';
+            exitBtn.onclick = toggleChartOnlyMode;
+            toolbarRight.appendChild(exitBtn);
+        }
+        document.querySelectorAll('.full-chart-btn').forEach(btn => {
+            btn.title = 'Tampilkan Daftar Tugas';
+        });
+    } else {
+        container.classList.remove('chart-only-mode');
+        if (exitBtn) {
+            exitBtn.remove();
+        }
+        document.querySelectorAll('.full-chart-btn').forEach(btn => {
+            btn.title = 'Sembunyikan Daftar Tugas (Full Chart Mode)';
+        });
+    }
 }
 
 function initializeTimeline() {
@@ -2027,7 +1971,7 @@ function renderDayHeaders() {
 
         const dayWidth = getDayWidth();
         dayHeaderHTML += `
-            <div class="${classes.join(' ')}" 
+            <div class="${classes.join(' ')}"
                  style="width: ${dayWidth}px; min-width: ${dayWidth}px; max-width: ${dayWidth}px;"
                  data-dayname="${dayNames[day.dayOfWeek]}"
                  title="${getFullDayName(day.dayOfWeek)}">
@@ -2059,40 +2003,31 @@ function getDayWidth() {
 }
 
 function isTaskVisible(task) {
-    // Jika tidak punya parent, pasti visible
     if (!task.parent_id) {
         return true;
     }
     
-    // Cari parent dari task
     const parent = tasksData.find(t => t.id === task.parent_id);
     if (!parent) {
         return false;
     }
     
-    // Jika parent di-collapse, task tidak visible
     if (collapsedTasks.has(parent.id.toString())) {
         return false;
     }
     
-    // Rekursif cek parent-parent di atasnya
     return isTaskVisible(parent);
 }
 
 function getVisibleTasks() {
-    // tasksData dari controller sudah urut hierarkis
-    // Filter hanya yang visible (tidak ketutup collapse)
     return tasksData.filter(task => {
-        // Root task selalu visible
         if (!task.parent_id) return true;
         
-        // Cek apakah parent di-collapse
         let currentParentId = task.parent_id;
         while (currentParentId) {
             if (collapsedTasks.has(currentParentId.toString())) {
                 return false;
             }
-            // Cari parent berikutnya
             const parentTask = tasksData.find(t => t.id === currentParentId);
             currentParentId = parentTask ? parentTask.parent_id : null;
         }
@@ -2116,30 +2051,17 @@ function getTasksInDOMOrder() {
     return orderedTasks;
 }
 
-// =================================================================
-// ===== FUNGSI YANG DIPERBAIKI ADA DI BAWAH INI =====
-// =================================================================
 function updateGanttChart() {
     const ganttRowsContainer = document.getElementById('ganttRowsContainer');
     if (!ganttRowsContainer) return;
 
-    // Ambil tasks sesuai urutan DOM, bukan dari tasksData
     const orderedTasks = getTasksInDOMOrder();
     
-    console.log('DOM Order:', orderedTasks.map(t => t.name)); // Debug
+    console.log('DOM Order:', orderedTasks.map(t => t.name));
     
     let ganttHTML = '';
     if (orderedTasks.length > 0) {
         orderedTasks.forEach(task => {
-            // =================================================================
-            // PERBAIKAN: Pengecekan 'isVisible' yang lama dihapus.
-            // Pengecekan 'const isVisible = taskRow && taskRow.offsetParent !== null;'
-            // adalah sumber bug, karena taskRow tidak terlihat di 'chart-only-mode'.
-            // Fungsi generateGanttRow() sudah benar menangani status collapse/expand
-            // secara internal dengan kelas 'hidden-gantt-row'.
-            // =================================================================
-            
-            // Cukup panggil generateGanttRow untuk setiap task di DOM order
             ganttHTML += generateGanttRow(task);
         });
     }
@@ -2148,9 +2070,6 @@ function updateGanttChart() {
     addTodayIndicator();
     updateGanttWidths();
 }
-// =================================================================
-// ===== AKHIR DARI FUNGSI YANG DIPERBAIKI =====
-// =================================================================
 
 function generateGanttRow(task) {
     const dayWidth = getDayWidth();
@@ -2188,7 +2107,7 @@ function generateTaskBar(task, dayWidth) {
     const { bg, border } = getColorForRootAndLevel(rootId, relLevel);
 
     return `
-       <div class="gantt-bar" 
+        <div class="gantt-bar"
              style="left: ${barLeft}px; width: ${barWidth}px; background: ${bg}; border-color: ${border};"
              data-task-id="${task.id}"
              data-parent-id="${task.parent_id || ''}"
@@ -2247,10 +2166,8 @@ function updateZoomLevel() {
     if (zoomLevelElement) zoomLevelElement.textContent = `${currentZoom}%`;
     updateZoomButtons();
 
-    // ===== TAMBAHAN: Simpan state zoom =====
     localStorage.setItem('ganttZoomLevel', currentZoom);
     console.log('Saved Zoom Level:', currentZoom);
-    // ======================================
 }
 
 function updateZoomButtons() {
@@ -2263,7 +2180,7 @@ function updateZoomButtons() {
 function zoomIn() {
     if (currentZoom < maxZoom) {
         currentZoom += zoomStep;
-        updateZoomLevel(); // UpdateZoomLevel sekarang juga menyimpan
+        updateZoomLevel();
         renderTimelineHeaders();
         updateGanttChart();
     }
@@ -2272,7 +2189,7 @@ function zoomIn() {
 function zoomOut() {
     if (currentZoom > minZoom) {
         currentZoom -= zoomStep;
-        updateZoomLevel(); // UpdateZoomLevel sekarang juga menyimpan
+        updateZoomLevel();
         renderTimelineHeaders();
         updateGanttChart();
     }
@@ -2299,7 +2216,6 @@ function setupScrollSynchronization() {
     const timelineHeaderSection = document.getElementById('timelineHeaderSection');
     if (!taskListBody || !ganttContent || !timelineHeaderSection) return;
 
-    // Enhanced synchronization for better alignment, especially in fullscreen
     const syncScroll = () => {
         if (taskListBody.style.display !== 'none') {
             taskListBody.scrollTop = ganttContent.scrollTop;
@@ -2314,7 +2230,6 @@ function setupScrollSynchronization() {
     taskListBody.addEventListener('scroll', syncTaskScroll, { passive: true });
     ganttContent.addEventListener('scroll', syncScroll, { passive: true });
 
-    // Additional sync on resize or fullscreen change for alignment
     const handleAlignmentSync = () => {
         setTimeout(syncScroll, 50);
     };
@@ -2336,22 +2251,17 @@ function toggleTaskCollapse(taskId) {
     if (toggleIcon && childrenContainer) {
         const isCollapsing = !childrenContainer.classList.contains('collapsed');
 
-        // Toggle class
-        toggleIcon.classList.toggle('rotate-90', !isCollapsing); // Add rotate if expanding, remove if collapsing
+        toggleIcon.classList.toggle('rotate-90', !isCollapsing);
         childrenContainer.classList.toggle('collapsed', isCollapsing);
 
-        // Update collapsedTasks Set
         if (isCollapsing) {
             collapsedTasks.add(taskId.toString());
         } else {
             collapsedTasks.delete(taskId.toString());
         }
 
-        // ===== TAMBAHAN: Simpan state collapse =====
         saveCollapsedState();
-        // =========================================
 
-        // Update gantt chart dengan delay
         setTimeout(() => {
             updateGanttChart();
         }, 50);
@@ -2389,39 +2299,29 @@ function handleTaskBarClick(taskId) {
     }
 }
 
-// Ganti fungsi expandAll() dan collapseAll() yang lama dengan yang ini:
-
 function expandAll() {
-    // Hapus class collapsed dari semua task-children
     document.querySelectorAll('.task-children').forEach(container => {
         container.classList.remove('collapsed');
     });
 
-    // Rotate semua toggle icon
     document.querySelectorAll('.toggle-collapse').forEach(icon => {
         icon.classList.add('rotate-90');
     });
 
-    // Clear collapsedTasks Set
     collapsedTasks.clear();
 
-    // ===== TAMBAHAN: Simpan state collapse =====
     saveCollapsedState();
-    // =========================================
 
-    // Update Gantt chart setelah delay singkat
     setTimeout(() => {
         updateGanttChart();
     }, 50);
 }
 
 function collapseAll() {
-    // Tambahkan class collapsed ke semua task-children
     document.querySelectorAll('.task-children').forEach(container => {
         container.classList.add('collapsed');
         const parentId = container.getAttribute('data-parent-id');
         if (parentId) {
-            // Pastikan hanya parent task yang punya children yang ditambahkan
             const parentTaskHasChildren = tasksData.some(t => t.parent_id == parentId);
             if (parentTaskHasChildren) {
                  collapsedTasks.add(parentId.toString());
@@ -2429,7 +2329,6 @@ function collapseAll() {
         }
     });
 
-    // Remove rotate dari semua toggle icon yang memiliki children
     document.querySelectorAll('.toggle-collapse').forEach(icon => {
          const taskId = icon.getAttribute('data-task-id');
          const taskHasChildren = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
@@ -2438,16 +2337,12 @@ function collapseAll() {
          }
     });
 
-    // ===== TAMBAHAN: Simpan state collapse =====
     saveCollapsedState();
-    // =========================================
 
-    // Update Gantt chart setelah delay singkat
     setTimeout(() => {
         updateGanttChart();
     }, 50);
 }
-
 
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey || e.metaKey) {
@@ -2500,10 +2395,9 @@ document.addEventListener('touchend', function(e) {
 function toggleFullscreen() {
     const container = document.querySelector('.gantt-container');
     if (!container) return;
-    let enteringFullscreen = !document.fullscreenElement && !container.classList.contains('fullscreen'); // Check class too
+    let enteringFullscreen = !document.fullscreenElement && !container.classList.contains('fullscreen');
 
     if (enteringFullscreen) {
-        // Enter fullscreen
         const scrollY = window.scrollY;
         document.body.classList.add('no-scroll');
         document.body.style.top = `-${scrollY}px`;
@@ -2511,37 +2405,28 @@ function toggleFullscreen() {
         container.classList.add('fullscreen');
         container.requestFullscreen().catch(err => {
             console.error('Error entering fullscreen API:', err);
-            // Fallback: class sudah ditambahkan
         });
-        // ===== TAMBAHAN: Simpan state fullscreen =====
         localStorage.setItem('isFullscreen', 'true');
         console.log('Saved Fullscreen State: true');
-        // ===========================================
     } else {
-        // Exit fullscreen
-        if (document.fullscreenElement) { // Hanya exit API jika memang aktif
+        if (document.fullscreenElement) {
             document.exitFullscreen().catch(err => {
                  console.error('Error exiting fullscreen API:', err);
             });
         }
-        // Selalu bersihkan style & class (termasuk jika exit dari class saja)
         document.body.classList.remove('no-scroll');
         const scrollY = document.body.dataset.scrollY || 0;
         document.body.style.top = '';
         window.scrollTo(0, parseInt(scrollY));
         container.classList.remove('fullscreen');
-        // ===== TAMBAHAN: Simpan state fullscreen =====
         localStorage.setItem('isFullscreen', 'false');
         console.log('Saved Fullscreen State: false');
-        // ===========================================
     }
 }
 
-// Listener tambahan untuk handle exit fullscreen via ESC key atau F11 browser
 document.addEventListener('fullscreenchange', () => {
     const container = document.querySelector('.gantt-container');
     if (!document.fullscreenElement && container && container.classList.contains('fullscreen')) {
-        // Keluar dari fullscreen API tapi class masih ada (misal via ESC)
         console.log('Exited fullscreen API externally (e.g., ESC key)');
         document.body.classList.remove('no-scroll');
         const scrollY = document.body.dataset.scrollY || 0;
@@ -2550,17 +2435,14 @@ document.addEventListener('fullscreenchange', () => {
         container.classList.remove('fullscreen');
         localStorage.setItem('isFullscreen', 'false');
         console.log('Saved Fullscreen State: false (external exit)');
-         // updateFullscreenButtonState(false); // Update tombol jika perlu
-    }
+     }
 });
 
-// ===== Fungsi Baru =====
 function saveCollapsedState() {
     const collapsedIdsArray = Array.from(collapsedTasks);
     localStorage.setItem('collapsedTaskIds', JSON.stringify(collapsedIdsArray));
     console.log('Saved Collapsed Tasks:', collapsedIdsArray);
 }
-// ======================
 
 window.GanttChart = {
     navigateMonth,
@@ -2692,16 +2574,45 @@ function populateModalContent(task) {
     const editBtn = document.getElementById('editTaskBtn');
     const deleteBtn = document.getElementById('deleteTaskBtn');
     if (editBtn && task.id) editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
+
     if (deleteBtn && task.id) {
         deleteBtn.onclick = function(e) {
             e.preventDefault();
-            if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
-                const form = document.getElementById('deleteTaskForm');
-                if (form) {
-                    form.action = `/tasks/${task.id}`;
-                    form.submit();
-                }
-            }
+            
+            const taskName = task.name || 'tugas ini';
+
+            closeTaskModal();
+
+            setTimeout(() => {
+                Swal.fire({
+                    title: 'Apakah Anda Yakin?',
+                    html: `Anda akan menghapus tugas:<br><strong>${taskName}</strong>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal',
+                    showClass: {
+                        popup: 'swal2-show',
+                        backdrop: 'swal2-backdrop-show',
+                        icon: 'swal2-icon-show'
+                    },
+                    hideClass: {
+                        popup: 'swal2-hide',
+                        backdrop: 'swal2-backdrop-hide',
+                        icon: 'swal2-icon-hide'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.getElementById('deleteTaskForm');
+                        if (form) {
+                            form.action = `/tasks/${task.id}`;
+                            form.submit();
+                        }
+                    }
+                });
+            }, 300);
         };
     }
 
@@ -2738,7 +2649,7 @@ function populateModalContent(task) {
             localStorage.setItem(`${colorKey}-border`, newBorder);
             if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${newBg} 0%, ${newBorder} 100%)`;
             updateGanttChart();
-            updateTaskIconColors(); // Update icon colors instead of badges
+            updateTaskIconColors();
         });
     }
 
@@ -2752,7 +2663,7 @@ function populateModalContent(task) {
             if (colorPicker) colorPicker.value = defaultBg;
             if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${defaultBg} 0%, ${defaultBorder} 100%)`;
             updateGanttChart();
-            updateTaskIconColors(); // Update icon colors instead of badges
+            updateTaskIconColors();
         });
     }
 }
@@ -2818,9 +2729,7 @@ function getColorForRootAndLevel(rootId, relLevel) {
     return { bg, border };
 }
 
-// Initialize task icon colors on page load to match gantt chart colors
 function initializeTaskIconColors() {
-    // Loop through all task rows and set initial colors based on task data
     document.querySelectorAll('.task-row').forEach(taskRow => {
         const taskId = taskRow.getAttribute('data-task-id');
         const task = tasksData.find(t => t.id == taskId);
@@ -2830,19 +2739,16 @@ function initializeTaskIconColors() {
             const relLevel = getRelativeLevel(task);
             const { bg, border } = getColorForRootAndLevel(rootId, relLevel);
             
-            // Find the icon within this task row
             const iconElement = taskRow.querySelector('.task-icon-square');
             if (iconElement) {
                 iconElement.style.backgroundColor = bg;
                 iconElement.style.borderColor = border;
-                // Remove default color classes
                 iconElement.classList.remove('task-icon-blue', 'task-icon-green');
             }
         }
     });
 }
 
-// Update task icon colors instead of duration badges
 function updateTaskIconColors() {
     tasksData.forEach(task => {
         const rootId = getRootId(task);
@@ -2850,7 +2756,6 @@ function updateTaskIconColors() {
         const colorKey = `color-root-${rootId}-rellevel-${relLevel}`;
         const bgColor = localStorage.getItem(`${colorKey}-bg`) || defaultColors[relLevel % 6].bg;
         
-        // Update the task icon square color by finding the task row first
         const taskRow = document.querySelector(`[data-task-id="${task.id}"].task-row`);
         if (taskRow) {
             const iconElement = taskRow.querySelector('.task-icon-square');
@@ -3031,36 +2936,29 @@ function initResizer() {
     });
 }
 
-// 1. Fungsi untuk highlight row
 function highlightRow(taskId) {
-    // Remove existing highlights
     removeAllHighlights();
     
     if (!taskId) return;
     
-    // Highlight task row di task list
     const taskRow = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
     if (taskRow) {
         taskRow.classList.add('row-highlighted');
     }
     
-    // Highlight gantt row
     const ganttRow = document.querySelector(`.gantt-row[data-task-id="${taskId}"]`);
     if (ganttRow) {
         ganttRow.classList.add('row-highlighted');
     }
 }
 
-// 2. Fungsi untuk remove highlight
 function removeAllHighlights() {
     document.querySelectorAll('.row-highlighted').forEach(el => {
         el.classList.remove('row-highlighted');
     });
 }
 
-// 3. Setup event listeners untuk hover
 function setupRowHighlight() {
-    // Hover pada task rows
     document.addEventListener('mouseover', function(e) {
         const taskRow = e.target.closest('.task-row');
         if (taskRow) {
@@ -3068,14 +2966,12 @@ function setupRowHighlight() {
             highlightRow(taskId);
         }
         
-        // Hover pada gantt bars
         const ganttBar = e.target.closest('.gantt-bar');
         if (ganttBar) {
             const taskId = ganttBar.getAttribute('data-task-id');
             highlightRow(taskId);
         }
         
-        // Hover pada gantt rows (cells)
         const ganttRow = e.target.closest('.gantt-row');
         if (ganttRow && !ganttBar) {
             const taskId = ganttRow.getAttribute('data-task-id');
@@ -3083,13 +2979,11 @@ function setupRowHighlight() {
         }
     });
     
-    // Remove highlight saat mouse leave gantt container
     const ganttContainer = document.querySelector('.gantt-container');
     if (ganttContainer) {
         ganttContainer.addEventListener('mouseleave', removeAllHighlights);
     }
     
-    // Remove highlight saat mouse leave task list
     const taskListBody = document.getElementById('taskListBody');
     if (taskListBody) {
         taskListBody.addEventListener('mouseleave', removeAllHighlights);
@@ -3097,18 +2991,15 @@ function setupRowHighlight() {
 }
 
 function highlightTimelineColumn(dayIndex) {
-    // Remove existing column highlights
     removeAllColumnHighlights();
     
     if (dayIndex === null || dayIndex === undefined) return;
     
-    // Highlight timeline day header
     const timelineDays = document.querySelectorAll('.timeline-day');
     if (timelineDays[dayIndex]) {
         timelineDays[dayIndex].classList.add('column-highlighted');
     }
     
-    // Highlight semua gantt-grid-cell di kolom yang sama
     document.querySelectorAll('.gantt-row').forEach(row => {
         const cells = row.querySelectorAll('.gantt-grid-cell');
         if (cells[dayIndex]) {
@@ -3124,18 +3015,15 @@ function removeAllColumnHighlights() {
 }
 
 function setupColumnHighlight() {
-    // Hover pada timeline day header
     document.addEventListener('mouseover', function(e) {
         const timelineDay = e.target.closest('.timeline-day');
         if (timelineDay) {
-            // Ambil index dari parent container yang benar
             const dayContainer = timelineDay.closest('.day-header');
             const allDays = Array.from(dayContainer.querySelectorAll('.timeline-day'));
             const dayIndex = allDays.indexOf(timelineDay);
             highlightTimelineColumn(dayIndex);
         }
         
-        // Hover pada gantt grid cell
         const ganttCell = e.target.closest('.gantt-grid-cell');
         if (ganttCell && !e.target.closest('.gantt-bar')) {
             const row = ganttCell.closest('.gantt-row');
@@ -3145,46 +3033,37 @@ function setupColumnHighlight() {
         }
     });
     
-    // Remove highlight saat mouse leave dari timeline header
     const timelineHeader = document.querySelector('.timeline-header-section');
     if (timelineHeader) {
         timelineHeader.addEventListener('mouseleave', removeAllColumnHighlights);
     }
     
-    // Remove highlight saat mouse leave dari gantt content
     const ganttContent = document.getElementById('ganttContent');
     if (ganttContent) {
         ganttContent.addEventListener('mouseleave', removeAllColumnHighlights);
     }
 }
 
-// ===== TAMBAHAN: Fungsi untuk Tooltip =====
 function setupGanttBarTooltip() {
     const tooltip = document.getElementById('ganttTooltip');
     if (!tooltip) return;
 
-    let currentTaskId = null; // Untuk melacak task ID yang sedang di-hover
+    let currentTaskId = null;
 
-    // Dengarkan event mousemove di seluruh dokumen
     document.addEventListener('mousemove', function(e) {
-        // Cari elemen .gantt-bar terdekat dari kursor
         const ganttBar = e.target.closest('.gantt-bar');
         
         if (ganttBar) {
             const taskId = ganttBar.getAttribute('data-task-id');
             
-            // 1. Update konten HANYA jika task ID berubah (untuk performa)
             if (taskId !== currentTaskId) {
                 currentTaskId = taskId;
-                // Cari data task dari array global tasksData
                 const task = tasksData.find(t => t.id == taskId);
                 
                 if (task) {
-                    // Format tanggal (fungsi formatDate sudah ada di kode Anda)
                     const formattedStart = task.startDate ? formatDate(task.startDate) : 'N/A';
                     const formattedEnd = task.endDate ? formatDate(task.endDate) : 'N/A';
                     
-                    // Format HTML untuk tooltip
                     tooltip.innerHTML = `
                         <strong class="tooltip-title">${task.name}</strong>
                         <div class="tooltip-field"><span>Mulai:</span> <span class="value">${formattedStart}</span></div>
@@ -3194,42 +3073,33 @@ function setupGanttBarTooltip() {
                 }
             }
             
-            // 2. Tampilkan tooltip
             tooltip.classList.add('show');
             
-            // 3. Update posisi (selalu) + cek batas layar
-            // Dapatkan ukuran tooltip SETELAH diisi konten
             const tooltipRect = tooltip.getBoundingClientRect();
-            let x = e.clientX + 15; // Posisi X default (15px di kanan kursor)
-            let y = e.clientY + 15; // Posisi Y default (15px di bawah kursor)
+            let x = e.clientX + 15;
+            let y = e.clientY + 15;
             
-            // Cek batas kanan layar
             if (x + tooltipRect.width > window.innerWidth) {
-                x = e.clientX - tooltipRect.width - 15; // Pindah ke kiri kursor
+                x = e.clientX - tooltipRect.width - 15;
             }
-            // Cek batas bawah layar
             if (y + tooltipRect.height > window.innerHeight) {
-                y = e.clientY - tooltipRect.height - 15; // Pindah ke atas kursor
+                y = e.clientY - tooltipRect.height - 15;
             }
-            // Cek batas kiri layar
             if (x < 0) {
-                x = 15; // Paksa 15px dari tepi kiri
+                x = 15;
             }
-            // Cek batas atas layar
             if (y < 0) {
-                y = 15; // Paksa 15px dari tepi atas
+                y = 15;
             }
 
             tooltip.style.left = `${x}px`;
             tooltip.style.top = `${y}px`;
 
         } else {
-            // 4. Sembunyikan jika tidak di atas bar
-            currentTaskId = null; // Reset pelacak
+            currentTaskId = null;
             tooltip.classList.remove('show');
         }
     });
 }
-
 </script>
 @endsection
