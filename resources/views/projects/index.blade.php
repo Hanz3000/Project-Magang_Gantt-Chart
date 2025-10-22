@@ -1463,6 +1463,61 @@
     .gantt-container.fullscreen .gantt-content-container {
         scrollbar-gutter: stable;
     }
+
+    #ganttTooltip {
+  position: fixed; /* Posisi relatif ke viewport agar tidak terpotong */
+  display: block; /* Display diatur oleh JS */
+  padding: 10px 15px;
+  background: #2d3748; /* Latar belakang gelap */
+  color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  line-height: 1.5;
+  z-index: 99999; /* Tampil di atas segalanya */
+  pointer-events: none; /* Agar tidak menghalangi event mouse lain */
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  transform: translate(15px, 15px); /* Offset dari kursor */
+  max-width: 300px;
+  white-space: normal;
+  visibility: hidden; /* Sembunyikan by default */
+}
+
+#ganttTooltip.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Judul Tooltip */
+#ganttTooltip strong.tooltip-title {
+    color: #90cdf4; /* Biru muda untuk judul */
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 1px solid #4a5568;
+    padding-bottom: 4px;
+}
+
+/* Baris Info Tooltip */
+#ganttTooltip .tooltip-field {
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#ganttTooltip .tooltip-field span {
+    color: #a0aec0; /* Label abu-abu */
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+#ganttTooltip .tooltip-field .value {
+    font-weight: 600;
+    text-align: right;
+}
 </style>
 
 <div class="gantt-container">
@@ -1519,12 +1574,13 @@
                 Ciutkan
             </button>
 
-            <button class="control-button" onclick="toggleFullscreen()" title="Fullscreen (F11)">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM13 5a1 1 0 00-1 1v6a1 1 0 102 0V6a1 1 0 00-1-1zM15 7a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1zM15 12a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                </svg>
-                Layar Penuh
-            </button>
+           <button class="control-button" onclick="toggleFullscreen()" title="Fullscreen (F11)">
+    <svg class="w-4 h-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 40H6C4.89543 40 4 39.1046 4 38V10C4 8.89543 4.89543 8 6 8H42C43.1046 8 44 8.89543 44 10V16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="24" y="24" width="20" height="16" rx="2" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+    </svg>
+    Layar Penuh
+</button>
 
             @if(isset($createRoute))
             <a href="{{ $createRoute }}" class="control-button primary">
@@ -1627,10 +1683,10 @@
             <div class="task-header-row">
                 <div class="task-header-cell" style="justify-content: center;">
                     <button class="full-chart-btn" onclick="toggleChartOnlyMode()" title="Sembunyikan Daftar Tugas (Full Chart Mode)">
-                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM13 5a1 1 0 00-1 1v6a1 1 0 102 0V6a1 1 0 00-1-1zM15 7a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1zM15 12a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1zM9 15a1 1 0 011-1h6a1 1 0 110 2h-6a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
+    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Zm-4.25 0a.75.75 0 0 1 0 1.06L3.81 10l3.72 3.72a.75.75 0 1 1-1.06 1.06L2.22 10.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+    </svg>
+</button>
                 </div>
                 <div class="task-header-cell">Nama Task</div>
                 <div class="task-header-cell">Tanggal Mulai</div>
@@ -1721,6 +1777,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (border) document.documentElement.style.setProperty(`--level-${i}-border`, border);
     }
 
+const ganttContainer = document.querySelector('.gantt-container'); // 1. Ambil container
+    const tooltip = document.createElement('div');
+    tooltip.id = 'ganttTooltip';
+   
+    if (ganttContainer) {
+        ganttContainer.appendChild(tooltip); // 2. Masukkan tooltip ke DALAM container
+    } else {
+        // Fallback jika container tidak ditemukan
+        document.body.appendChild(tooltip);
+    }
+
     // ===== TAMBAHAN: Restore Zoom Level =====
     const savedZoom = localStorage.getItem('ganttZoomLevel');
     if (savedZoom) {
@@ -1741,6 +1808,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initResizer();
     setupRowHighlight();
     setupColumnHighlight();
+    setupGanttBarTooltip();
 
     // ===== PINDAHKAN dan MODIFIKASI: Restore Collapse State =====
     const savedCollapsed = localStorage.getItem('collapsedTaskIds');
@@ -3089,5 +3157,79 @@ function setupColumnHighlight() {
         ganttContent.addEventListener('mouseleave', removeAllColumnHighlights);
     }
 }
+
+// ===== TAMBAHAN: Fungsi untuk Tooltip =====
+function setupGanttBarTooltip() {
+    const tooltip = document.getElementById('ganttTooltip');
+    if (!tooltip) return;
+
+    let currentTaskId = null; // Untuk melacak task ID yang sedang di-hover
+
+    // Dengarkan event mousemove di seluruh dokumen
+    document.addEventListener('mousemove', function(e) {
+        // Cari elemen .gantt-bar terdekat dari kursor
+        const ganttBar = e.target.closest('.gantt-bar');
+        
+        if (ganttBar) {
+            const taskId = ganttBar.getAttribute('data-task-id');
+            
+            // 1. Update konten HANYA jika task ID berubah (untuk performa)
+            if (taskId !== currentTaskId) {
+                currentTaskId = taskId;
+                // Cari data task dari array global tasksData
+                const task = tasksData.find(t => t.id == taskId);
+                
+                if (task) {
+                    // Format tanggal (fungsi formatDate sudah ada di kode Anda)
+                    const formattedStart = task.startDate ? formatDate(task.startDate) : 'N/A';
+                    const formattedEnd = task.endDate ? formatDate(task.endDate) : 'N/A';
+                    
+                    // Format HTML untuk tooltip
+                    tooltip.innerHTML = `
+                        <strong class="tooltip-title">${task.name}</strong>
+                        <div class="tooltip-field"><span>Mulai:</span> <span class="value">${formattedStart}</span></div>
+                        <div class="tooltip-field"><span>Selesai:</span> <span class="value">${formattedEnd}</span></div>
+                        <div class="tooltip-field"><span>Durasi:</span> <span class="value">${task.duration || 'N/A'} hari</span></div>
+                    `;
+                }
+            }
+            
+            // 2. Tampilkan tooltip
+            tooltip.classList.add('show');
+            
+            // 3. Update posisi (selalu) + cek batas layar
+            // Dapatkan ukuran tooltip SETELAH diisi konten
+            const tooltipRect = tooltip.getBoundingClientRect();
+            let x = e.clientX + 15; // Posisi X default (15px di kanan kursor)
+            let y = e.clientY + 15; // Posisi Y default (15px di bawah kursor)
+            
+            // Cek batas kanan layar
+            if (x + tooltipRect.width > window.innerWidth) {
+                x = e.clientX - tooltipRect.width - 15; // Pindah ke kiri kursor
+            }
+            // Cek batas bawah layar
+            if (y + tooltipRect.height > window.innerHeight) {
+                y = e.clientY - tooltipRect.height - 15; // Pindah ke atas kursor
+            }
+            // Cek batas kiri layar
+            if (x < 0) {
+                x = 15; // Paksa 15px dari tepi kiri
+            }
+            // Cek batas atas layar
+            if (y < 0) {
+                y = 15; // Paksa 15px dari tepi atas
+            }
+
+            tooltip.style.left = `${x}px`;
+            tooltip.style.top = `${y}px`;
+
+        } else {
+            // 4. Sembunyikan jika tidak di atas bar
+            currentTaskId = null; // Reset pelacak
+            tooltip.classList.remove('show');
+        }
+    });
+}
+
 </script>
 @endsection

@@ -1,7 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-8" x-data="{ open: false }">
+
+{{-- 
+  REVISI 1: Tambahkan style ini untuk x-cloak. 
+  Ini akan menyembunyikan elemen dengan [x-cloak] 
+  sampai Alpine.js selesai dimuat. Ini memperbaiki "flicker".
+--}}
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+
+{{-- 
+  REVISI 2: Ubah x-data di bawah.
+  Modal akan otomatis 'open: true' jika ada error validasi 
+  pada 'password' atau 'password_confirmation'.
+--}}
+<div class="max-w-3xl mx-auto bg-white shadow-lg rounded-2xl p-8" 
+     x-data="{ open: @json($errors->has('password') || $errors->has('password_confirmation')) }">
+    
     <div class="flex items-center space-x-4 mb-6">
         <div class="w-20 h-20 bg-gradient-to-tr from-blue-500 to-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-lg">
             {{ strtoupper(substr($user->name, 0, 2)) }}
@@ -49,10 +66,9 @@
         </a>
     </div>
 
-    <!-- Modal -->
     <div x-show="open" 
          class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-         x-cloak>
+         x-cloak {{-- x-cloak sekarang akan berfungsi karena ada CSS-nya --}}>
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
             <h3 class="text-xl font-semibold mb-4 text-gray-800">Ganti Kata Sandi</h3>
 
@@ -63,6 +79,7 @@
                     <label class="block text-sm font-medium text-gray-700">Kata Sandi Baru</label>
                     <input type="password" name="password" required
                            class="w-full mt-1 px-3 py-2 border rounded-lg shadow-sm focus:ring focus:ring-blue-200">
+                    {{-- Pesan error ini sekarang akan terlihat jika validasi gagal --}}
                     @error('password')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
