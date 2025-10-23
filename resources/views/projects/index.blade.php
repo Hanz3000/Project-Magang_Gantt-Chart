@@ -6,6 +6,7 @@
 @if(session('success'))
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const ganttContainer = document.querySelector('.gantt-container'); // <-- PERBAIKAN
         Swal.fire({
             toast: true,
             position: 'top-end',
@@ -14,6 +15,7 @@
             showConfirmButton: false,
             timer: 3500,
             timerProgressBar: true,
+            target: ganttContainer || 'body', // <-- PERBAIKAN
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer);
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
@@ -26,6 +28,7 @@
 @if(session('error'))
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const ganttContainer = document.querySelector('.gantt-container'); // <-- PERBAIKAN
         Swal.fire({
             toast: true,
             position: 'top-end',
@@ -34,6 +37,7 @@
             showConfirmButton: false,
             timer: 3500,
             timerProgressBar: true,
+            target: ganttContainer || 'body', // <-- PERBAIKAN
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer);
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
@@ -1512,6 +1516,12 @@
         font-weight: 600;
         text-align: right;
     }
+
+    /* --- PERBAIKAN CSS DI SINI --- */
+    .swal2-container {
+        /* Pastikan z-index lebih tinggi dari fullscreen (9999) dan tooltip (99999) */
+        z-index: 100000 !important;
+    }
 </style>
 
 <div class="gantt-container">
@@ -2333,7 +2343,7 @@ function collapseAll() {
          const taskId = icon.getAttribute('data-task-id');
          const taskHasChildren = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
          if(taskHasChildren) {
-              icon.classList.remove('rotate-90');
+             icon.classList.remove('rotate-90');
          }
     });
 
@@ -2584,6 +2594,7 @@ function populateModalContent(task) {
             closeTaskModal();
 
             setTimeout(() => {
+                const ganttContainer = document.querySelector('.gantt-container'); // <-- PERBAIKAN
                 Swal.fire({
                     title: 'Apakah Anda Yakin?',
                     html: `Anda akan menghapus tugas:<br><strong>${taskName}</strong>`,
@@ -2593,6 +2604,7 @@ function populateModalContent(task) {
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Ya, Hapus!',
                     cancelButtonText: 'Batal',
+                    target: ganttContainer || 'body', // <-- PERBAIKAN
                     showClass: {
                         popup: 'swal2-show',
                         backdrop: 'swal2-backdrop-show',
