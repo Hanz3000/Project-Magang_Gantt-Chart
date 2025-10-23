@@ -1585,7 +1585,7 @@
 
             @if(isset($createRoute))
             <a href="{{ $createRoute }}" class="control-button primary">
-                Tambah Tugas Baru
+                Tambah Tugas
             </a>
             @endif
         </div>
