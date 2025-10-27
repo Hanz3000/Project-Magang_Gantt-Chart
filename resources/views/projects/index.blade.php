@@ -6,7 +6,7 @@
 @if(session('success'))
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const ganttContainer = document.querySelector('.gantt-container'); // <-- PERBAIKAN
+        const ganttContainer = document.querySelector('.gantt-container');
         Swal.fire({
             toast: true,
             position: 'top-end',
@@ -15,7 +15,7 @@
             showConfirmButton: false,
             timer: 3500,
             timerProgressBar: true,
-            target: ganttContainer || 'body', // <-- PERBAIKAN
+            target: ganttContainer || 'body',
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer);
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
@@ -28,7 +28,7 @@
 @if(session('error'))
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const ganttContainer = document.querySelector('.gantt-container'); // <-- PERBAIKAN
+        const ganttContainer = document.querySelector('.gantt-container');
         Swal.fire({
             toast: true,
             position: 'top-end',
@@ -37,7 +37,7 @@
             showConfirmButton: false,
             timer: 3500,
             timerProgressBar: true,
-            target: ganttContainer || 'body', // <-- PERBAIKAN
+            target: ganttContainer || 'body',
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer);
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
@@ -86,7 +86,6 @@
         display: none;
     }
 
-/* --- TAMBAHKAN CSS DI BAWAH INI --- */
     .task-row.task-filtered-out,
     .gantt-row.task-filtered-out {
         display: none !important;
@@ -189,6 +188,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        flex: 1;
     }
 
     .task-row.task-child .task-name-text {
@@ -418,6 +418,13 @@
         gap: 4px;
     }
 
+    .task-header-cell.name-header {
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+    }
+
     .task-header-cell:nth-child(4),
     .task-header-cell:nth-child(5) {
         justify-content: flex-start;
@@ -426,6 +433,32 @@
     .task-header-cell:last-child {
         justify-content: center;
         border-right: none;
+    }
+
+    .task-filter-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    
+    .period-selector {
+        padding: 4px 8px;
+        border: 1px solid #d1d5db;
+        border-radius: 4px;
+        background: white;
+        color: #374151;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        min-width: 120px;
+    }
+
+    .period-selector:focus {
+        outline: none;
+        border-color: #0078d4;
+        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
     }
 
     .shifted-right {
@@ -807,17 +840,6 @@
     .current-period:hover {
         background: #bfdbfe;
         border-color: #60a5fa;
-    }
-
-    .period-selector {
-        padding: 8px 10px;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        background: white;
-        color: #374151;
-        font-size: 12px;
-        font-weight: 500;
-        cursor: pointer;
     }
 
     .control-button {
@@ -1225,6 +1247,11 @@
         .resizer {
             width: 5px;
         }
+
+        .period-selector {
+            min-width: 100px;
+            font-size: 10px;
+        }
     }
 
     @media (max-width: 768px) {
@@ -1286,6 +1313,16 @@
             justify-content: center;
             padding: 12px 18px;
         }
+
+        .task-filter-wrapper {
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .period-selector {
+            min-width: 100%;
+            width: auto;
+        }
     }
 
     @media (max-width: 480px) {
@@ -1329,6 +1366,11 @@
     }
 
     .full-chart-btn:focus {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+    }
+
+    .period-selector:focus {
         outline: 2px solid #2563eb;
         outline-offset: 2px;
     }
@@ -1522,13 +1564,10 @@
         font-weight: 600;
         text-align: right;
     }
-    
+
     .swal2-container {
-        
         z-index: 100000 !important;
     }
-    
-    
 </style>
 
 <div class="gantt-container">
@@ -1568,37 +1607,32 @@
         </div>
 
         <div class="toolbar-right">
-    
-    <select class="period-selector" id="taskFilterSelect" onchange="filterSingleTask(this.value)" title="Filter untuk menampilkan satu task" style="max-width: 200px; min-width: 150px; flex-shrink: 1;">
-        <option value="all">Tampilkan Semua Task</option>
-        </select>
+            <div class="zoom-controls">
+                <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out">-</button>
+                <span class="zoom-level" id="zoomLevel">100%</span>
+                <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In">+</button>
+            </div>
 
-    <div class="zoom-controls">
-        <button class="zoom-button" id="zoomOutBtn" onclick="zoomOut()" title="Zoom Out">-</button>
-        <span class="zoom-level" id="zoomLevel">100%</span>
-        <button class="zoom-button" id="zoomInBtn" onclick="zoomIn()" title="Zoom In">+</button>
-    </div>
+            <button class="control-button" onclick="expandAll()" title="Perluas semua tugas">
+                Perluas
+            </button>
+            <button class="control-button" onclick="collapseAll()" title="Ciutkan semua tugas">
+                Ciutkan
+            </button>
+            <button class="control-button" onclick="toggleFullscreen()" title="Fullscreen (F11)">
+                <svg class="w-4 h-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 40H6C4.89543 40 4 39.1046 4 38V10C4 8.89543 4.89543 8 6 8H42C43.1046 8 44 8.89543 44 10V16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="24" y="24" width="20" height="16" rx="2" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                </svg>
+                Layar Penuh
+            </button>
 
-    <button class="control-button" onclick="expandAll()" title="Perluas semua tugas">
-        Perluas
-    </button>
-    <button class="control-button" onclick="collapseAll()" title="Ciutkan semua tugas">
-        Ciutkan
-    </button>
-    <button class="control-button" onclick="toggleFullscreen()" title="Fullscreen (F11)">
-        <svg class="w-4 h-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 40H6C4.89543 40 4 39.1046 4 38V10C4 8.89543 4.89543 8 6 8H42C43.1046 8 44 8.89543 44 10V16" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="24" y="24" width="20" height="16" rx="2" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
-        </svg>
-        Layar Penuh
-    </button>
-
-    @if(isset($createRoute))
-    <a href="{{ $createRoute }}" class="control-button primary">
-        Tambah Tugas
-    </a>
-    @endif
-</div>
+            @if(isset($createRoute))
+            <a href="{{ $createRoute }}" class="control-button primary">
+                Tambah Tugas
+            </a>
+            @endif
+        </div>
     </div>
 
     <div id="taskModal" class="modal">
@@ -1692,7 +1726,15 @@
                         </svg>
                     </button>
                 </div>
-                <div class="task-header-cell">Nama Task</div>
+                <div class="task-header-cell name-header">
+                    <span>Nama Task</span>
+                    <div class="task-filter-wrapper">
+                        
+                        <select class="period-selector" id="taskFilterSelect" onchange="filterSingleTask(this.value)" title="Filter untuk menampilkan satu task">
+                            <option value="all">Semua Task</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="task-header-cell">Tanggal Mulai</div>
                 <div class="task-header-cell">Tanggal Selesai</div>
                 <div class="task-header-cell">Durasi</div>
@@ -1748,7 +1790,6 @@ let timelineData = {
 let tasksData = [];
 let collapsedTasks = new Set();
 let isModalAnimating = false;
-// ▼▼▼ TAMBAHKAN BARIS INI ▼▼▼
 let filteredTaskIdsToShow = null; 
 
 const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -1764,9 +1805,7 @@ document.addEventListener('DOMContentLoaded', function() {
         yearInput.addEventListener('input', renderModalMonths);
     }
 
-// ▼▼▼ TAMBAHKAN BARIS INI ▼▼▼
     populateTaskFilter();
-    // ▲▲▲ BATAS AKHIR TAMBAHAN ▲▲▲
 
     for (let i = 0; i < 6; i++) {
         const bg = localStorage.getItem(`level-${i}-bg`);
@@ -2100,32 +2139,25 @@ function updateGanttChart() {
 function generateGanttRow(task) {
     const dayWidth = getDayWidth();
     
-    // --- Logika Pengecekan Visibilitas ---
-
-    // Cek 1: Apakah tersembunyi karena parent-nya di-collapse?
     const isHiddenByCollapse = !isTaskVisible(task);
 
-    // Cek 2: Apakah tersembunyi karena filter?
     let isHiddenByFilter = false;
-    if (filteredTaskIdsToShow !== null) { // Cek apakah ada filter yang aktif
+    if (filteredTaskIdsToShow !== null) {
         if (!filteredTaskIdsToShow.has(task.id.toString())) {
             isHiddenByFilter = true;
         }
     }
 
-    // --- Gabungkan kelas CSS berdasarkan hasil pengecekan ---
     const rowClasses = ['gantt-row'];
     if (isHiddenByCollapse) {
-        rowClasses.push('hidden-gantt-row'); // Kelas untuk collapsing
+        rowClasses.push('hidden-gantt-row');
     }
     if (isHiddenByFilter) {
-        rowClasses.push('task-filtered-out'); // Kelas untuk filtering
+        rowClasses.push('task-filtered-out');
     }
 
-    // Buat HTML untuk baris, GABUNGKAN kelas yang sudah disiapkan
     let rowHTML = `<div class="${rowClasses.join(' ')}" data-task-id="${task.id}">`;
 
-    // --- Sisa fungsi sama seperti sebelumnya ---
     timelineData.days.forEach(day => {
         const classes = ['gantt-grid-cell'];
         if (day.isWeekend) classes.push('weekend');
@@ -2635,7 +2667,7 @@ function populateModalContent(task) {
             closeTaskModal();
 
             setTimeout(() => {
-                const ganttContainer = document.querySelector('.gantt-container'); // <-- PERBAIKAN
+                const ganttContainer = document.querySelector('.gantt-container');
                 Swal.fire({
                     title: 'Apakah Anda Yakin?',
                     html: `Anda akan menghapus tugas:<br><strong>${taskName}</strong>`,
@@ -2645,7 +2677,7 @@ function populateModalContent(task) {
                     cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Ya, Hapus!',
                     cancelButtonText: 'Batal',
-                    target: ganttContainer || 'body', // <-- PERBAIKAN
+                    target: ganttContainer || 'body',
                     showClass: {
                         popup: 'swal2-show',
                         backdrop: 'swal2-backdrop-show',
@@ -3159,14 +3191,12 @@ function getTaskFamilyIds(taskId) {
     const familyIds = new Set();
     const selectedId = parseInt(taskId);
 
-    // 1. Tambahkan task yang dipilih itu sendiri
     if (!isNaN(selectedId)) {
         familyIds.add(selectedId.toString());
     } else {
-        return familyIds; // Jika ID tidak valid, kembalikan set kosong
+        return familyIds;
     }
 
-    // 2. Tambahkan semua parent (ancestors) ke atas
     let currentId = selectedId;
     while (currentId) {
         const task = tasksData.find(t => t.id === currentId);
@@ -3175,16 +3205,15 @@ function getTaskFamilyIds(taskId) {
             familyIds.add(parentId.toString());
             currentId = parentId;
         } else {
-            currentId = null; // Mencapai root atau task tidak ditemukan
+            currentId = null;
         }
     }
 
-    // 3. Tambahkan semua child (descendants) ke bawah (rekursif)
     function findDescendants(parentId) {
         const children = tasksData.filter(t => t.parent_id === parentId);
         children.forEach(child => {
             familyIds.add(child.id.toString());
-            findDescendants(child.id); // Rekursif cari anak dari anak
+            findDescendants(child.id);
         });
     }
 
@@ -3197,11 +3226,9 @@ function filterSingleTask(selectedTaskId) {
     const allTaskRows = document.querySelectorAll('.task-row'); 
 
     if (selectedTaskId === 'all' || selectedTaskId === '') {
-        // --- Menampilkan Semua Task ---
-        filteredTaskIdsToShow = null; // 1. Hapus filter global
-        allTaskRows.forEach(row => row.classList.remove('task-filtered-out')); // 2. Tampilkan semua baris kiri
+        filteredTaskIdsToShow = null;
+        allTaskRows.forEach(row => row.classList.remove('task-filtered-out'));
 
-        // 3. Kembalikan state collapsed/expanded seperti yang tersimpan
         collapsedTasks.forEach(taskIdStr => {
             const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskIdStr}"]`);
             const toggleIcon = document.querySelector(`[data-task-id="${taskIdStr}"].toggle-collapse`);
@@ -3210,10 +3237,8 @@ function filterSingleTask(selectedTaskId) {
         });
 
     } else {
-        // Menjadi baris ini:
-filteredTaskIdsToShow = getTaskFamilyIds(selectedTaskId);
+        filteredTaskIdsToShow = getTaskFamilyIds(selectedTaskId);
 
-        // 2. Terapkan filter ke baris sisi kiri (daftar task)
         allTaskRows.forEach(row => {
             const rowTaskId = row.dataset.taskId;
             if (filteredTaskIdsToShow.has(rowTaskId)) {
@@ -3223,9 +3248,8 @@ filteredTaskIdsToShow = getTaskFamilyIds(selectedTaskId);
             }
         });
 
-        // 3. Paksa expand semua parent dari task yang dipilih
         filteredTaskIdsToShow.forEach(idStr => {
-            if (idStr === selectedTaskId) return; // Jangan expand task itu sendiri
+            if (idStr === selectedTaskId) return;
             
             const childrenContainer = document.querySelector(`.task-children[data-parent-id="${idStr}"]`);
             const toggleIcon = document.querySelector(`[data-task-id="${idStr}"].toggle-collapse`);
@@ -3233,13 +3257,12 @@ filteredTaskIdsToShow = getTaskFamilyIds(selectedTaskId);
             if (childrenContainer) childrenContainer.classList.remove('collapsed');
             if (toggleIcon) toggleIcon.classList.add('rotate-90');
             
-            // Hapus parent ini dari daftar 'collapsed'
             collapsedTasks.delete(idStr);
         });
     }
     
-    saveCollapsedState(); // Simpan state expand/collapse yang baru
-    updateGanttChart(); // Panggil updateGanttChart, yang SEKARANG akan membaca filter global
+    saveCollapsedState();
+    updateGanttChart();
 }
 
 function populateTaskFilter() {
@@ -3249,37 +3272,30 @@ function populateTaskFilter() {
         return;
     }
 
-    // Buat map untuk mempermudah pencarian children
     const taskMap = new Map();
     tasksData.forEach(task => {
-        // Gunakan 'root' sebagai key jika parent_id null atau undefined
         const parentKey = task.parent_id === null || task.parent_id === undefined ? 'root' : task.parent_id;
         const children = taskMap.get(parentKey) || [];
         children.push(task);
         taskMap.set(parentKey, children);
     });
 
-    // Fungsi rekursif untuk menambahkan <option>
     function addOptions(parentId, level) {
         const key = parentId === null ? 'root' : parentId;
         const children = taskMap.get(key) || [];
         
-        // Sortir children (opsional, tapi bagus untuk konsistensi)
         children.sort((a, b) => a.id - b.id); 
 
         children.forEach(task => {
             const option = document.createElement('option');
             option.value = task.id;
-            // Gunakan non-breaking space (&nbsp;) untuk indentasi
             option.innerHTML = '&nbsp;'.repeat(level * 4) + task.name; 
             select.appendChild(option);
             
-            // Rekursi untuk children dari task ini
             addOptions(task.id, level + 1);
         });
     }
 
-    // Mulai dari root (parent_id null)
     addOptions(null, 0);
 }
 </script>
