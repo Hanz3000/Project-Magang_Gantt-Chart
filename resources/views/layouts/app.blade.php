@@ -66,33 +66,33 @@
                     </button>
 
                     <div id="user-dropdown" class="hidden opacity-0 scale-95 -translate-y-2 transform transition-all duration-200 ease-out absolute right-0 top-full mt-2 w-56 origin-top-right bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none">
-                        <div class="py-1">
-                            <a href="{{ route('profil') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-150">
-                                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                <span>Profil</span>
-                            </a>
-                            {{-- TAMBAH: Button Export PDF di Dropdown User --}}
-                            <a href="{{ route('gantt.export.pdf') }}" target="_blank" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-150">
-                                <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M3 17a1 1 0 01-1-1V4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H3zM9 5H5v2h4V5zm0 4H5v2h4V9zm0 4H5v2h4v-2zm2-8h4v2h-4V5zm0 4h4v2h-4V9zm4 4h-4v2h4v-2z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>Export PDF</span>
-                            </a>
-                        </div>
-                        <div class="py-1">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-100 hover:text-red-700 transition-colors duration-150">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    <span>Logout</span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+    <div class="py-1">
+        <a href="{{ route('profil') }}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-150">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            <span>Profil</span>
+        </a>
+        {{-- TAMBAH: Button Export PDF di Dropdown User --}}
+        <a id="globalExportLink" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-150" onclick="handleGlobalExport(event)">
+            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 01-1-1V4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H3zM9 5H5v2h4V5zm0 4H5v2h4V9zm0 4H5v2h4v-2zm2-8h4v2h-4V5zm0 4h4v2h-4V9zm4 4h-4v2h4v-2z" clip-rule="evenodd"></path>
+            </svg>
+            <span>Export PDF</span>
+        </a>
+    </div>
+    <div class="py-1">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-100 hover:text-red-700 transition-colors duration-150">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </form>
+    </div>
+</div>
                 </div>
                 @endauth
 
@@ -164,7 +164,23 @@
                     }
                 });
             }
+            
         });
+
+        function handleGlobalExport(event) {
+    event.preventDefault();
+    
+    // Check jika di halaman gantt (filteredTaskIdsToShow defined)
+    if (typeof filteredTaskIdsToShow !== 'undefined' && filteredTaskIdsToShow && filteredTaskIdsToShow.size > 0) {
+        // Ada filter: Kirim array ID visible
+        const filterArray = Array.from(filteredTaskIdsToShow).map(id => parseInt(id));
+        const url = `{{ route('gantt.export.pdf') }}?filter=${encodeURIComponent(JSON.stringify(filterArray))}`;
+        window.open(url, '_blank');
+    } else {
+        // No filter: Export semua
+        window.open("{{ route('gantt.export.pdf') }}", '_blank');
+    }
+}
     </script>
 </body>
 

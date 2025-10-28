@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 
+
 class TaskController extends Controller
 {
     public function index()
@@ -706,9 +707,19 @@ class TaskController extends Controller
         }
     }
 
-    public function exportGanttPdf()
+    public function exportGanttPdf(Request $request)
 {
     try {
+        // Parse filter dari query param (opsional, untuk respect UI filter)
+        $filterIds = null;
+        $filterParam = $request->query('filter');
+        if ($filterParam) {
+            $decoded = json_decode($filterParam, true);
+            if (is_array($decoded)) {
+                $filterIds = array_map('intval', $decoded); // Ensure integers
+            }
+        }
+
         // Ambil tasks milik user saat ini (security)
         $tasks = Task::where('user_id', Auth::id())
                     ->orderBy('order')
@@ -718,7 +729,20 @@ class TaskController extends Controller
             return response()->json(['error' => 'Tidak ada tasks untuk diexport.'], 404);
         }
 
-        // Hitung global start/end dari semua tasks di tree
+        // FILTER BERDASARKAN UI FILTER: Hanya include task yang ID-nya di $filterIds
+        if ($filterIds && !empty($filterIds)) {
+            $tasks = $tasks->filter(function ($t) use ($filterIds) {
+                return in_array($t->id, $filterIds);
+            });
+            // Re-sort setelah filter untuk maintain order
+            $tasks = $tasks->sortBy('order');
+        }
+
+        if ($tasks->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada task yang terfilter untuk diexport.'], 404);
+        }
+
+        // Hitung global start/end dari tasks yang sudah difilter
         $startDate = $tasks->min('start');
         $endDate = $tasks->max('finish');
 
@@ -733,6 +757,7 @@ class TaskController extends Controller
         Log::error('Export Gantt PDF failed: ' . $e->getMessage(), [
             'user_id' => Auth::id(),
             'tasks_count' => $tasks->count() ?? 0,
+            'filter_ids' => $filterIds ?? 'none',
             'trace' => $e->getTraceAsString()
         ]);
 

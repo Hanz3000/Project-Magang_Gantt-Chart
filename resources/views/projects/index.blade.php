@@ -1800,7 +1800,8 @@
     let collapsedTasks = new Set();
     let isModalAnimating = false;
     let filteredTaskIdsToShow = null; 
-    let currentTaskId = null; // Variabel global untuk menyimpan task ID saat modal dibuka
+    let currentTaskId = null; 
+let savedFilterId = localStorage.getItem('ganttFilterId'); 
 
     const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -1900,6 +1901,15 @@
                 console.log('Restored Fullscreen Class');
             }
         }
+
+        // RELOAD FILTER DARI LOCALSTORAGE: Apply filter tersimpan saat load halaman
+if (savedFilterId && savedFilterId !== 'all') {
+    const filterSelect = document.getElementById('taskFilterSelect');
+    if (filterSelect) {
+        filterSelect.value = savedFilterId; // Set dropdown value
+        filterSingleTask(savedFilterId); // Apply filter otomatis
+    }
+}
     });
 
     // FUNGSI MODIFIKASI: Export Single Task PDF dengan Preview
@@ -3297,47 +3307,50 @@
     }
 
     function filterSingleTask(selectedTaskId) {
-        const allTaskRows = document.querySelectorAll('.task-row'); 
+    const allTaskRows = document.querySelectorAll('.task-row'); 
 
-        if (selectedTaskId === 'all' || selectedTaskId === '') {
-            filteredTaskIdsToShow = null;
-            allTaskRows.forEach(row => row.classList.remove('task-filtered-out'));
+    if (selectedTaskId === 'all' || selectedTaskId === '') {
+        filteredTaskIdsToShow = null;
+        allTaskRows.forEach(row => row.classList.remove('task-filtered-out'));
 
-            collapsedTasks.forEach(taskIdStr => {
-                const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskIdStr}"]`);
-                const toggleIcon = document.querySelector(`[data-task-id="${taskIdStr}"].toggle-collapse`);
-                if (childrenContainer) childrenContainer.classList.add('collapsed');
-                if (toggleIcon) toggleIcon.classList.remove('rotate-90');
-            });
+        collapsedTasks.forEach(taskIdStr => {
+            const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskIdStr}"]`);
+            const toggleIcon = document.querySelector(`[data-task-id="${taskIdStr}"].toggle-collapse`);
+            if (childrenContainer) childrenContainer.classList.add('collapsed');
+            if (toggleIcon) toggleIcon.classList.remove('rotate-90');
+        });
 
-        } else {
-            filteredTaskIdsToShow = getTaskFamilyIds(selectedTaskId);
+    } else {
+        filteredTaskIdsToShow = getTaskFamilyIds(selectedTaskId);
 
-            allTaskRows.forEach(row => {
-                const rowTaskId = row.dataset.taskId;
-                if (filteredTaskIdsToShow.has(rowTaskId)) {
-                    row.classList.remove('task-filtered-out');
-                } else {
-                    row.classList.add('task-filtered-out');
-                }
-            });
+        allTaskRows.forEach(row => {
+            const rowTaskId = row.dataset.taskId;
+            if (filteredTaskIdsToShow.has(rowTaskId)) {
+                row.classList.remove('task-filtered-out');
+            } else {
+                row.classList.add('task-filtered-out');
+            }
+        });
 
-            filteredTaskIdsToShow.forEach(idStr => {
-                if (idStr === selectedTaskId) return;
-                
-                const childrenContainer = document.querySelector(`.task-children[data-parent-id="${idStr}"]`);
-                const toggleIcon = document.querySelector(`[data-task-id="${idStr}"].toggle-collapse`);
-                
-                if (childrenContainer) childrenContainer.classList.remove('collapsed');
-                if (toggleIcon) toggleIcon.classList.add('rotate-90');
-                
-                collapsedTasks.delete(idStr);
-            });
-        }
-        
-        saveCollapsedState();
-        updateGanttChart();
+        filteredTaskIdsToShow.forEach(idStr => {
+            if (idStr === selectedTaskId) return;
+            
+            const childrenContainer = document.querySelector(`.task-children[data-parent-id="${idStr}"]`);
+            const toggleIcon = document.querySelector(`[data-task-id="${idStr}"].toggle-collapse`);
+            
+            if (childrenContainer) childrenContainer.classList.remove('collapsed');
+            if (toggleIcon) toggleIcon.classList.add('rotate-90');
+            
+            collapsedTasks.delete(idStr);
+        });
     }
+    
+    // SIMPAN FILTER KE LOCALSTORAGE: Persist state setelah filter
+    localStorage.setItem('ganttFilterId', selectedTaskId || 'all');
+    
+    saveCollapsedState();
+    updateGanttChart();
+}
 
     function populateTaskFilter() {
         const select = document.getElementById('taskFilterSelect');
