@@ -73,6 +73,13 @@
                                 </svg>
                                 <span>Profil</span>
                             </a>
+                            {{-- TAMBAH: Button Export PDF di Dropdown User --}}
+                            <a href="{{ route('gantt.export.pdf') }}" target="_blank" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-150">
+                                <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 01-1-1V4a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H3zM9 5H5v2h4V5zm0 4H5v2h4V9zm0 4H5v2h4v-2zm2-8h4v2h-4V5zm0 4h4v2h-4V9zm4 4h-4v2h4v-2z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Export PDF</span>
+                            </a>
                         </div>
                         <div class="py-1">
                             <form method="POST" action="{{ route('logout') }}">

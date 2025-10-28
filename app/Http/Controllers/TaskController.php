@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
@@ -637,6 +639,36 @@ class TaskController extends Controller
     }
 
     /**
+     * Flatten task hierarchy untuk export: Kumpul parent + semua descendants rekursif
+     * Return Collection flat, sorted by order, dengan level preserved
+     */
+    private function flattenTaskHierarchy(Task $task)
+    {
+        $flattened = collect();
+
+        // Mulai dengan parent
+        $flattened->push($task);
+
+        // Rekursif collect children (dengan order preserved)
+        $this->collectFlattenedChildren($task, $flattened);
+
+        // Sort by order (global, karena order sudah normalized di DB)
+        return $flattened->sortBy('order');
+    }
+
+    private function collectFlattenedChildren(Task $parent, &$flattened)
+    {
+        // Load children fresh jika belum
+        $parent->load('children');
+
+        foreach ($parent->children->sortBy('order') as $child) {
+            $flattened->push($child);
+            // Rekursif untuk sub-children
+            $this->collectFlattenedChildren($child, $flattened);
+        }
+    }
+
+    /**
      * Delete task dan semua descendants secara rekursif
      */
     private function deleteRecursive(Task $task)
@@ -673,4 +705,90 @@ class TaskController extends Controller
                 ->with('error', 'Terjadi kesalahan saat menghapus task: ' . $e->getMessage());
         }
     }
+
+    public function exportGanttPdf()
+{
+    try {
+        // Ambil tasks milik user saat ini (security)
+        $tasks = Task::where('user_id', Auth::id())
+                    ->orderBy('order')
+                    ->get();
+
+        if ($tasks->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada tasks untuk diexport.'], 404);
+        }
+
+        // Hitung global start/end dari semua tasks di tree
+        $startDate = $tasks->min('start');
+        $endDate = $tasks->max('finish');
+
+        // Fix: View path dengan subfolder (resources/views/pdf/gantt.blade.php)
+        $pdf = Pdf::loadView('pdf.gantt', compact('tasks', 'startDate', 'endDate'));
+
+        // UNTUK PREVIEW: Stream di browser (tab baru)
+        return $pdf->stream('gantt_chart_preview.pdf');
+
+    } catch (\Exception $e) {
+        // Log error untuk debug (cek storage/logs/laravel.log)
+        Log::error('Export Gantt PDF failed: ' . $e->getMessage(), [
+            'user_id' => Auth::id(),
+            'tasks_count' => $tasks->count() ?? 0,
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        // Return JSON error supaya JS bisa handle (hindari 500 plain HTML)
+        return response()->json([
+            'error' => 'Gagal generate PDF: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+// Metode untuk Export Tugas Spesifik
+public function exportTaskPdf(Task $task)
+{
+    try {
+        // Check ownership
+        if ($task->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Load root task (jika ini child, ambil dari root untuk full tree)
+        $rootTask = $this->getRootTask($task);
+        $rootTask->load(['children' => function ($query) {
+            $query->orderBy('order')->with(['children' => function($q) {
+                $q->orderBy('order'); // Nested load untuk rekursif
+            }]);
+        }]);
+
+        // FIX: Flatten full hierarchy (root + semua descendants)
+        $tasks = $this->flattenTaskHierarchy($rootTask);
+
+        if ($tasks->isEmpty()) {
+            return response()->json(['error' => 'Tidak ada tasks untuk diexport.'], 404);
+        }
+
+        // Hitung global start/end dari semua tasks di tree
+        $startDate = $tasks->min('start');
+        $endDate = $tasks->max('finish');
+
+        // Load view dengan $tasks (flat collection)
+        $pdf = Pdf::loadView('task.pdf', compact('tasks', 'startDate', 'endDate'));
+
+        // UNTUK PREVIEW: Stream di browser
+        return $pdf->stream('task_hierarchy_' . $rootTask->id . '_preview.pdf');
+
+    } catch (\Exception $e) {
+        // Log error (sekarang aman)
+        Log::error('Export Task PDF failed: ' . $e->getMessage(), [
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        // Return JSON error
+        return response()->json([
+            'error' => 'Gagal generate PDF task: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }

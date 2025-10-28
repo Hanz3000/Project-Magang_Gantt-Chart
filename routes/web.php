@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\AuthController;
+// Pastikan Anda membuat controller ini untuk menangani logika PDF
+// Misalnya, Anda bisa menamainya ExportController
+// use App\Http\Controllers\ExportController;
 
 Route::middleware('auth')->group(function () {
     // Dashboard default
@@ -20,6 +23,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
     Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
+    // =======================================================
+    // Rute Baru untuk Export PDF (Memperbaiki error 'Route not defined')
+    // Anda harus menentukan controller dan method yang benar (misalnya: ExportController::class, 'exportGantt')
+    // Saya menggunakan TaskController sebagai placeholder, ubah sesuai Controller Export Anda.
+    // -------------------------------------------------------
+
+    // 1. Export Seluruh Gantt Chart dan List
+    Route::get('/gantt/export/pdf', [TaskController::class, 'exportGanttPdf'])
+         ->name('gantt.export.pdf');
+
+    // 2. Export Detail Tugas Spesifik (Digunakan di Modal Footer)
+    // Rute ini sesuai dengan path '/tasks/{id}/export-pdf' yang digunakan di JavaScript
+    Route::get('/tasks/{task}/export-pdf', [TaskController::class, 'exportTaskPdf'])
+         ->name('tasks.export.pdf');
+
+    // =======================================================
 
     // Profil
     Route::get('/profil', function () {
