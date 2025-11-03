@@ -304,14 +304,11 @@
 </div>
 @endsection
 
-<!-- Tambahkan CDN jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Tambahkan CDN Select2 -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<!-- Custom Select2 Styling -->
 <style>
 .select2-container--default .select2-selection--single {
     height: 48px !important;
@@ -373,9 +370,9 @@
             width: '100%'
         });
 
-        let lastChanged = ''; // Lacak field terakhir diubah
+        let lastChanged = ''; 
 
-        // Fungsi untuk format tanggal ke dd-mm-yyyy
+       
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
@@ -385,17 +382,16 @@
             return `${day}-${month}-${year}`;
         }
 
-        // Fungsi untuk convert dd-mm-yyyy ke yyyy-mm-dd
         function convertToISO(dateString) {
             if (!dateString) return '';
             const parts = dateString.split('-');
             if (parts.length === 3) {
-                return `${parts[2]}-${parts[1]}-${parts[0]}`; // yyyy-mm-dd
+                return `${parts[2]}-${parts[1]}-${parts[0]}`; 
             }
             return dateString;
         }
 
-        // Fungsi untuk validasi format tanggal dd-mm-yyyy
+       
         function isValidDate(dateString) {
             const regex = /^(\d{2})-(\d{2})-(\d{4})$/;
             if (!regex.test(dateString)) return false;
@@ -410,7 +406,6 @@
             return day >= 1 && day <= daysInMonth;
         }
 
-        // Event handler untuk input tanggal mulai
         $('#start_display').on('blur', function() {
             let value = $(this).val().trim();
             if (value && isValidDate(value)) {
@@ -425,7 +420,7 @@
             }
         });
 
-        // Event handler untuk input tanggal selesai
+       
         $('#finish_display').on('blur', function() {
             let value = $(this).val().trim();
             if (value && isValidDate(value)) {
@@ -440,7 +435,6 @@
             }
         });
 
-        // Allow date picker on click
         $('#start_display, #finish_display').on('click', function() {
             const inputId = $(this).attr('id').replace('_display', '');
             const hiddenInput = $('<input type="date" style="position:absolute;opacity:0;width:0;height:0;">');
@@ -462,12 +456,10 @@
             hiddenInput[0].showPicker();
         });
 
-        // Sync checkbox dengan hidden input
         $('#move_children_checkbox').on('change', function() {
             $('#move_children').val(this.checked ? '1' : '0');
         });
 
-        // Event listener pilih parent
         $('#parent_id').on('change', function() {
             const parentId = $(this).val();
             const parentInfo = $('#parentInfo');
@@ -484,10 +476,10 @@
                     `Sub-task dimulai ${startFormatted} dan selesai ${finishFormatted}.`
                 );
                 
-                // Autofit tanggal mulai ke hari setelah tanggal selesai parent
+                
                 if (parentFinish) {
                     const start = new Date(parentFinish);
-                    start.setDate(start.getDate() + 1); // Tambah 1 hari setelah tanggal selesai parent
+                    start.setDate(start.getDate() + 1); 
                     const isoStart = start.toISOString().split('T')[0];
                     $('#start').val(isoStart);
                     $('#start_display').val(formatDate(isoStart));
@@ -508,25 +500,24 @@
             updateDatePickers();
         });
 
-        // Tracking perubahan field
         $('#start_display').on('keyup change', function() {
-            // Validasi dilakukan di blur event
+            
         });
         $('#finish_display').on('keyup change', function() {
-            // Validasi dilakukan di blur event
+           
         });
         $('#duration').on('change', function() {
             lastChanged = 'duration';
             updateDatePickers();
         });
 
-        // Fungsi update date picker
+        
         function updateDatePickers() {
             const startVal = $('#start').val();
             const finishVal = $('#finish').val();
             const durationVal = $('#duration').val();
 
-            // Durasi → hitung finish
+            
             if ((lastChanged === 'start' || lastChanged === 'duration' || lastChanged === 'parent') && durationVal && startVal) {
                 const start = new Date(startVal);
                 const finish = new Date(start);
@@ -536,7 +527,7 @@
                 $('#finish_display').val(formatDate(isoFinish));
             }
 
-            // Finish → hitung durasi
+            
             if (lastChanged === 'finish' && finishVal && startVal) {
                 const start = new Date(startVal);
                 const finish = new Date(finishVal);
@@ -544,7 +535,7 @@
                 if (diff > 0) $('#duration').val(diff);
             }
 
-            // Update display fields jika ada perubahan
+            
             if (startVal) {
                 $('#start_display').val(formatDate(startVal));
             }
@@ -553,9 +544,9 @@
             }
         }
 
-        // Validasi tanggal saat input
+        
         function validateDateInputs() {
-            // Validasi dilakukan di blur event untuk start_display dan finish_display
+            
             $('#finish_display').on('blur', function() {
                 const startVal = $('#start').val();
                 const finishVal = $('#finish').val();

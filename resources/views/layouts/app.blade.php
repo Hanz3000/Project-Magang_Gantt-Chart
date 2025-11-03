@@ -6,8 +6,7 @@
     <title>Project Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Konfigurasi Tailwind tetap di sini
-        tailwind.config = {
+                tailwind.config = {
             theme: {
                 extend: {
                     backgroundImage: {
@@ -18,7 +17,7 @@
         }
     </script>
     <style>
-        /* Kita biarkan ini kosong karena semua style sudah pindah ke kelas Tailwind */
+       
         html,
         body {
             height: 100%;

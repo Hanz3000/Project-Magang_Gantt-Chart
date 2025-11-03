@@ -67,7 +67,7 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
-    // ganti password dari profil
+    
     public function updatePassword(Request $request)
     {
         $request->validate([

@@ -232,16 +232,16 @@
 </div>
 @endsection
 
-<!-- Tambahkan CDN jQuery -->
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-<!-- Tambahkan CDN Select2 -->
+
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<!-- Custom Select2 Styling -->
+
 <style>
     .select2-container--default .select2-selection--single {
         height: 48px !important;
@@ -358,18 +358,18 @@ $('#parent_id').on('change', function() {
     // Reset readonly status
     $('#start').prop('readonly', false);
     
-    // Aturan isi otomatis start berdasarkan level parent
+    
     if (parentLevel === 0) {
-        // Level 0 → ikut tanggal mulai parent
+        
         programmatic = true;
         startPicker.setDate(formatDate(parentStart), true);
         programmatic = false;
         $('#start').prop('readonly', true);
     } else if (parentLevel >= 1) {
-    // Level 1+ → mulai sehari setelah tanggal selesai parent
+    
     const parentFinishDate = parseDate(formatDate(parentFinish));
     if (parentFinishDate) {
-        parentFinishDate.setDate(parentFinishDate.getDate() + 1); // tambah 1 hari
+        parentFinishDate.setDate(parentFinishDate.getDate() + 1); 
         programmatic = true;
         startPicker.setDate(parentFinishDate, true);
         programmatic = false;
@@ -378,18 +378,17 @@ $('#parent_id').on('change', function() {
 
 });
 
-    // Helper format yyyy-mm-dd -> dd-mm-yyyy
+    
     function formatDate(dateStr) {
         if (!dateStr) return "";
         const cleanDate = dateStr.split(" ")[0];
 
-        // yyyy-mm-dd → dd-mm-yyyy
+       
         if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
             const [y, m, d] = cleanDate.split("-");
             return `${d}-${m}-${y}`;
         }
 
-        // sudah dd-mm-yyyy
         if (/^\d{2}-\d{2}-\d{4}$/.test(cleanDate)) {
             return cleanDate;
         }
@@ -397,15 +396,12 @@ $('#parent_id').on('change', function() {
         return cleanDate;
     }
 
-    // Parse dd-mm-yyyy → Date object
     function parseDate(str) {
         if (!str) return null;
         const [d, m, y] = str.split("-");
         return new Date(y, m - 1, d);
     }
 
-    // Update date pickers sesuai rules
-    // Update date pickers sesuai rules
 function updateDatePickers() {
     const startVal = $('#start').val();
     const finishVal = $('#finish').val();

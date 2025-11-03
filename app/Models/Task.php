@@ -13,26 +13,26 @@ class Task extends Model
         'user_id', 
     ];
 
-    // 🔑 Casting field tanggal ke Carbon instance
+  
     protected $casts = [
         'start' => 'datetime',
         'finish' => 'datetime',
-        'order' => 'integer', // Casting untuk kolom order
+        'order' => 'integer', 
     ];
 
-    // Relasi ke children (bisa nested)
+    
     public function children(): HasMany
     {
         return $this->hasMany(Task::class, 'parent_id')->with('children')->orderBy('order');
     }
 
-    // Relasi ke parent
+    
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Task::class, 'parent_id');
     }
 
-    // Helper untuk mendapatkan level/depth
+    
     public function getDepthAttribute(): int
     {
         $depth = 0;
@@ -46,7 +46,6 @@ class Task extends Model
         return $depth;
     }
 
-    // Helper untuk mendapatkan semua keturunan (descendants)
     public function getDescendants(): array
     {
         $descendants = [];
@@ -57,7 +56,6 @@ class Task extends Model
         return $descendants;
     }
 
-    // Helper untuk mengatur urutan tugas
     public static function reorderTasks(array $taskIds): void
     {
         foreach ($taskIds as $index => $taskId) {

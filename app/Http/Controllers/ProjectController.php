@@ -11,14 +11,12 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        // Ambil task induk + anak + cucu (recursively)
         $tasks = Task::whereNull('parent_id')
                     ->with(['children' => function($query) {
                         $query->with('children'); // Load grandchildren
                     }])
                     ->get();
 
-        // Hitung range tanggal global dengan recursive function
         $allStarts = collect();
         $allFinishes = collect();
         
@@ -37,7 +35,6 @@ class ProjectController extends Controller
         return view('projects.index', compact('tasks', 'minDate', 'maxDate', 'totalDays'));
     }
 
-    // Recursive function untuk mendapatkan semua tanggal task
     private function getAllTaskDates($tasks, &$allStarts, &$allFinishes)
     {
         foreach($tasks as $task) {

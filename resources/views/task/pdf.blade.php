@@ -66,8 +66,7 @@
 
     @endphp
     <style>
-        /* Semua CSS diambil dari template baru Anda, 
-           tapi saya hapus .level-* karena kita pakai $task->color */
+        
         @page {
             size: A4 landscape;
             margin: 10mm;
