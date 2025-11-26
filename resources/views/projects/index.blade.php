@@ -11,8 +11,7 @@
                 toast: true,
                 position: 'top-end',
                 icon: 'success',
-                title: '{{ session('
-                success ') }}',
+                title: "{{ session('success') }}",
                 showConfirmButton: false,
                 timer: 3500,
                 timerProgressBar: true,
@@ -34,8 +33,7 @@
                 toast: true,
                 position: 'top-end',
                 icon: 'error',
-                title: '{{ session('
-                error ') }}',
+                title: "{{ session('error') }}",
                 showConfirmButton: false,
                 timer: 3500,
                 timerProgressBar: true,
