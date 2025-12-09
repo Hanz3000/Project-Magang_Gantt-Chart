@@ -1,89 +1,73 @@
 @php
-    // Tidak lagi perlu cek children dari relasi Eloquent
-    // Karena structuredTasks sudah flat dari controller
-    $isParent = isset($allTasks) && $allTasks->where('parent_id', $task->id)->count() > 0;
+    $childrenCount = isset($allTasks) ? $allTasks->where('parent_id', $task->id)->count() : 0;
+    $isParent = $childrenCount > 0;
     $paddingLeft = ($task->level ?? 0) > 0 ? 32 : 8;
+    
+    // FIX PENTING: Z-Index menurun berdasarkan urutan.
+    // Tugas pertama z-index: 10000, Tugas kedua: 9999, dst.
+    // Ini mencegah baris bawah menutupi baris atas.
+    $zIndex = 10000 - ($task->order ?? $loop->index); 
 @endphp
 
-<!-- Task Row -->
 <div class="task-row group transition-colors duration-200 {{ ($task->level ?? 0) > 0 ? 'task-child' : '' }}"
      data-task-id="{{ $task->id }}"
      data-parent-id="{{ $task->parent_id ?? '' }}"
-     data-level="{{ $task->level ?? 0 }}">
-
-    <!-- Toggle Column (40px) -->
+     data-level="{{ $task->level ?? 0 }}"
+     style="position: relative; z-index: {{ $zIndex }};"> 
     <div class="task-cell task-toggle-cell">
         @if($isParent)
-            <button class="toggle-collapse rotate-90"
-                    data-task-id="{{ $task->id }}"
-                    aria-label="Toggle subtasks">
-                <svg class="w-3 h-3 text-gray-700 transform transition-transform duration-200"
-                     fill="none"
-                     stroke="currentColor"
-                     viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
-                </svg>
+            <button class="toggle-collapse rotate-90" data-task-id="{{ $task->id }}">
+                <svg class="w-3 h-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
             </button>
         @endif
     </div>
 
-    <!-- Task Name Column (dengan icon dan indentasi) -->
-    <div class="task-cell task-name-cell cursor-pointer"
-         data-task-id="{{ $task->id }}"
-         style="padding-left: {{ $paddingLeft }}px;">
+    <div class="task-cell task-name-cell cursor-pointer" style="padding-left: {{ $paddingLeft }}px;" data-task-id="{{ $task->id }}">
         <div class="flex items-center gap-2">
-            @if(($task->level ?? 0) > 0)
-                <!-- Child Task: Square Icon (warna akan diset oleh JavaScript) -->
-                <div class="task-icon-square"></div>
-            @else
-                <!-- Parent Task: Square Icon (warna akan diset oleh JavaScript) -->
-                <div class="task-icon-square"></div>
-            @endif
-            <span class="task-name-text {{ ($task->level ?? 0) === 0 ? 'font-semibold' : 'font-medium' }}">
-                {{ is_array($task) ? $task['name'] : $task->name }}
+            <div class="task-icon-square"></div>
+            <span class="task-name-text {{ $isParent ? 'font-bold text-gray-900' : 'font-medium' }}">
+                {{ $task->name }}
             </span>
         </div>
     </div>
 
-    <!-- Start Date Column -->
     <div class="task-cell task-date-cell">
-        <span class="task-date-text">
-            @if(is_array($task))
-                {{ isset($task['start']) ? \Carbon\Carbon::parse($task['start'])->format('M j, Y') : '-' }}
-            @else
-                {{ $task->start ? \Carbon\Carbon::parse($task->start)->format('M j, Y') : '-' }}
-            @endif
-        </span>
+        <span class="task-date-text">{{ $task->start ? \Carbon\Carbon::parse($task->start)->format('M j, Y') : '-' }}</span>
     </div>
 
-    <!-- End Date Column -->
     <div class="task-cell task-date-cell">
-        <span class="task-date-text">
-            @if(is_array($task))
-                {{ isset($task['finish']) ? \Carbon\Carbon::parse($task['finish'])->format('M j, Y') : '-' }}
-            @else
-                {{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('M j, Y') : '-' }}
-            @endif
-        </span>
+        <span class="task-date-text">{{ $task->finish ? \Carbon\Carbon::parse($task->finish)->format('M j, Y') : '-' }}</span>
     </div>
 
-    <!-- Duration Column -->
     <div class="task-cell task-duration-cell">
-        <span class="duration-badge-modern"
-              data-task-id="{{ is_array($task) ? $task['id'] : $task->id }}"
-              data-parent-id="{{ is_array($task) ? ($task['parent_id'] ?? '') : ($task->parent_id ?? '') }}"
-              data-level="{{ is_array($task) ? ($task['level'] ?? 0) : ($task->level ?? 0) }}"
-              id="duration-{{ is_array($task) ? $task['id'] : $task->id }}">
-            {{ is_array($task) ? ($task['duration'] ?? 0) : ($task->duration ?? 0) }}d
+        <span class="duration-badge-modern">{{ $task->duration ?? 0 }}d</span>
+    </div>
+
+    <div class="task-progress-cell" style="position: relative;">
+        <input type="range" 
+       class="task-progress-slider {{ ($task->level ?? 0) == 0 ? 'top-level-slider' : 'sub-level-slider' }}"
+       data-task-id="{{ $task->id }}" 
+       min="0" max="100" 
+       value="{{ $task->progress ?? 0 }}"
+       
+       style="--progress-value: {{ $task->progress ?? 0 }}%;"
+       
+       {{-- Tidak ada lagi disabled --}}
+       
+       {{-- Semua slider: update visual saat drag --}}
+       oninput="updateProgressUI(this)"
+       
+       title="Geser untuk update progress (Auto recalculation untuk parent)">
+               
+        <span class="task-progress-label" id="progress-label-{{ $task->id }}">
+            {{ $task->progress ?? 0 }}%
         </span>
     </div>
 </div>
 
-<!-- Recursively render children jika ada -->
 @if($isParent && isset($allTasks))
-    <div class="task-children transition-all duration-300 ease-in-out"
-         data-parent-id="{{ is_array($task) ? $task['id'] : $task->id }}">
-        @foreach($allTasks->where('parent_id', is_array($task) ? $task['id'] : $task->id) as $child)
+    <div class="task-children transition-all duration-300" data-parent-id="{{ $task->id }}">
+        @foreach($allTasks->where('parent_id', $task->id)->sortBy('order') as $child)
             @include('partials.task-item', ['task' => $child, 'allTasks' => $allTasks])
         @endforeach
     </div>

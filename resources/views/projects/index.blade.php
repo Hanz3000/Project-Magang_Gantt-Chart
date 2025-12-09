@@ -48,10 +48,6 @@
     @endif
 
     <style>
-        /* ================================================
-        CSS Styles (Sama seperti yang Anda berikan)
-        ================================================
-        */
         :root {
             --level-0-bg: #0078d4;
             --level-0-border: #106ebe;
@@ -68,9 +64,98 @@
             --day-width: 24px;
         }
 
+        .task-progress-cell {
+            padding: 8px 12px;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 100%;
+        }
+
+        .task-progress-slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            cursor: pointer;
+            background: linear-gradient(to right, #4CAF50 0%, #4CAF50 var(--progress-value, 0%), #e0e0e0 var(--progress-value, 0%), #e0e0e0 100%);
+        }
+
+        .task-progress-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-progress-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-progress-label {
+            min-width: 35px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        /* New styles for parent and child sliders */
+        .task-progress-slider.parent-slider {
+            /* Visual warning for parent sliders: Slightly reduced opacity, yellow border, but still clickable */
+            opacity: 0.8;
+            border: 1px solid #f59e0b;
+            /* Yellow border for warning */
+            border-radius: 4px;
+            padding: 2px;
+            cursor: pointer !important;
+            /* Ensure clickable despite parent status */
+            background: linear-gradient(to right, #f59e0b 0%, #f59e0b var(--progress-value, 0%), #e0e0e0 var(--progress-value, 0%), #e0e0e0 100%);
+            /* Yellow gradient base for parent */
+        }
+
+        .task-progress-slider.parent-slider::-webkit-slider-thumb,
+        .task-progress-slider.parent-slider::-moz-range-thumb {
+            background: #f59e0b;
+            /* Yellow thumb for parent sliders */
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-progress-slider.child-slider {
+            /* Normal styles for child sliders (overrides any parent if applied) */
+            opacity: 1;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            background: linear-gradient(to right, #4CAF50 0%, #4CAF50 var(--progress-value, 0%), #e0e0e0 var(--progress-value, 0%), #e0e0e0 100%);
+        }
+
+        .task-progress-slider.child-slider::-webkit-slider-thumb,
+        .task-progress-slider.child-slider::-moz-range-thumb {
+            background: #4CAF50;
+            /* Green thumb for child sliders */
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
         .task-row {
             display: grid;
-            grid-template-columns: 50px 1fr 150px 110px 110px;
+            grid-template-columns: 50px 1fr 130px 110px 110px 160px;
             height: 40px;
             align-items: center;
             padding: 0;
@@ -391,7 +476,7 @@
 
         .task-header-row {
             display: grid;
-            grid-template-columns: 50px 1fr 150px 110px 110px;
+            grid-template-columns: 50px 1fr 130px 110px 110px 160px;
             height: 40px;
             align-items: center;
             padding: 0;
@@ -1719,12 +1804,12 @@
                     </button>
                     {{-- AKHIR FITUR MODIFIKASI --}}
 
-                   <a href="#" id="deleteTaskBtn" class="modal-btn modal-btn-danger flex items-center gap-2">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 fill-current">
-    <path d="M9 3a1 1 0 0 0-1 1v1H4a1 1 0 1 0 0 2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7h1a1 1 0 1 0 0-2h-4V4a1 1 0 0 0-1-1H9Zm1 3V4h4v2h-4Z"/>
-  </svg>
-  <span>Hapus</span>
-</a>
+                    <a href="#" id="deleteTaskBtn" class="modal-btn modal-btn-danger flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 fill-current">
+                            <path d="M9 3a1 1 0 0 0-1 1v1H4a1 1 0 1 0 0 2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7h1a1 1 0 1 0 0-2h-4V4a1 1 0 0 0-1-1H9Zm1 3V4h4v2h-4Z" />
+                        </svg>
+                        <span>Hapus</span>
+                    </a>
 
 
                     <form id="deleteTaskForm" method="POST" style="display:none;">
@@ -1777,6 +1862,7 @@
                     <div class="task-header-cell">Tanggal Mulai</div>
                     <div class="task-header-cell">Tanggal Selesai</div>
                     <div class="task-header-cell">Durasi</div>
+                    <div class="task-header-cell">Progres</div>
                 </div>
             </div>
 
@@ -1818,6 +1904,20 @@
     </div>
 
     <script>
+        function updateProgressUI(slider) {
+            const taskId = slider.dataset.taskId;
+            const value = slider.value;
+
+            // 1. Update Angka Persentase Secara Langsung
+            const label = document.getElementById(`progress-label-${taskId}`);
+            if (label) {
+                label.textContent = value + '%';
+            }
+
+            // 2. Update Warna Hijau pada Slider
+            const percentage = (value - slider.min) / (slider.max - slider.min) * 100;
+            slider.style.setProperty('--progress-value', percentage + '%');
+        }
         let currentDate = new Date();
         let timelinePeriod = 3;
         let currentZoom = 100;
@@ -1834,20 +1934,58 @@
         let savedFilterId = localStorage.getItem('ganttFilterId');
 
         const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const minZoom = 50;
+        const maxZoom = 200;
+        const zoomStep = 25;
 
+        // Default Colors for Gantt Levels
+        const defaultColors = [{
+                bg: '#0078d4',
+                border: '#106ebe'
+            },
+            {
+                bg: '#107c10',
+                border: '#0e6e0e'
+            },
+            {
+                bg: '#881798',
+                border: '#7a1589'
+            },
+            {
+                bg: '#ff8c00',
+                border: '#e67e00'
+            },
+            {
+                bg: '#e81123',
+                border: '#d10e20'
+            },
+            {
+                bg: '#5c2d91',
+                border: '#522982'
+            }
+        ];
+
+        // Load Data from Laravel Blade
         @if(isset($structuredTasks) && count($structuredTasks) > 0)
         tasksData = @json($structuredTasks);
         @endif
 
+        // ==========================================
+        // 2. DOM Content Loaded (Initialization)
+        // ==========================================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Tasks data:', tasksData);
+            console.log('Tasks data loaded:', tasksData.length);
+
+            // A. Modal Year Input Listener
             const yearInput = document.getElementById('modalYearInput');
             if (yearInput) {
                 yearInput.addEventListener('input', renderModalMonths);
             }
 
+            // B. Populate Filter Dropdown
             populateTaskFilter();
 
+            // C. Restore Custom Colors from LocalStorage
             for (let i = 0; i < 6; i++) {
                 const bg = localStorage.getItem(`level-${i}-bg`);
                 const border = localStorage.getItem(`level-${i}-border`);
@@ -1855,6 +1993,7 @@
                 if (border) document.documentElement.style.setProperty(`--level-${i}-border`, border);
             }
 
+            // D. Setup Tooltip
             const ganttContainer = document.querySelector('.gantt-container');
             const tooltip = document.createElement('div');
             tooltip.id = 'ganttTooltip';
@@ -1864,6 +2003,7 @@
                 document.body.appendChild(tooltip);
             }
 
+            // E. Restore Zoom Level
             const savedZoom = localStorage.getItem('ganttZoomLevel');
             if (savedZoom) {
                 const zoom = parseInt(savedZoom, 10);
@@ -1874,6 +2014,7 @@
             }
             updateZoomLevel();
 
+            // F. Initialize Core Components
             initializeTimeline();
             setupScrollSynchronization();
             updateZoomButtons();
@@ -1882,6 +2023,7 @@
             setupColumnHighlight();
             setupGanttBarTooltip();
 
+            // G. Restore Collapsed State
             const savedCollapsed = localStorage.getItem('collapsedTaskIds');
             if (savedCollapsed) {
                 try {
@@ -1901,25 +2043,30 @@
                     localStorage.removeItem('collapsedTaskIds');
                 }
             } else {
+                // Default: collapse items marked as collapsed in HTML
                 document.querySelectorAll('.task-children.collapsed').forEach(container => {
                     const parentId = container.getAttribute('data-parent-id');
                     if (parentId) collapsedTasks.add(parentId);
                 });
             }
+
+            // H. Render Initial Chart
             updateGanttChart();
 
+            // I. Modal Focus Trap
             const modal = document.getElementById('taskModal');
             if (modal) trapFocus(modal);
 
+            // J. Initialize Colors
             setTimeout(() => {
                 initializeTaskIconColors();
                 updateTaskIconColors();
             }, 100);
 
+            // K. Restore View Modes (Chart Only / Fullscreen)
             const savedChartOnly = localStorage.getItem('isChartOnly');
             if (savedChartOnly === 'true') {
                 applyChartOnlyMode(true);
-                console.log('Restored Chart Only Mode');
             }
 
             const savedFullscreen = localStorage.getItem('isFullscreen');
@@ -1928,21 +2075,174 @@
                 if (container) {
                     container.classList.add('fullscreen');
                     document.body.classList.add('no-scroll');
-                    console.log('Restored Fullscreen Class');
                 }
             }
 
-            // RELOAD FILTER DARI LOCALSTORAGE: Apply filter tersimpan saat load halaman
+            // L. Restore Filter
             if (savedFilterId && savedFilterId !== 'all') {
                 const filterSelect = document.getElementById('taskFilterSelect');
                 if (filterSelect) {
-                    filterSelect.value = savedFilterId; // Set dropdown value
-                    filterSingleTask(savedFilterId); // Apply filter otomatis
+                    filterSelect.value = savedFilterId;
+                    filterSingleTask(savedFilterId);
                 }
             }
+
+            // ==========================================
+            // 3. Slider Progress Logic (Real-time + Autosave)
+            // ==========================================
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            function updateProgressLabel(taskId, value) {
+                const label = document.querySelector(`.task-progress-label[data-task-id="${taskId}"]`);
+                if (label) {
+                    label.textContent = value + '%';
+                }
+            }
+
+            function updateSliderBackground(slider) {
+                const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+                slider.style.setProperty('--progress-value', value + '%');
+            }
+
+
+            // Loop semua slider
+            document.querySelectorAll('.task-progress-slider').forEach(slider => {
+
+    // LOCAL UI update saat user drag
+    slider.addEventListener('input', function () {
+        updateProgressUI(this);
+
+        // Jika slider yang di-drag ternyata auto-update → hilangkan flag
+        if (this.dataset.auto === "true") {
+            delete this.dataset.auto;
+        }
+    });
+
+    // Kirim ke server saat selesai drag (change)
+    slider.addEventListener('change', async function () {
+
+        // Jika ini triggered karena auto update → jangan lakukan PATCH
+        if (this.dataset.auto === "true") {
+            delete this.dataset.auto;
+            return;
+        }
+
+        const taskId = this.dataset.taskId;
+        const progress = parseInt(this.value, 10);
+
+        updateProgressUI(this);
+
+        try {
+            const response = await fetch(`/tasks/${taskId}/progress`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ progress })
+            });
+
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+            const data = await response.json();
+
+            // ===============================================
+            // AUTO UPDATE PARENT dari server
+            // ===============================================
+            if (data.ancestors && Array.isArray(data.ancestors)) {
+                data.ancestors.forEach(ancestor => {
+
+                    const parentSlider = document.querySelector(
+                        `.task-progress-slider[data-task-id="${ancestor.id}"]`
+                    );
+
+                    if (parentSlider) {
+                        // THIS IS AUTO UPDATE
+                        parentSlider.dataset.auto = "true";
+
+                        parentSlider.value = ancestor.progress;
+                        updateProgressUI(parentSlider);
+
+                        // highlight
+                        const row = parentSlider.closest('.task-row');
+                        if (row) {
+                            row.style.transition = "background-color 0.3s";
+                            row.style.backgroundColor = "#dbeafe";
+                            setTimeout(() => row.style.backgroundColor = "", 600);
+                        }
+                    }
+
+                });
+            }
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Progress disimpan!',
+                showConfirmButton: false,
+                timer: 900
+            });
+
+        } catch (err) {
+
+            console.error(err);
+
+            this.value = this.dataset.originalValue;
+            updateProgressUI(this);
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'Gagal menyimpan',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
+
+    });
+
+});
+
+
+
         });
 
-        // FUNGSI MODIFIKASI: Export Single Task PDF dengan Preview
+        // Tambah di akhir DOMContentLoaded
+        async function refreshAllParentProgress() {
+            // Optional: Call endpoint batch untuk recalculate semua root parents
+            try {
+                const response = await fetch('/tasks/recalculate-progress', { // Buat endpoint baru jika perlu
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    // Update sliders dari data
+                    data.updated.forEach(task => {
+                        const slider = document.querySelector(`.task-progress-slider[data-task-id="${task.id}"]`);
+                        if (slider) {
+                            slider.value = task.progress;
+                            updateProgressUI(slider);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn('Auto-refresh parents failed:', err);
+            }
+        }
+        // Panggil setelah init: setTimeout(refreshAllParentProgress, 500);
+
+        // ==========================================
+        // 4. Helper Functions & Logic
+        // ==========================================
+
+        // --- Export PDF ---
         async function exportTaskPdf(taskId) {
             if (!taskId) {
                 Swal.fire({
@@ -1982,7 +2282,7 @@
                         toast: true,
                         position: 'top-end',
                         icon: 'success',
-                        title: 'Preview PDF terbuka di tab baru. Gunakan tombol download di browser untuk menyimpan.',
+                        title: 'Preview PDF terbuka di tab baru.',
                         showConfirmButton: false,
                         timer: 5000,
                         timerProgressBar: true,
@@ -1997,22 +2297,19 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal Generate PDF',
-                    text: 'Terjadi kesalahan saat mempersiapkan preview. Silakan coba lagi.',
+                    text: 'Terjadi kesalahan saat mempersiapkan preview.',
                     target: ganttContainer || 'body'
                 });
             }
         }
 
+        // --- View Modes ---
         function toggleChartOnlyMode() {
             const container = document.querySelector('.gantt-container');
             if (!container) return;
-
             const newState = !container.classList.contains('chart-only-mode');
             applyChartOnlyMode(newState);
-
             localStorage.setItem('isChartOnly', newState);
-            console.log('Saved Chart Only Mode:', newState);
-
             setTimeout(setupScrollSynchronization, 100);
         }
 
@@ -2036,20 +2333,15 @@
                     exitBtn.onclick = toggleChartOnlyMode;
                     toolbarRight.appendChild(exitBtn);
                 }
-                document.querySelectorAll('.full-chart-btn').forEach(btn => {
-                    btn.title = 'Tampilkan Daftar Tugas';
-                });
+                document.querySelectorAll('.full-chart-btn').forEach(btn => btn.title = 'Tampilkan Daftar Tugas');
             } else {
                 container.classList.remove('chart-only-mode');
-                if (exitBtn) {
-                    exitBtn.remove();
-                }
-                document.querySelectorAll('.full-chart-btn').forEach(btn => {
-                    btn.title = 'Sembunyikan Daftar Tugas (Full Chart Mode)';
-                });
+                if (exitBtn) exitBtn.remove();
+                document.querySelectorAll('.full-chart-btn').forEach(btn => btn.title = 'Sembunyikan Daftar Tugas (Full Chart Mode)');
             }
         }
 
+        // --- Timeline Logic ---
         function initializeTimeline() {
             const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             timelineData.startDate = new Date(startOfMonth);
@@ -2108,6 +2400,7 @@
             }
         }
 
+        // --- Rendering Headers ---
         function renderTimelineHeaders() {
             renderMonthHeaders();
             renderDayHeaders();
@@ -2141,22 +2434,18 @@
                 monthHeaderHTML += `<div class="month-section" style="width: ${monthWidth}px;">${month.name}</div>`;
             });
             monthHeaderHTML += '</div>';
-
             monthHeaderContainer.innerHTML = monthHeaderHTML;
         }
 
         function renderDayHeaders() {
             const dayHeaderContainer = document.getElementById('dayHeaderContainer');
             if (!dayHeaderContainer) return;
-
             const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-
             let dayHeaderHTML = '<div class="day-header">';
             timelineData.days.forEach(day => {
                 const classes = ['timeline-day'];
                 if (day.dayOfWeek === 0) classes.push('sunday');
                 if (day.isToday) classes.push('today');
-
                 const dayWidth = getDayWidth();
                 dayHeaderHTML += `
                 <div class="${classes.join(' ')}"
@@ -2164,24 +2453,20 @@
                     data-dayname="${dayNames[day.dayOfWeek]}"
                     title="${getFullDayName(day.dayOfWeek)}">
                     ${day.dayNumber}
-                </div>
-            `;
+                </div>`;
             });
             dayHeaderHTML += '</div>';
-
             dayHeaderContainer.innerHTML = dayHeaderHTML;
         }
 
+        // --- Utility Functions ---
         function getFullDayName(dayOfWeek) {
             const fullDayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             return fullDayNames[dayOfWeek];
         }
 
         function isHoliday(date) {
-            const holidays = [
-                '2025-01-01', '2025-03-03', '2025-04-18', '2025-05-01', '2025-05-29',
-                '2025-06-01', '2025-06-29', '2025-08-17', '2025-09-16', '2025-12-25'
-            ];
+            const holidays = ['2025-01-01', '2025-03-03', '2025-04-18', '2025-05-01', '2025-05-29', '2025-06-01', '2025-06-29', '2025-08-17', '2025-09-16', '2025-12-25'];
             const dateString = date.toISOString().split('T')[0];
             return holidays.includes(dateString);
         }
@@ -2190,36 +2475,39 @@
             return 24 * (currentZoom / 100);
         }
 
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear().toString().slice(-2);
+            return `${day}-${month}-${year}`;
+        }
+
+        function calculateDuration(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const timeDiff = end.getTime() - start.getTime();
+            return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+        }
+
+        // --- Task Visibility & Rendering ---
         function isTaskVisible(task) {
-            if (!task.parent_id) {
-                return true;
-            }
-
+            if (!task.parent_id) return true;
             const parent = tasksData.find(t => t.id === task.parent_id);
-            if (!parent) {
-                return false;
-            }
-
-            if (collapsedTasks.has(parent.id.toString())) {
-                return false;
-            }
-
+            if (!parent) return false;
+            if (collapsedTasks.has(parent.id.toString())) return false;
             return isTaskVisible(parent);
         }
 
         function getVisibleTasks() {
             return tasksData.filter(task => {
                 if (!task.parent_id) return true;
-
                 let currentParentId = task.parent_id;
                 while (currentParentId) {
-                    if (collapsedTasks.has(currentParentId.toString())) {
-                        return false;
-                    }
+                    if (collapsedTasks.has(currentParentId.toString())) return false;
                     const parentTask = tasksData.find(t => t.id === currentParentId);
                     currentParentId = parentTask ? parentTask.parent_id : null;
                 }
-
                 return true;
             });
         }
@@ -2227,33 +2515,24 @@
         function getTasksInDOMOrder() {
             const orderedTasks = [];
             const taskRows = document.querySelectorAll('.task-row');
-
             taskRows.forEach(row => {
                 const taskId = parseInt(row.getAttribute('data-task-id'));
                 const task = tasksData.find(t => t.id === taskId);
-                if (task) {
-                    orderedTasks.push(task);
-                }
+                if (task) orderedTasks.push(task);
             });
-
             return orderedTasks;
         }
 
         function updateGanttChart() {
             const ganttRowsContainer = document.getElementById('ganttRowsContainer');
             if (!ganttRowsContainer) return;
-
             const orderedTasks = getTasksInDOMOrder();
-
-            console.log('DOM Order:', orderedTasks.map(t => t.name));
-
             let ganttHTML = '';
             if (orderedTasks.length > 0) {
                 orderedTasks.forEach(task => {
                     ganttHTML += generateGanttRow(task);
                 });
             }
-
             ganttRowsContainer.innerHTML = ganttHTML;
             addTodayIndicator();
             updateGanttWidths();
@@ -2261,26 +2540,17 @@
 
         function generateGanttRow(task) {
             const dayWidth = getDayWidth();
-
             const isHiddenByCollapse = !isTaskVisible(task);
-
             let isHiddenByFilter = false;
             if (filteredTaskIdsToShow !== null) {
-                if (!filteredTaskIdsToShow.has(task.id.toString())) {
-                    isHiddenByFilter = true;
-                }
+                if (!filteredTaskIdsToShow.has(task.id.toString())) isHiddenByFilter = true;
             }
 
             const rowClasses = ['gantt-row'];
-            if (isHiddenByCollapse) {
-                rowClasses.push('hidden-gantt-row');
-            }
-            if (isHiddenByFilter) {
-                rowClasses.push('task-filtered-out');
-            }
+            if (isHiddenByCollapse) rowClasses.push('hidden-gantt-row');
+            if (isHiddenByFilter) rowClasses.push('task-filtered-out');
 
             let rowHTML = `<div class="${rowClasses.join(' ')}" data-task-id="${task.id}">`;
-
             timelineData.days.forEach(day => {
                 const classes = ['gantt-grid-cell'];
                 if (day.isWeekend) classes.push('weekend');
@@ -2323,8 +2593,7 @@
                 data-start-day="${startDayOffset}"
                 data-duration="${task.duration || 0}">
                 <span class="task-bar-text">${task.name}</span>
-            </div>
-        `;
+            </div>`;
         }
 
         function addTodayIndicator() {
@@ -2348,6 +2617,7 @@
             }
         }
 
+        // --- Navigation & Zooming ---
         function navigateMonth(direction) {
             currentDate.setMonth(currentDate.getMonth() + direction);
             initializeTimeline();
@@ -2366,17 +2636,11 @@
             updateGanttChart();
         }
 
-        const minZoom = 50;
-        const maxZoom = 200;
-        const zoomStep = 25;
-
         function updateZoomLevel() {
             const zoomLevelElement = document.getElementById('zoomLevel');
             if (zoomLevelElement) zoomLevelElement.textContent = `${currentZoom}%`;
             updateZoomButtons();
-
             localStorage.setItem('ganttZoomLevel', currentZoom);
-            console.log('Saved Zoom Level:', currentZoom);
         }
 
         function updateZoomButtons() {
@@ -2419,6 +2683,7 @@
             }
         }
 
+        // --- Sync & Scroll ---
         function setupScrollSynchronization() {
             const taskListBody = document.getElementById('taskListBody');
             const ganttContent = document.getElementById('ganttContent');
@@ -2443,27 +2708,23 @@
                 passive: true
             });
 
-            const handleAlignmentSync = () => {
-                setTimeout(syncScroll, 50);
-            };
+            const handleAlignmentSync = () => setTimeout(syncScroll, 50);
             window.addEventListener('resize', handleAlignmentSync);
             document.addEventListener('fullscreenchange', handleAlignmentSync);
         }
 
         function setDefaultScrollPosition() {
             const ganttContent = document.getElementById('ganttContent');
-            if (ganttContent) {
-                ganttContent.scrollLeft = 0;
-            }
+            if (ganttContent) ganttContent.scrollLeft = 0;
         }
 
+        // --- Collapse / Expand Logic ---
         function toggleTaskCollapse(taskId) {
             const toggleIcon = document.querySelector(`[data-task-id="${taskId}"].toggle-collapse`);
             const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
 
             if (toggleIcon && childrenContainer) {
                 const isCollapsing = !childrenContainer.classList.contains('collapsed');
-
                 toggleIcon.classList.toggle('rotate-90', !isCollapsing);
                 childrenContainer.classList.toggle('collapsed', isCollapsing);
 
@@ -2472,15 +2733,44 @@
                 } else {
                     collapsedTasks.delete(taskId.toString());
                 }
-
                 saveCollapsedState();
-
-                setTimeout(() => {
-                    updateGanttChart();
-                }, 50);
+                setTimeout(() => updateGanttChart(), 50);
             }
         }
 
+        function expandAll() {
+            document.querySelectorAll('.task-children').forEach(container => container.classList.remove('collapsed'));
+            document.querySelectorAll('.toggle-collapse').forEach(icon => icon.classList.add('rotate-90'));
+            collapsedTasks.clear();
+            saveCollapsedState();
+            setTimeout(() => updateGanttChart(), 50);
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.task-children').forEach(container => {
+                container.classList.add('collapsed');
+                const parentId = container.getAttribute('data-parent-id');
+                if (parentId) {
+                    const parentTaskHasChildren = tasksData.some(t => t.parent_id == parentId);
+                    if (parentTaskHasChildren) collapsedTasks.add(parentId.toString());
+                }
+            });
+            document.querySelectorAll('.toggle-collapse').forEach(icon => {
+                const taskId = icon.getAttribute('data-task-id');
+                const taskHasChildren = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
+                if (taskHasChildren) icon.classList.remove('rotate-90');
+            });
+            saveCollapsedState();
+            setTimeout(() => updateGanttChart(), 50);
+        }
+
+        function saveCollapsedState() {
+            const collapsedIdsArray = Array.from(collapsedTasks);
+            localStorage.setItem('collapsedTaskIds', JSON.stringify(collapsedIdsArray));
+            console.log('Saved Collapsed Tasks:', collapsedIdsArray);
+        }
+
+        // --- Event Listeners ---
         document.addEventListener('click', function(e) {
             if (e.target.closest('.toggle-collapse')) {
                 const taskId = e.target.closest('.toggle-collapse').getAttribute('data-task-id');
@@ -2493,73 +2783,12 @@
             if (e.target.closest('.task-name-cell')) {
                 const taskId = e.target.closest('.task-name-cell').getAttribute('data-task-id');
                 const task = tasksData.find(t => t.id == taskId);
-                if (task) {
-                    console.log('Task from name cell:', task);
-                    openTaskModal(task);
-                }
+                if (task) openTaskModal(task);
             }
             if (e.target === document.getElementById('taskModal') && !isModalAnimating) {
                 closeTaskModal();
             }
         });
-
-        function handleTaskBarClick(taskId) {
-            const task = tasksData.find(t => t.id == taskId);
-            if (task) {
-                console.log('Task from gantt bar:', task);
-                openTaskModal(task);
-                document.dispatchEvent(new CustomEvent('taskSelected', {
-                    detail: {
-                        task
-                    }
-                }));
-            }
-        }
-
-        function expandAll() {
-            document.querySelectorAll('.task-children').forEach(container => {
-                container.classList.remove('collapsed');
-            });
-
-            document.querySelectorAll('.toggle-collapse').forEach(icon => {
-                icon.classList.add('rotate-90');
-            });
-
-            collapsedTasks.clear();
-
-            saveCollapsedState();
-
-            setTimeout(() => {
-                updateGanttChart();
-            }, 50);
-        }
-
-        function collapseAll() {
-            document.querySelectorAll('.task-children').forEach(container => {
-                container.classList.add('collapsed');
-                const parentId = container.getAttribute('data-parent-id');
-                if (parentId) {
-                    const parentTaskHasChildren = tasksData.some(t => t.parent_id == parentId);
-                    if (parentTaskHasChildren) {
-                        collapsedTasks.add(parentId.toString());
-                    }
-                }
-            });
-
-            document.querySelectorAll('.toggle-collapse').forEach(icon => {
-                const taskId = icon.getAttribute('data-task-id');
-                const taskHasChildren = document.querySelector(`.task-children[data-parent-id="${taskId}"]`);
-                if (taskHasChildren) {
-                    icon.classList.remove('rotate-90');
-                }
-            });
-
-            saveCollapsedState();
-
-            setTimeout(() => {
-                updateGanttChart();
-            }, 50);
-        }
 
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey || e.metaKey) {
@@ -2594,54 +2823,528 @@
             }
         });
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear().toString().slice(-2);
-            return `${day}-${month}-${year}`;
-        }
-
-        function calculateDuration(startDate, endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const timeDiff = end.getTime() - start.getTime();
-            return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
-        }
-
-        function handleResize() {
-            setTimeout(() => {
-                renderTimelineHeaders();
-                updateGanttChart();
-            }, 100);
-        }
-        window.addEventListener('resize', handleResize);
-
         document.addEventListener('touchend', function(e) {
             if (e.target.closest('.modal-btn') || e.target.closest('.modal-close-x')) e.preventDefault();
         });
 
+        // --- Task Modal ---
+        function openTaskModal(task) {
+            if (isModalAnimating) return;
+            currentTaskId = task.id;
+            const modal = document.getElementById('taskModal');
+            isModalAnimating = true;
+            populateModalContent(task);
+            document.body.classList.add('no-scroll');
+            const scrollY = window.scrollY;
+            document.body.style.top = `-${scrollY}px`;
+            document.body.dataset.scrollY = scrollY;
+            modal.style.display = 'flex';
+            modal.offsetHeight;
+            modal.classList.add('opening');
+            setTimeout(() => {
+                isModalAnimating = false;
+            }, 300);
+        }
+
+        function closeTaskModal() {
+            if (isModalAnimating) return;
+            const modal = document.getElementById('taskModal');
+            isModalAnimating = true;
+            modal.classList.remove('opening');
+            modal.classList.add('closing');
+            document.body.classList.remove('no-scroll');
+            const scrollY = document.body.dataset.scrollY || 0;
+            document.body.style.top = '';
+            window.scrollTo(0, parseInt(scrollY));
+            setTimeout(() => {
+                modal.classList.remove('closing');
+                modal.style.display = 'none';
+                isModalAnimating = false;
+                const colorPickerContainer = document.getElementById('colorPickerContainer');
+                if (colorPickerContainer) colorPickerContainer.remove();
+            }, 300);
+        }
+
+        function handleTaskBarClick(taskId) {
+            const task = tasksData.find(t => t.id == taskId);
+            if (task) {
+                openTaskModal(task);
+                document.dispatchEvent(new CustomEvent('taskSelected', {
+                    detail: {
+                        task
+                    }
+                }));
+            }
+        }
+
+        function populateModalContent(task) {
+            const taskNameEl = document.getElementById('taskName');
+            if (taskNameEl) taskNameEl.textContent = task.name || 'Untitled Task';
+
+            const durationEl = document.getElementById('taskDuration');
+            if (durationEl) {
+                durationEl.textContent = task.duration ? `${task.duration} hari` : 'Tidak ditentukan';
+                durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
+            }
+
+            const startDateEl = document.getElementById('taskStartDate');
+            if (startDateEl) {
+                startDateEl.textContent = task.startDate ? formatDate(task.startDate) : 'Tidak diatur';
+                startDateEl.className = task.startDate ? 'modal-field-value' : 'modal-field-value empty';
+            }
+
+            const finishDateEl = document.getElementById('taskFinishDate');
+            if (finishDateEl) {
+                finishDateEl.textContent = task.endDate ? formatDate(task.endDate) : 'Not set';
+                finishDateEl.className = task.endDate ? 'modal-field-value' : 'modal-field-value empty';
+            }
+
+            const descriptionEl = document.getElementById('taskDescription');
+            if (descriptionEl) {
+                descriptionEl.textContent = task.description || 'Deskripsi tidak tersedia';
+                descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
+            }
+
+            const editBtn = document.getElementById('editTaskBtn');
+            const deleteBtn = document.getElementById('deleteTaskBtn');
+            if (editBtn && task.id) editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
+
+            if (deleteBtn && task.id) {
+                deleteBtn.onclick = function(e) {
+                    e.preventDefault();
+                    const taskName = task.name || 'tugas ini';
+                    closeTaskModal();
+                    setTimeout(() => {
+                        const ganttContainer = document.querySelector('.gantt-container');
+                        Swal.fire({
+                            title: 'Apakah Anda Yakin?',
+                            html: `Anda akan menghapus tugas:<br><strong>${taskName}</strong>`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#dc2626',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: 'Ya, Hapus!',
+                            cancelButtonText: 'Batal',
+                            target: ganttContainer || 'body',
+                            showClass: {
+                                popup: 'swal2-show',
+                                backdrop: 'swal2-backdrop-show',
+                                icon: 'swal2-icon-show'
+                            },
+                            hideClass: {
+                                popup: 'swal2-hide',
+                                backdrop: 'swal2-backdrop-hide',
+                                icon: 'swal2-icon-hide'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const form = document.getElementById('deleteTaskForm');
+                                if (form) {
+                                    form.action = `/tasks/${task.id}`;
+                                    form.submit();
+                                }
+                            }
+                        });
+                    }, 300);
+                };
+            }
+
+            // Color Picker Logic
+            const rootId = getRootId(task);
+            const relLevel = getRelativeLevel(task);
+            const colorKey = `color-root-${rootId}-rellevel-${relLevel}`;
+            const bgColor = localStorage.getItem(`${colorKey}-bg`) || defaultColors[relLevel % 6].bg;
+            const borderColor = localStorage.getItem(`${colorKey}-border`) || defaultColors[relLevel % 6].border;
+
+            const modalHeader = document.querySelector('.modal-header');
+            if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${bgColor} 0%, ${borderColor} 100%)`;
+
+            let colorPickerContainer = document.getElementById('colorPickerContainer');
+            if (colorPickerContainer) colorPickerContainer.remove();
+            colorPickerContainer = document.createElement('div');
+            colorPickerContainer.id = 'colorPickerContainer';
+            colorPickerContainer.className = 'modal-field';
+            colorPickerContainer.innerHTML = `
+            <label class="modal-field-label">Ubah Warna Level ${relLevel}</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="color" id="levelColorPicker" value="${bgColor}">
+                <button id="resetColorBtn" class="modal-btn modal-btn-secondary">Reset Warna</button>
+            </div>`;
+            const modalBody = document.querySelector('.modal-body');
+            if (modalBody) modalBody.appendChild(colorPickerContainer);
+
+            const colorPicker = document.getElementById('levelColorPicker');
+            if (colorPicker) {
+                colorPicker.addEventListener('input', function(e) {
+                    const newBg = e.target.value;
+                    const newBorder = darkenColor(newBg);
+                    localStorage.setItem(`${colorKey}-bg`, newBg);
+                    localStorage.setItem(`${colorKey}-border`, newBorder);
+                    if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${newBg} 0%, ${newBorder} 100%)`;
+                    updateGanttChart();
+                    updateTaskIconColors();
+                });
+            }
+
+            const resetBtn = document.getElementById('resetColorBtn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    localStorage.removeItem(`${colorKey}-bg`);
+                    localStorage.removeItem(`${colorKey}-border`);
+                    const defaultBg = defaultColors[relLevel % 6].bg;
+                    const defaultBorder = defaultColors[relLevel % 6].border;
+                    if (colorPicker) colorPicker.value = defaultBg;
+                    if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${defaultBg} 0%, ${defaultBorder} 100%)`;
+                    updateGanttChart();
+                    updateTaskIconColors();
+                });
+            }
+        }
+
+        // --- Color Helpers ---
+        function darkenColor(color, amount = 0.1) {
+            let [r, g, b] = color.match(/\w\w/g).map(x => parseInt(x, 16));
+            r = Math.max(0, Math.round(r * (1 - amount)));
+            g = Math.max(0, Math.round(g * (1 - amount)));
+            b = Math.max(0, Math.round(b * (1 - amount)));
+            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        }
+
+        function getRootId(task) {
+            let current = task;
+            while (current.parent_id) {
+                current = tasksData.find(t => t.id === current.parent_id) || current;
+            }
+            return current.id;
+        }
+
+        function getRelativeLevel(task) {
+            let level = 0;
+            let current = task;
+            while (current.parent_id) {
+                level++;
+                current = tasksData.find(t => t.id === current.parent_id) || current;
+            }
+            return level;
+        }
+
+        function getColorForRootAndLevel(rootId, relLevel) {
+            const bgKey = `color-root-${rootId}-rellevel-${relLevel}-bg`;
+            const borderKey = `color-root-${rootId}-rellevel-${relLevel}-border`;
+            const bg = localStorage.getItem(bgKey) || defaultColors[relLevel % 6].bg;
+            const border = localStorage.getItem(borderKey) || defaultColors[relLevel % 6].border;
+            return {
+                bg,
+                border
+            };
+        }
+
+        function initializeTaskIconColors() {
+            document.querySelectorAll('.task-row').forEach(taskRow => {
+                const taskId = taskRow.getAttribute('data-task-id');
+                const task = tasksData.find(t => t.id == taskId);
+                if (task) {
+                    const rootId = getRootId(task);
+                    const relLevel = getRelativeLevel(task);
+                    const {
+                        bg,
+                        border
+                    } = getColorForRootAndLevel(rootId, relLevel);
+                    const iconElement = taskRow.querySelector('.task-icon-square');
+                    if (iconElement) {
+                        iconElement.style.backgroundColor = bg;
+                        iconElement.style.borderColor = border;
+                        iconElement.classList.remove('task-icon-blue', 'task-icon-green');
+                    }
+                }
+            });
+        }
+
+        function updateTaskIconColors() {
+            tasksData.forEach(task => {
+                const rootId = getRootId(task);
+                const relLevel = getRelativeLevel(task);
+                const colorKey = `color-root-${rootId}-rellevel-${relLevel}`;
+                const bgColor = localStorage.getItem(`${colorKey}-bg`) || defaultColors[relLevel % 6].bg;
+                const taskRow = document.querySelector(`[data-task-id="${task.id}"].task-row`);
+                if (taskRow) {
+                    const iconElement = taskRow.querySelector('.task-icon-square');
+                    if (iconElement) {
+                        iconElement.style.backgroundColor = bgColor;
+                        iconElement.style.borderColor = darkenColor(bgColor);
+                        iconElement.classList.remove('task-icon-blue', 'task-icon-green');
+                    }
+                }
+            });
+        }
+
+        // --- Resizer ---
+        function initResizer() {
+            const resizer = document.getElementById('resizerMain');
+            const taskListContainer = document.querySelector('.task-list-container');
+            const headerLeft = document.querySelector('.task-list-header-section');
+            if (!resizer || !taskListContainer || !headerLeft) return;
+
+            const savedWidth = localStorage.getItem('taskListWidth');
+            if (savedWidth) {
+                taskListContainer.style.width = savedWidth;
+                headerLeft.style.width = savedWidth;
+                updateGanttChart();
+                renderTimelineHeaders();
+            }
+
+            let startX, startWidth;
+
+            function onMouseMove(e) {
+                const dx = e.clientX - startX;
+                const maxWidth = window.innerWidth * (window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8);
+                const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
+                const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + dx));
+                const newWidthPx = `${newWidth}px`;
+                taskListContainer.style.width = newWidthPx;
+                headerLeft.style.width = newWidthPx;
+                updateGanttChart();
+                renderTimelineHeaders();
+            }
+
+            function onMouseUp() {
+                resizer.classList.remove('active');
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                localStorage.setItem('taskListWidth', taskListContainer.style.width);
+            }
+
+            resizer.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                startX = e.clientX;
+                startWidth = taskListContainer.getBoundingClientRect().width;
+                resizer.classList.add('active');
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            // Touch support for resizer
+            function onTouchMove(e) {
+                const dx = e.touches[0].clientX - startX;
+                const maxWidth = window.innerWidth * (window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8);
+                const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
+                const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + dx));
+                const newWidthPx = `${newWidth}px`;
+                taskListContainer.style.width = newWidthPx;
+                headerLeft.style.width = newWidthPx;
+                updateGanttChart();
+                renderTimelineHeaders();
+            }
+
+            function onTouchEnd() {
+                resizer.classList.remove('active');
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+                localStorage.setItem('taskListWidth', taskListContainer.style.width);
+            }
+
+            resizer.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                startX = e.touches[0].clientX;
+                startWidth = taskListContainer.getBoundingClientRect().width;
+                resizer.classList.add('active');
+                document.addEventListener('touchmove', onTouchMove);
+                document.addEventListener('touchend', onTouchEnd);
+            });
+
+            window.addEventListener('resize', () => {
+                const currentWidth = parseFloat(taskListContainer.style.width) || taskListContainer.getBoundingClientRect().width;
+                const maxWidth = window.innerWidth * (window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8);
+                const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
+                const adjustedWidth = Math.max(minWidth, Math.min(maxWidth, currentWidth));
+                taskListContainer.style.width = `${adjustedWidth}px`;
+                headerLeft.style.width = `${adjustedWidth}px`;
+                localStorage.setItem('taskListWidth', taskListContainer.style.width);
+                updateGanttChart();
+                renderTimelineHeaders();
+            });
+        }
+
+        // --- Highlighting ---
+        function highlightRow(taskId) {
+            removeAllHighlights();
+            if (!taskId) return;
+            const taskRow = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
+            if (taskRow) taskRow.classList.add('row-highlighted');
+            const ganttRow = document.querySelector(`.gantt-row[data-task-id="${taskId}"]`);
+            if (ganttRow) ganttRow.classList.add('row-highlighted');
+        }
+
+        function removeAllHighlights() {
+            document.querySelectorAll('.row-highlighted').forEach(el => el.classList.remove('row-highlighted'));
+        }
+
+        function setupRowHighlight() {
+            document.addEventListener('mouseover', function(e) {
+                const taskRow = e.target.closest('.task-row');
+                if (taskRow) highlightRow(taskRow.getAttribute('data-task-id'));
+                const ganttBar = e.target.closest('.gantt-bar');
+                if (ganttBar) highlightRow(ganttBar.getAttribute('data-task-id'));
+                const ganttRow = e.target.closest('.gantt-row');
+                if (ganttRow && !ganttBar) highlightRow(ganttRow.getAttribute('data-task-id'));
+            });
+            const container = document.querySelector('.gantt-container');
+            if (container) container.addEventListener('mouseleave', removeAllHighlights);
+            const taskListBody = document.getElementById('taskListBody');
+            if (taskListBody) taskListBody.addEventListener('mouseleave', removeAllHighlights);
+        }
+
+        function highlightTimelineColumn(dayIndex) {
+            removeAllColumnHighlights();
+            if (dayIndex === null || dayIndex === undefined) return;
+            const timelineDays = document.querySelectorAll('.timeline-day');
+            if (timelineDays[dayIndex]) timelineDays[dayIndex].classList.add('column-highlighted');
+            document.querySelectorAll('.gantt-row').forEach(row => {
+                const cells = row.querySelectorAll('.gantt-grid-cell');
+                if (cells[dayIndex]) cells[dayIndex].classList.add('column-highlighted');
+            });
+        }
+
+        function removeAllColumnHighlights() {
+            document.querySelectorAll('.column-highlighted').forEach(el => el.classList.remove('column-highlighted'));
+        }
+
+        function setupColumnHighlight() {
+            document.addEventListener('mouseover', function(e) {
+                const timelineDay = e.target.closest('.timeline-day');
+                if (timelineDay) {
+                    const dayContainer = timelineDay.closest('.day-header');
+                    const allDays = Array.from(dayContainer.querySelectorAll('.timeline-day'));
+                    highlightTimelineColumn(allDays.indexOf(timelineDay));
+                }
+                const ganttCell = e.target.closest('.gantt-grid-cell');
+                if (ganttCell && !e.target.closest('.gantt-bar')) {
+                    const row = ganttCell.closest('.gantt-row');
+                    const cells = Array.from(row.querySelectorAll('.gantt-grid-cell'));
+                    highlightTimelineColumn(cells.indexOf(ganttCell));
+                }
+            });
+            const timelineHeader = document.querySelector('.timeline-header-section');
+            if (timelineHeader) timelineHeader.addEventListener('mouseleave', removeAllColumnHighlights);
+            const ganttContent = document.getElementById('ganttContent');
+            if (ganttContent) ganttContent.addEventListener('mouseleave', removeAllColumnHighlights);
+        }
+
+        function setupGanttBarTooltip() {
+            const tooltip = document.getElementById('ganttTooltip');
+            if (!tooltip) return;
+            let currentTaskId = null;
+            document.addEventListener('mousemove', function(e) {
+                const ganttBar = e.target.closest('.gantt-bar');
+                if (ganttBar) {
+                    const taskId = ganttBar.getAttribute('data-task-id');
+                    if (taskId !== currentTaskId) {
+                        currentTaskId = taskId;
+                        const task = tasksData.find(t => t.id == taskId);
+                        if (task) {
+                            const formattedStart = task.startDate ? formatDate(task.startDate) : 'N/A';
+                            const formattedEnd = task.endDate ? formatDate(task.endDate) : 'N/A';
+                            tooltip.innerHTML = `
+                            <strong class="tooltip-title">${task.name}</strong>
+                            <div class="tooltip-field"><span>Mulai:</span> <span class="value">${formattedStart}</span></div>
+                            <div class="tooltip-field"><span>Selesai:</span> <span class="value">${formattedEnd}</span></div>
+                            <div class="tooltip-field"><span>Durasi:</span> <span class="value">${task.duration || 'N/A'} hari</span></div>`;
+                        }
+                    }
+                    tooltip.classList.add('show');
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    let x = e.clientX + 15;
+                    let y = e.clientY + 15;
+                    if (x + tooltipRect.width > window.innerWidth) x = e.clientX - tooltipRect.width - 15;
+                    if (y + tooltipRect.height > window.innerHeight) y = e.clientY - tooltipRect.height - 15;
+                    if (x < 0) x = 15;
+                    if (y < 0) y = 15;
+                    tooltip.style.left = `${x}px`;
+                    tooltip.style.top = `${y}px`;
+                } else {
+                    currentTaskId = null;
+                    tooltip.classList.remove('show');
+                }
+            });
+        }
+
+        // --- Modal Date Picker ---
+        function openDateModal() {
+            const modal = document.getElementById('dateModal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+            const yearInput = document.getElementById('modalYearInput');
+            yearInput.value = currentDate.getFullYear();
+            renderModalMonths();
+            yearInput.focus();
+            modal.addEventListener('click', outsideClickHandler);
+            document.addEventListener('keydown', escKeyHandler);
+        }
+
+        function closeDateModal() {
+            const modal = document.getElementById('dateModal');
+            if (!modal) return;
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 400);
+            modal.removeEventListener('click', outsideClickHandler);
+            document.removeEventListener('keydown', escKeyHandler);
+        }
+
+        function outsideClickHandler(e) {
+            if (!e.target.closest('.bg-white') && e.target.id === 'dateModal') closeDateModal();
+        }
+
+        function escKeyHandler(e) {
+            if (e.key === 'Escape') closeDateModal();
+        }
+
+        function renderModalMonths() {
+            const grid = document.getElementById('modalMonthsGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            const modalYear = parseInt(document.getElementById('modalYearInput').value) || currentYear;
+            monthNames.forEach((name, index) => {
+                const btn = document.createElement('button');
+                btn.className = `p-3 rounded border border-gray-300 text-sm font-medium transition ${index === currentMonth && modalYear === currentYear ? 'bg-blue-600 text-white border-blue-700' : 'bg-gray-50 hover:bg-gray-100'}`;
+                btn.textContent = name;
+                btn.onclick = () => setMonthYear(index, modalYear);
+                grid.appendChild(btn);
+            });
+        }
+
+        function changeModalYear(direction) {
+            const yearInput = document.getElementById('modalYearInput');
+            yearInput.value = parseInt(yearInput.value) + direction;
+            renderModalMonths();
+        }
+
+        function setMonthYear(month, year) {
+            currentDate = new Date(year, month, 1);
+            closeDateModal();
+            updateCurrentPeriodDisplay();
+            initializeTimeline();
+            updateGanttChart();
+        }
+
+        // --- Fullscreen ---
         function toggleFullscreen() {
             const container = document.querySelector('.gantt-container');
             if (!container) return;
             let enteringFullscreen = !document.fullscreenElement && !container.classList.contains('fullscreen');
-
             if (enteringFullscreen) {
                 const scrollY = window.scrollY;
                 document.body.classList.add('no-scroll');
                 document.body.style.top = `-${scrollY}px`;
                 document.body.dataset.scrollY = scrollY;
                 container.classList.add('fullscreen');
-                container.requestFullscreen().catch(err => {
-                    console.error('Error entering fullscreen API:', err);
-                });
+                container.requestFullscreen().catch(err => console.error('Error entering fullscreen API:', err));
                 localStorage.setItem('isFullscreen', 'true');
-                console.log('Saved Fullscreen State: true');
             } else {
                 if (document.fullscreenElement) {
-                    document.exitFullscreen().catch(err => {
-                        console.error('Error exiting fullscreen API:', err);
-                    });
+                    document.exitFullscreen().catch(err => console.error('Error exiting fullscreen API:', err));
                 }
                 document.body.classList.remove('no-scroll');
                 const scrollY = document.body.dataset.scrollY || 0;
@@ -2649,30 +3352,129 @@
                 window.scrollTo(0, parseInt(scrollY));
                 container.classList.remove('fullscreen');
                 localStorage.setItem('isFullscreen', 'false');
-                console.log('Saved Fullscreen State: false');
             }
         }
 
         document.addEventListener('fullscreenchange', () => {
             const container = document.querySelector('.gantt-container');
             if (!document.fullscreenElement && container && container.classList.contains('fullscreen')) {
-                console.log('Exited fullscreen API externally (e.g., ESC key)');
                 document.body.classList.remove('no-scroll');
                 const scrollY = document.body.dataset.scrollY || 0;
                 document.body.style.top = '';
                 window.scrollTo(0, parseInt(scrollY));
                 container.classList.remove('fullscreen');
                 localStorage.setItem('isFullscreen', 'false');
-                console.log('Saved Fullscreen State: false (external exit)');
             }
         });
 
-        function saveCollapsedState() {
-            const collapsedIdsArray = Array.from(collapsedTasks);
-            localStorage.setItem('collapsedTaskIds', JSON.stringify(collapsedIdsArray));
-            console.log('Saved Collapsed Tasks:', collapsedIdsArray);
+        function trapFocus(element) {
+            const focusableElements = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            const firstFocusable = focusableElements[0];
+            const lastFocusable = focusableElements[focusableElements.length - 1];
+            element.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    if (e.shiftKey && document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                }
+            });
         }
 
+        // --- Filtering Logic ---
+        function getTaskFamilyIds(taskId) {
+            const familyIds = new Set();
+            const selectedId = parseInt(taskId);
+            if (!isNaN(selectedId)) familyIds.add(selectedId.toString());
+            else return familyIds;
+
+            // Ancestors
+            let currentId = selectedId;
+            while (currentId) {
+                const task = tasksData.find(t => t.id === currentId);
+                if (task && task.parent_id !== null && task.parent_id !== undefined) {
+                    const parentId = parseInt(task.parent_id);
+                    familyIds.add(parentId.toString());
+                    currentId = parentId;
+                } else {
+                    currentId = null;
+                }
+            }
+
+            // Descendants
+            function findDescendants(parentId) {
+                const children = tasksData.filter(t => t.parent_id === parentId);
+                children.forEach(child => {
+                    familyIds.add(child.id.toString());
+                    findDescendants(child.id);
+                });
+            }
+            findDescendants(selectedId);
+            return familyIds;
+        }
+
+        function filterSingleTask(selectedTaskId) {
+            const allTaskRows = document.querySelectorAll('.task-row');
+            if (selectedTaskId === 'all' || selectedTaskId === '') {
+                filteredTaskIdsToShow = null;
+                allTaskRows.forEach(row => row.classList.remove('task-filtered-out'));
+                collapsedTasks.forEach(taskIdStr => {
+                    const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskIdStr}"]`);
+                    const toggleIcon = document.querySelector(`[data-task-id="${taskIdStr}"].toggle-collapse`);
+                    if (childrenContainer) childrenContainer.classList.add('collapsed');
+                    if (toggleIcon) toggleIcon.classList.remove('rotate-90');
+                });
+            } else {
+                filteredTaskIdsToShow = getTaskFamilyIds(selectedTaskId);
+                allTaskRows.forEach(row => {
+                    const rowTaskId = row.dataset.taskId;
+                    if (filteredTaskIdsToShow.has(rowTaskId)) row.classList.remove('task-filtered-out');
+                    else row.classList.add('task-filtered-out');
+                });
+                filteredTaskIdsToShow.forEach(idStr => {
+                    if (idStr === selectedTaskId) return;
+                    const childrenContainer = document.querySelector(`.task-children[data-parent-id="${idStr}"]`);
+                    const toggleIcon = document.querySelector(`[data-task-id="${idStr}"].toggle-collapse`);
+                    if (childrenContainer) childrenContainer.classList.remove('collapsed');
+                    if (toggleIcon) toggleIcon.classList.add('rotate-90');
+                    collapsedTasks.delete(idStr);
+                });
+            }
+            localStorage.setItem('ganttFilterId', selectedTaskId || 'all');
+            saveCollapsedState();
+            updateGanttChart();
+        }
+
+        function populateTaskFilter() {
+            const select = document.getElementById('taskFilterSelect');
+            if (!select || !tasksData || !tasksData.length) return;
+            const taskMap = new Map();
+            tasksData.forEach(task => {
+                const parentKey = task.parent_id === null || task.parent_id === undefined ? 'root' : task.parent_id;
+                const children = taskMap.get(parentKey) || [];
+                children.push(task);
+                taskMap.set(parentKey, children);
+            });
+
+            function addOptions(parentId, level) {
+                const key = parentId === null ? 'root' : parentId;
+                const children = taskMap.get(key) || [];
+                children.sort((a, b) => a.id - b.id);
+                children.forEach(task => {
+                    const option = document.createElement('option');
+                    option.value = task.id;
+                    option.innerHTML = '&nbsp;'.repeat(level * 4) + task.name;
+                    select.appendChild(option);
+                    addOptions(task.id, level + 1);
+                });
+            }
+            addOptions(null, 0);
+        }
+
+        // --- Global Interface for External Access ---
         window.GanttChart = {
             navigateMonth,
             changePeriod,
@@ -2729,6 +3531,7 @@
             }
         };
 
+        // Custom Events
         document.addEventListener('taskSelected', function(e) {
             console.log('Task selected:', e.detail.task);
         });
@@ -2742,745 +3545,5 @@
         document.addEventListener('taskAdded', function(e) {
             window.GanttChart.addTask(e.detail.task);
         });
-
-        function openTaskModal(task) {
-            if (isModalAnimating) return;
-            currentTaskId = task.id; // Simpan ID task saat modal dibuka
-            const modal = document.getElementById('taskModal');
-            isModalAnimating = true;
-            populateModalContent(task);
-            document.body.classList.add('no-scroll');
-            const scrollY = window.scrollY;
-            document.body.style.top = `-${scrollY}px`;
-            document.body.dataset.scrollY = scrollY;
-            modal.style.display = 'flex';
-            modal.offsetHeight;
-            modal.classList.add('opening');
-            setTimeout(() => {
-                isModalAnimating = false;
-            }, 300);
-        }
-
-        function closeTaskModal() {
-            if (isModalAnimating) return;
-            const modal = document.getElementById('taskModal');
-            isModalAnimating = true;
-            modal.classList.remove('opening');
-            modal.classList.add('closing');
-            document.body.classList.remove('no-scroll');
-            const scrollY = document.body.dataset.scrollY || 0;
-            document.body.style.top = '';
-            window.scrollTo(0, parseInt(scrollY));
-            setTimeout(() => {
-                modal.classList.remove('closing');
-                modal.style.display = 'none';
-                isModalAnimating = false;
-                const colorPickerContainer = document.getElementById('colorPickerContainer');
-                if (colorPickerContainer) colorPickerContainer.remove();
-            }, 300);
-        }
-
-        function populateModalContent(task) {
-            console.log('Populating modal with task:', task);
-
-            const taskNameEl = document.getElementById('taskName');
-            if (taskNameEl) taskNameEl.textContent = task.name || 'Untitled Task';
-
-            const durationEl = document.getElementById('taskDuration');
-            if (durationEl) {
-                durationEl.textContent = task.duration ? `${task.duration} hari` : 'Tidak ditentukan';
-                durationEl.className = task.duration ? 'modal-field-value' : 'modal-field-value empty';
-            }
-
-            const startDateEl = document.getElementById('taskStartDate');
-            if (startDateEl) {
-                startDateEl.textContent = task.startDate ? formatDate(task.startDate) : 'Tidak diatur';
-                startDateEl.className = task.startDate ? 'modal-field-value' : 'modal-field-value empty';
-            }
-
-            const finishDateEl = document.getElementById('taskFinishDate');
-            if (finishDateEl) {
-                finishDateEl.textContent = task.endDate ? formatDate(task.endDate) : 'Not set';
-                finishDateEl.className = task.endDate ? 'modal-field-value' : 'modal-field-value empty';
-            }
-
-            const descriptionEl = document.getElementById('taskDescription');
-            if (descriptionEl) {
-                descriptionEl.textContent = task.description || 'Deskripsi tidak tersedia';
-                descriptionEl.className = task.description ? 'modal-field-value' : 'modal-field-value empty';
-            }
-
-            const editBtn = document.getElementById('editTaskBtn');
-            const deleteBtn = document.getElementById('deleteTaskBtn');
-            if (editBtn && task.id) editBtn.setAttribute('href', `/tasks/${task.id}/edit`);
-
-            // MODIFIKASI: Hilangkan href, gunakan onclick di button yang sudah di-set di HTML
-
-            if (deleteBtn && task.id) {
-                deleteBtn.onclick = function(e) {
-                    e.preventDefault();
-
-                    const taskName = task.name || 'tugas ini';
-
-                    closeTaskModal();
-
-                    setTimeout(() => {
-                        const ganttContainer = document.querySelector('.gantt-container');
-                        Swal.fire({
-                            title: 'Apakah Anda Yakin?',
-                            html: `Anda akan menghapus tugas:<br><strong>${taskName}</strong>`,
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#dc2626',
-                            cancelButtonColor: '#6b7280',
-                            confirmButtonText: 'Ya, Hapus!',
-                            cancelButtonText: 'Batal',
-                            target: ganttContainer || 'body',
-                            showClass: {
-                                popup: 'swal2-show',
-                                backdrop: 'swal2-backdrop-show',
-                                icon: 'swal2-icon-show'
-                            },
-                            hideClass: {
-                                popup: 'swal2-hide',
-                                backdrop: 'swal2-backdrop-hide',
-                                icon: 'swal2-icon-hide'
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                const form = document.getElementById('deleteTaskForm');
-                                if (form) {
-                                    form.action = `/tasks/${task.id}`;
-                                    form.submit();
-                                }
-                            }
-                        });
-                    }, 300);
-                };
-            }
-
-            const rootId = getRootId(task);
-            const relLevel = getRelativeLevel(task);
-            const colorKey = `color-root-${rootId}-rellevel-${relLevel}`;
-            const bgColor = localStorage.getItem(`${colorKey}-bg`) || defaultColors[relLevel % 6].bg;
-            const borderColor = localStorage.getItem(`${colorKey}-border`) || defaultColors[relLevel % 6].border;
-
-            const modalHeader = document.querySelector('.modal-header');
-            if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${bgColor} 0%, ${borderColor} 100%)`;
-
-            let colorPickerContainer = document.getElementById('colorPickerContainer');
-            if (colorPickerContainer) colorPickerContainer.remove();
-            colorPickerContainer = document.createElement('div');
-            colorPickerContainer.id = 'colorPickerContainer';
-            colorPickerContainer.className = 'modal-field';
-            colorPickerContainer.innerHTML = `
-            <label class="modal-field-label">Ubah Warna Level ${relLevel}</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <input type="color" id="levelColorPicker" value="${bgColor}">
-                <button id="resetColorBtn" class="modal-btn modal-btn-secondary">Reset Warna</button>
-            </div>
-        `;
-            const modalBody = document.querySelector('.modal-body');
-            if (modalBody) modalBody.appendChild(colorPickerContainer);
-
-            const colorPicker = document.getElementById('levelColorPicker');
-            if (colorPicker) {
-                colorPicker.addEventListener('input', function(e) {
-                    const newBg = e.target.value;
-                    const newBorder = darkenColor(newBg);
-                    localStorage.setItem(`${colorKey}-bg`, newBg);
-                    localStorage.setItem(`${colorKey}-border`, newBorder);
-                    if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${newBg} 0%, ${newBorder} 100%)`;
-                    updateGanttChart();
-                    updateTaskIconColors();
-                });
-            }
-
-            const resetBtn = document.getElementById('resetColorBtn');
-            if (resetBtn) {
-                resetBtn.addEventListener('click', function() {
-                    localStorage.removeItem(`${colorKey}-bg`);
-                    localStorage.removeItem(`${colorKey}-border`);
-                    const defaultBg = defaultColors[relLevel % 6].bg;
-                    const defaultBorder = defaultColors[relLevel % 6].border;
-                    if (colorPicker) colorPicker.value = defaultBg;
-                    if (modalHeader) modalHeader.style.background = `linear-gradient(135deg, ${defaultBg} 0%, ${defaultBorder} 100%)`;
-                    updateGanttChart();
-                    updateTaskIconColors();
-                });
-            }
-        }
-
-        function trapFocus(element) {
-            const focusableElements = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-            const firstFocusable = focusableElements[0];
-            const lastFocusable = focusableElements[focusableElements.length - 1];
-
-            element.addEventListener('keydown', function(e) {
-                if (e.key === 'Tab') {
-                    if (e.shiftKey && document.activeElement === firstFocusable) {
-                        lastFocusable.focus();
-                        e.preventDefault();
-                    } else if (!e.shiftKey && document.activeElement === lastFocusable) {
-                        firstFocusable.focus();
-                        e.preventDefault();
-                    }
-                }
-            });
-        }
-
-        function darkenColor(color, amount = 0.1) {
-            let [r, g, b] = color.match(/\w\w/g).map(x => parseInt(x, 16));
-            r = Math.max(0, Math.round(r * (1 - amount)));
-            g = Math.max(0, Math.round(g * (1 - amount)));
-            b = Math.max(0, Math.round(b * (1 - amount)));
-            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-        }
-
-        const defaultColors = [{
-                bg: '#0078d4',
-                border: '#106ebe'
-            },
-            {
-                bg: '#107c10',
-                border: '#0e6e0e'
-            },
-            {
-                bg: '#881798',
-                border: '#7a1589'
-            },
-            {
-                bg: '#ff8c00',
-                border: '#e67e00'
-            },
-            {
-                bg: '#e81123',
-                border: '#d10e20'
-            },
-            {
-                bg: '#5c2d91',
-                border: '#522982'
-            }
-        ];
-
-        function getRootId(task) {
-            let current = task;
-            while (current.parent_id) {
-                current = tasksData.find(t => t.id === current.parent_id) || current;
-            }
-            return current.id;
-        }
-
-        function getRelativeLevel(task) {
-            let level = 0;
-            let current = task;
-            while (current.parent_id) {
-                level++;
-                current = tasksData.find(t => t.id === current.parent_id) || current;
-            }
-            return level;
-        }
-
-        function getColorForRootAndLevel(rootId, relLevel) {
-            const bgKey = `color-root-${rootId}-rellevel-${relLevel}-bg`;
-            const borderKey = `color-root-${rootId}-rellevel-${relLevel}-border`;
-            const bg = localStorage.getItem(bgKey) || defaultColors[relLevel % 6].bg;
-            const border = localStorage.getItem(borderKey) || defaultColors[relLevel % 6].border;
-            return {
-                bg,
-                border
-            };
-        }
-
-        function initializeTaskIconColors() {
-            document.querySelectorAll('.task-row').forEach(taskRow => {
-                const taskId = taskRow.getAttribute('data-task-id');
-                const task = tasksData.find(t => t.id == taskId);
-
-                if (task) {
-                    const rootId = getRootId(task);
-                    const relLevel = getRelativeLevel(task);
-                    const {
-                        bg,
-                        border
-                    } = getColorForRootAndLevel(rootId, relLevel);
-
-                    const iconElement = taskRow.querySelector('.task-icon-square');
-                    if (iconElement) {
-                        iconElement.style.backgroundColor = bg;
-                        iconElement.style.borderColor = border;
-                        iconElement.classList.remove('task-icon-blue', 'task-icon-green');
-                    }
-                }
-            });
-        }
-
-        function updateTaskIconColors() {
-            tasksData.forEach(task => {
-                const rootId = getRootId(task);
-                const relLevel = getRelativeLevel(task);
-                const colorKey = `color-root-${rootId}-rellevel-${relLevel}`;
-                const bgColor = localStorage.getItem(`${colorKey}-bg`) || defaultColors[relLevel % 6].bg;
-
-                const taskRow = document.querySelector(`[data-task-id="${task.id}"].task-row`);
-                if (taskRow) {
-                    const iconElement = taskRow.querySelector('.task-icon-square');
-                    if (iconElement) {
-                        iconElement.style.backgroundColor = bgColor;
-                        iconElement.style.borderColor = darkenColor(bgColor);
-                        iconElement.classList.remove('task-icon-blue', 'task-icon-green');
-                    }
-                }
-            });
-        }
-
-        function openDateModal() {
-            const modal = document.getElementById('dateModal');
-            if (!modal) return;
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
-
-            const yearInput = document.getElementById('modalYearInput');
-            yearInput.value = currentDate.getFullYear();
-            renderModalMonths();
-            yearInput.focus();
-
-            modal.addEventListener('click', outsideClickHandler);
-            document.addEventListener('keydown', escKeyHandler);
-        }
-
-        function closeDateModal() {
-            const modal = document.getElementById('dateModal');
-            if (!modal) return;
-            modal.classList.remove('show');
-            setTimeout(() => modal.style.display = 'none', 400);
-
-            modal.removeEventListener('click', outsideClickHandler);
-            document.removeEventListener('keydown', escKeyHandler);
-        }
-
-        function outsideClickHandler(e) {
-            if (!e.target.closest('.bg-white') && e.target.id === 'dateModal') closeDateModal();
-        }
-
-        function escKeyHandler(e) {
-            if (e.key === 'Escape') closeDateModal();
-        }
-
-        function renderModalMonths() {
-            const grid = document.getElementById('modalMonthsGrid');
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            const currentMonth = currentDate.getMonth();
-            const currentYear = currentDate.getFullYear();
-            const modalYear = parseInt(document.getElementById('modalYearInput').value) || currentYear;
-
-            monthNames.forEach((name, index) => {
-                const btn = document.createElement('button');
-                btn.className = `p-3 rounded border border-gray-300 text-sm font-medium transition ${
-                index === currentMonth && modalYear === currentYear
-                    ? 'bg-blue-600 text-white border-blue-700'
-                    : 'bg-gray-50 hover:bg-gray-100'
-            }`;
-                btn.textContent = name;
-                btn.onclick = () => setMonthYear(index, modalYear);
-                grid.appendChild(btn);
-            });
-        }
-
-        function changeModalYear(direction) {
-            const yearInput = document.getElementById('modalYearInput');
-            yearInput.value = parseInt(yearInput.value) + direction;
-            renderModalMonths();
-        }
-
-        function setMonthYear(month, year) {
-            currentDate = new Date(year, month, 1);
-            closeDateModal();
-            updateCurrentPeriodDisplay();
-            initializeTimeline();
-            updateGanttChart();
-        }
-
-        function initResizer() {
-            const resizer = document.getElementById('resizerMain');
-            const taskListContainer = document.querySelector('.task-list-container');
-            const headerLeft = document.querySelector('.task-list-header-section');
-
-            if (!resizer || !taskListContainer || !headerLeft) {
-                console.error('Resizer initialization failed: Missing elements');
-                return;
-            }
-
-            const savedWidth = localStorage.getItem('taskListWidth');
-            if (savedWidth) {
-                taskListContainer.style.width = savedWidth;
-                headerLeft.style.width = savedWidth;
-                updateGanttChart();
-                renderTimelineHeaders();
-            }
-
-            let startX, startWidth;
-
-            resizer.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                startX = e.clientX;
-                startWidth = taskListContainer.getBoundingClientRect().width;
-                resizer.classList.add('active');
-
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            });
-
-            function onMouseMove(e) {
-                const dx = e.clientX - startX;
-                const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;
-                const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
-                const maxWidth = window.innerWidth * maxWidthPercent;
-
-                const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + dx));
-                const newWidthPx = `${newWidth}px`;
-
-                taskListContainer.style.width = newWidthPx;
-                headerLeft.style.width = newWidthPx;
-                updateGanttChart();
-                renderTimelineHeaders();
-            }
-
-            function onMouseUp() {
-                resizer.classList.remove('active');
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                localStorage.setItem('taskListWidth', taskListContainer.style.width);
-            }
-
-            resizer.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                startX = e.touches[0].clientX;
-                startWidth = taskListContainer.getBoundingClientRect().width;
-                resizer.classList.add('active');
-
-                document.addEventListener('touchmove', onTouchMove);
-                document.addEventListener('touchend', onTouchEnd);
-            });
-
-            function onTouchMove(e) {
-                const dx = e.touches[0].clientX - startX;
-                const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;
-                const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
-                const maxWidth = window.innerWidth * maxWidthPercent;
-
-                const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + dx));
-                const newWidthPx = `${newWidth}px`;
-
-                taskListContainer.style.width = newWidthPx;
-                headerLeft.style.width = newWidthPx;
-                updateGanttChart();
-                renderTimelineHeaders();
-            }
-
-            function onTouchEnd() {
-                resizer.classList.remove('active');
-                document.removeEventListener('touchmove', onTouchMove);
-                document.removeEventListener('touchend', onTouchEnd);
-                localStorage.setItem('taskListWidth', taskListContainer.style.width);
-            }
-
-            window.addEventListener('resize', () => {
-                const currentWidth = parseFloat(taskListContainer.style.width) || taskListContainer.getBoundingClientRect().width;
-                const maxWidthPercent = window.matchMedia("(max-width: 1024px)").matches ? 0.7 : 0.8;
-                const minWidth = window.matchMedia("(max-width: 768px)").matches ? 150 : 200;
-                const maxWidth = window.innerWidth * maxWidthPercent;
-
-                const adjustedWidth = Math.max(minWidth, Math.min(maxWidth, currentWidth));
-                taskListContainer.style.width = `${adjustedWidth}px`;
-                headerLeft.style.width = `${adjustedWidth}px`;
-                localStorage.setItem('taskListWidth', taskListContainer.style.width);
-                updateGanttChart();
-                renderTimelineHeaders();
-            });
-        }
-
-        function highlightRow(taskId) {
-            removeAllHighlights();
-
-            if (!taskId) return;
-
-            const taskRow = document.querySelector(`.task-row[data-task-id="${taskId}"]`);
-            if (taskRow) {
-                taskRow.classList.add('row-highlighted');
-            }
-
-            const ganttRow = document.querySelector(`.gantt-row[data-task-id="${taskId}"]`);
-            if (ganttRow) {
-                ganttRow.classList.add('row-highlighted');
-            }
-        }
-
-        function removeAllHighlights() {
-            document.querySelectorAll('.row-highlighted').forEach(el => {
-                el.classList.remove('row-highlighted');
-            });
-        }
-
-        function setupRowHighlight() {
-            document.addEventListener('mouseover', function(e) {
-                const taskRow = e.target.closest('.task-row');
-                if (taskRow) {
-                    const taskId = taskRow.getAttribute('data-task-id');
-                    highlightRow(taskId);
-                }
-
-                const ganttBar = e.target.closest('.gantt-bar');
-                if (ganttBar) {
-                    const taskId = ganttBar.getAttribute('data-task-id');
-                    highlightRow(taskId);
-                }
-
-                const ganttRow = e.target.closest('.gantt-row');
-                if (ganttRow && !ganttBar) {
-                    const taskId = ganttRow.getAttribute('data-task-id');
-                    highlightRow(taskId);
-                }
-            });
-
-            const ganttContainer = document.querySelector('.gantt-container');
-            if (ganttContainer) {
-                ganttContainer.addEventListener('mouseleave', removeAllHighlights);
-            }
-
-            const taskListBody = document.getElementById('taskListBody');
-            if (taskListBody) {
-                taskListBody.addEventListener('mouseleave', removeAllHighlights);
-            }
-        }
-
-        function highlightTimelineColumn(dayIndex) {
-            removeAllColumnHighlights();
-
-            if (dayIndex === null || dayIndex === undefined) return;
-
-            const timelineDays = document.querySelectorAll('.timeline-day');
-            if (timelineDays[dayIndex]) {
-                timelineDays[dayIndex].classList.add('column-highlighted');
-            }
-
-            document.querySelectorAll('.gantt-row').forEach(row => {
-                const cells = row.querySelectorAll('.gantt-grid-cell');
-                if (cells[dayIndex]) {
-                    cells[dayIndex].classList.add('column-highlighted');
-                }
-            });
-        }
-
-        function removeAllColumnHighlights() {
-            document.querySelectorAll('.column-highlighted').forEach(el => {
-                el.classList.remove('column-highlighted');
-            });
-        }
-
-        function setupColumnHighlight() {
-            document.addEventListener('mouseover', function(e) {
-                const timelineDay = e.target.closest('.timeline-day');
-                if (timelineDay) {
-                    const dayContainer = timelineDay.closest('.day-header');
-                    const allDays = Array.from(dayContainer.querySelectorAll('.timeline-day'));
-                    const dayIndex = allDays.indexOf(timelineDay);
-                    highlightTimelineColumn(dayIndex);
-                }
-
-                const ganttCell = e.target.closest('.gantt-grid-cell');
-                if (ganttCell && !e.target.closest('.gantt-bar')) {
-                    const row = ganttCell.closest('.gantt-row');
-                    const cells = Array.from(row.querySelectorAll('.gantt-grid-cell'));
-                    const dayIndex = cells.indexOf(ganttCell);
-                    highlightTimelineColumn(dayIndex);
-                }
-            });
-
-            const timelineHeader = document.querySelector('.timeline-header-section');
-            if (timelineHeader) {
-                timelineHeader.addEventListener('mouseleave', removeAllColumnHighlights);
-            }
-
-            const ganttContent = document.getElementById('ganttContent');
-            if (ganttContent) {
-                ganttContent.addEventListener('mouseleave', removeAllColumnHighlights);
-            }
-        }
-
-        function setupGanttBarTooltip() {
-            const tooltip = document.getElementById('ganttTooltip');
-            if (!tooltip) return;
-
-            let currentTaskId = null;
-
-            document.addEventListener('mousemove', function(e) {
-                const ganttBar = e.target.closest('.gantt-bar');
-
-                if (ganttBar) {
-                    const taskId = ganttBar.getAttribute('data-task-id');
-
-                    if (taskId !== currentTaskId) {
-                        currentTaskId = taskId;
-                        const task = tasksData.find(t => t.id == taskId);
-
-                        if (task) {
-                            const formattedStart = task.startDate ? formatDate(task.startDate) : 'N/A';
-                            const formattedEnd = task.endDate ? formatDate(task.endDate) : 'N/A';
-
-                            tooltip.innerHTML = `
-                            <strong class="tooltip-title">${task.name}</strong>
-                            <div class="tooltip-field"><span>Mulai:</span> <span class="value">${formattedStart}</span></div>
-                            <div class="tooltip-field"><span>Selesai:</span> <span class="value">${formattedEnd}</span></div>
-                            <div class="tooltip-field"><span>Durasi:</span> <span class="value">${task.duration || 'N/A'} hari</span></div>
-                        `;
-                        }
-                    }
-
-                    tooltip.classList.add('show');
-
-                    const tooltipRect = tooltip.getBoundingClientRect();
-                    let x = e.clientX + 15;
-                    let y = e.clientY + 15;
-
-                    if (x + tooltipRect.width > window.innerWidth) {
-                        x = e.clientX - tooltipRect.width - 15;
-                    }
-                    if (y + tooltipRect.height > window.innerHeight) {
-                        y = e.clientY - tooltipRect.height - 15;
-                    }
-                    if (x < 0) {
-                        x = 15;
-                    }
-                    if (y < 0) {
-                        y = 15;
-                    }
-
-                    tooltip.style.left = `${x}px`;
-                    tooltip.style.top = `${y}px`;
-
-                } else {
-                    currentTaskId = null;
-                    tooltip.classList.remove('show');
-                }
-            });
-        }
-
-        function getTaskFamilyIds(taskId) {
-            const familyIds = new Set();
-            const selectedId = parseInt(taskId);
-
-            if (!isNaN(selectedId)) {
-                familyIds.add(selectedId.toString());
-            } else {
-                return familyIds;
-            }
-
-            let currentId = selectedId;
-            while (currentId) {
-                const task = tasksData.find(t => t.id === currentId);
-                if (task && task.parent_id !== null && task.parent_id !== undefined) {
-                    const parentId = parseInt(task.parent_id);
-                    familyIds.add(parentId.toString());
-                    currentId = parentId;
-                } else {
-                    currentId = null;
-                }
-            }
-
-            function findDescendants(parentId) {
-                const children = tasksData.filter(t => t.parent_id === parentId);
-                children.forEach(child => {
-                    familyIds.add(child.id.toString());
-                    findDescendants(child.id);
-                });
-            }
-
-            findDescendants(selectedId);
-
-            return familyIds;
-        }
-
-        function filterSingleTask(selectedTaskId) {
-            const allTaskRows = document.querySelectorAll('.task-row');
-
-            if (selectedTaskId === 'all' || selectedTaskId === '') {
-                filteredTaskIdsToShow = null;
-                allTaskRows.forEach(row => row.classList.remove('task-filtered-out'));
-
-                collapsedTasks.forEach(taskIdStr => {
-                    const childrenContainer = document.querySelector(`.task-children[data-parent-id="${taskIdStr}"]`);
-                    const toggleIcon = document.querySelector(`[data-task-id="${taskIdStr}"].toggle-collapse`);
-                    if (childrenContainer) childrenContainer.classList.add('collapsed');
-                    if (toggleIcon) toggleIcon.classList.remove('rotate-90');
-                });
-
-            } else {
-                filteredTaskIdsToShow = getTaskFamilyIds(selectedTaskId);
-
-                allTaskRows.forEach(row => {
-                    const rowTaskId = row.dataset.taskId;
-                    if (filteredTaskIdsToShow.has(rowTaskId)) {
-                        row.classList.remove('task-filtered-out');
-                    } else {
-                        row.classList.add('task-filtered-out');
-                    }
-                });
-
-                filteredTaskIdsToShow.forEach(idStr => {
-                    if (idStr === selectedTaskId) return;
-
-                    const childrenContainer = document.querySelector(`.task-children[data-parent-id="${idStr}"]`);
-                    const toggleIcon = document.querySelector(`[data-task-id="${idStr}"].toggle-collapse`);
-
-                    if (childrenContainer) childrenContainer.classList.remove('collapsed');
-                    if (toggleIcon) toggleIcon.classList.add('rotate-90');
-
-                    collapsedTasks.delete(idStr);
-                });
-            }
-
-            // SIMPAN FILTER KE LOCALSTORAGE: Persist state setelah filter
-            localStorage.setItem('ganttFilterId', selectedTaskId || 'all');
-
-            saveCollapsedState();
-            updateGanttChart();
-        }
-
-        function populateTaskFilter() {
-            const select = document.getElementById('taskFilterSelect');
-            if (!select || !tasksData || !tasksData.length) {
-                console.log('Filter select not found or no tasksData');
-                return;
-            }
-
-            const taskMap = new Map();
-            tasksData.forEach(task => {
-                const parentKey = task.parent_id === null || task.parent_id === undefined ? 'root' : task.parent_id;
-                const children = taskMap.get(parentKey) || [];
-                children.push(task);
-                taskMap.set(parentKey, children);
-            });
-
-            function addOptions(parentId, level) {
-                const key = parentId === null ? 'root' : parentId;
-                const children = taskMap.get(key) || [];
-
-                children.sort((a, b) => a.id - b.id);
-
-                children.forEach(task => {
-                    const option = document.createElement('option');
-                    option.value = task.id;
-                    option.innerHTML = '&nbsp;'.repeat(level * 4) + task.name;
-                    select.appendChild(option);
-
-                    addOptions(task.id, level + 1);
-                });
-            }
-
-            addOptions(null, 0);
-        }
     </script>
     @endsection

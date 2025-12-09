@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Task extends Model
 {
     protected $fillable = [
-        'name', 'parent_id', 'duration', 'start', 'finish', 'progress', 'level', 'order', 'description',
-        'user_id', 
-    ];
+    'name', 'parent_id', 'duration', 'start', 'finish', 
+    'progress', // <--- INI SUDAH ADA, BAGUS!
+    'level', 'order', 'description',
+    'user_id', 
+];
 
   
     protected $casts = [
