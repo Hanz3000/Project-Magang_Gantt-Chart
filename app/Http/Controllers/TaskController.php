@@ -16,7 +16,7 @@ class TaskController extends Controller
     {
         $tasks = Task::where('user_id', Auth::id())
             ->orderBy('order')
-            ->get();
+            ->get(); // REVISI: Hapus ->with('assignedUser') karena string biasa
 
         $structuredTasks = $this->buildTaskHierarchy($tasks);
 
@@ -48,6 +48,8 @@ class TaskController extends Controller
                 'parent_id'   => $task->parent_id,
                 'order'       => $task->order ?? 0,
                 'description' => $task->description ?? null,
+                // REVISI: Tampilkan string langsung, tanpa relasi
+                'penanggung_jawab' => $task->penanggung_jawab ?? null,
             ];
             
             $result[] = $taskData;
@@ -92,7 +94,9 @@ class TaskController extends Controller
                 return $task;
             });
 
-        return view('projects.create', compact('parents'));
+        // REVISI: Hapus query $users, karena input text bebas (tidak perlu daftar user)
+
+        return view('projects.create', compact('parents')); // REVISI: Hapus 'users'
     }
 
     public function store(Request $request)
@@ -103,6 +107,8 @@ class TaskController extends Controller
             'start'       => 'required|date',
             'duration'    => 'required_without:finish|nullable|integer|min:1',
             'description' => 'nullable|string',
+            // REVISI: Validasi sebagai string - WAJIB DIISI
+            'penanggung_jawab' => 'required|string|max:255',
         ];
 
         $finishRule = 'required_without:duration|date';
@@ -160,6 +166,8 @@ class TaskController extends Controller
             'level'       => $level,
             'order'       => $maxOrder + 1,
             'description' => $request->description,
+            // REVISI: Simpan sebagai string
+            'penanggung_jawab' => $request->penanggung_jawab,
             'user_id'     => Auth::id(),
         ]);
 
@@ -207,7 +215,9 @@ class TaskController extends Controller
             return $t;
         });
 
-        return view('projects.edit', compact('task', 'parents'));
+        // REVISI: Hapus $users, karena input text bebas
+
+        return view('projects.edit', compact('task', 'parents')); // REVISI: Hapus 'users'
     }
 
     private function getAllIdsInHierarchy(Task $root)
@@ -229,6 +239,8 @@ class TaskController extends Controller
             'duration'            => 'required_without:finish|nullable|integer|min:1',
             'parent_id'           => 'nullable|exists:tasks,id',
             'description'         => 'nullable|string|max:1000',
+            // REVISI: Validasi sebagai string - WAJIB DIISI
+            'penanggung_jawab'    => 'required|string|max:255',
             'move_children'       => 'nullable|in:0,1',
             'original_start_date' => 'nullable|date',
             'original_finish_date' => 'nullable|date',
@@ -302,6 +314,8 @@ class TaskController extends Controller
                 'finish'      => $finish,
                 'parent_id'   => $request->parent_id,
                 'description' => $request->description,
+                // REVISI: Update sebagai string
+                'penanggung_jawab' => $request->penanggung_jawab,
                 'level'       => $level,
             ]);
             
@@ -436,7 +450,7 @@ class TaskController extends Controller
 
             $child->load('children');
             if ($child->children && $child->children->count() > 0) {
-                $this->detachChildrenToParent($child->children, $child->id, $child->level);
+                $this->detachChildrenToParent($children, $child->id, $child->level);
             }
         }
     }
@@ -581,7 +595,9 @@ class TaskController extends Controller
                 }
             }
 
-            $tasks = Task::where('user_id', Auth::id())->orderBy('order')->get();
+            $tasks = Task::where('user_id', Auth::id())
+                ->orderBy('order')
+                ->get(); // REVISI: Hapus ->with('assignedUser')
 
             if ($tasks->isEmpty()) {
                 return response()->json(['error' => 'Tidak ada tasks untuk diexport.'], 404);
@@ -624,7 +640,7 @@ class TaskController extends Controller
             $rootTask->load(['children' => function ($query) {
                 $query->orderBy('order')->with(['children' => function($q) {
                     $q->orderBy('order');
-                }]);
+                }]); // REVISI: Hapus ->with('assignedUser')
             }]);
 
             $tasks = $this->flattenTaskHierarchy($rootTask);
@@ -673,4 +689,32 @@ class TaskController extends Controller
             ],
         ]);
     }   
+
+    private function updateAncestorChain($taskId)
+    {
+        // Ambil task
+        $task = Task::find($taskId);
+
+        if (!$task) {
+            return;
+        }
+
+        // Hitung ulang level berdasarkan parent
+        if ($task->parent_id) {
+            $parent = Task::find($task->parent_id);
+            $task->level = ($parent->level ?? 0) + 1;
+        } else {
+            $task->level = 0; // root
+        }
+
+        $task->save();
+
+        // Update juga descendant/anak-anak
+        $children = Task::where('parent_id', $task->id)->get();
+
+        foreach ($children as $child) {
+            $this->updateAncestorChain($child->id);
+        }
+    }
+
 }

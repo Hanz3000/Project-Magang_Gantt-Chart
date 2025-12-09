@@ -18,7 +18,6 @@
             </div>
         </div>
 
-
         <!-- Main Form Card -->
         <div class="bg-white rounded-3xl shadow-xl border border-slate-200/50 overflow-hidden">
             <div class="p-6 lg:p-8">
@@ -201,6 +200,33 @@
                         </div>
                     </div>
 
+                    <!-- REVISI: Row 4: Penanggung Jawab (Text Input untuk Input Baru) -->
+                    <div class="mb-8">
+                        <div class="space-y-3">
+                            <label for="penanggung_jawab" class="flex items-center text-sm font-semibold text-slate-700">
+                                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Penanggung Jawab <span class="text-red-500 text-sm ml-1">*</span>
+                            </label>
+                            <input type="text" name="penanggung_jawab" id="penanggung_jawab"
+                                value="{{ old('penanggung_jawab') }}"
+                                class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
+                                          focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200
+                                          @error('penanggung_jawab') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror"
+                                placeholder="Masukkan nama penanggung jawab..."
+                                required>
+                            @error('penanggung_jawab')
+                            <div class="mt-2 flex items-center space-x-2 text-red-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-sm">{{ $message }}</span>
+                            </div>
+                            @enderror
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center sm:justify-end">
                         <a href="{{ route('tasks.index') }}"
@@ -296,12 +322,14 @@
 
 <script>
 $(document).ready(function() {
-    // Inisialisasi Select2
+    // Inisialisasi Select2 HANYA untuk parent_id
     $('#parent_id').select2({
         placeholder: "Kosongi jika task baru",
         allowClear: true,
         width: '100%'
     });
+
+    // REVISI: Hapus inisialisasi Select2 untuk penanggung_jawab (karena text input)
 
     let lastChanged = '';       // track field terakhir diubah
     let programmatic = false;   // flag perubahan dari script
@@ -340,45 +368,45 @@ $(document).ready(function() {
     });
 
     // Event parent
-$('#parent_id').on('change', function() {
-    const selected = $(this).find('option:selected');
-    const parentStart = selected.data('start');
-    const parentFinish = selected.data('finish');
-    const parentLevel = selected.data('level');
+    $('#parent_id').on('change', function() {
+        const selected = $(this).find('option:selected');
+        const parentStart = selected.data('start');
+        const parentFinish = selected.data('finish');
+        const parentLevel = selected.data('level');
 
-    if (parentStart && parentFinish) {
-        $('#parentInfo').prop('hidden', false);
-        $('#parentInfoText').text(
-            `Sub-task dimulai ${formatDate(parentStart)}, selesai ${formatDate(parentFinish)}.`
-        );
-    } else {
-        $('#parentInfo').prop('hidden', true);
-    }
+        if (parentStart && parentFinish) {
+            $('#parentInfo').prop('hidden', false);
+            $('#parentInfoText').text(
+                `Sub-task dimulai ${formatDate(parentStart)}, selesai ${formatDate(parentFinish)}.`
+            );
+        } else {
+            $('#parentInfo').prop('hidden', true);
+        }
 
-    // Reset readonly status
-    $('#start').prop('readonly', false);
-    
-    
-    if (parentLevel === 0) {
+        // Reset readonly status
+        $('#start').prop('readonly', false);
         
-        programmatic = true;
-        startPicker.setDate(formatDate(parentStart), true);
-        programmatic = false;
-        $('#start').prop('readonly', true);
-    } else if (parentLevel >= 1) {
-    
-    const parentFinishDate = parseDate(formatDate(parentFinish));
-    if (parentFinishDate) {
-        parentFinishDate.setDate(parentFinishDate.getDate() + 1); 
-        programmatic = true;
-        startPicker.setDate(parentFinishDate, true);
-        programmatic = false;
+        
+        if (parentLevel === 0) {
+            
+            programmatic = true;
+            startPicker.setDate(formatDate(parentStart), true);
+            programmatic = false;
+            $('#start').prop('readonly', true);
+        } else if (parentLevel >= 1) {
+        
+        const parentFinishDate = parseDate(formatDate(parentFinish));
+        if (parentFinishDate) {
+            parentFinishDate.setDate(parentFinishDate.getDate() + 1); 
+            programmatic = true;
+            startPicker.setDate(parentFinishDate, true);
+            programmatic = false;
+        }
     }
-}
 
-});
+    });
 
-    
+        
     function formatDate(dateStr) {
         if (!dateStr) return "";
         const cleanDate = dateStr.split(" ")[0];
@@ -402,131 +430,131 @@ $('#parent_id').on('change', function() {
         return new Date(y, m - 1, d);
     }
 
-function updateDatePickers() {
-    const startVal = $('#start').val();
-    const finishVal = $('#finish').val();
-    const durationVal = $('#duration').val();
-    const parentId = $('#parent_id').val();
+    function updateDatePickers() {
+        const startVal = $('#start').val();
+        const finishVal = $('#finish').val();
+        const durationVal = $('#duration').val();
+        const parentId = $('#parent_id').val();
 
-    let parentStart = null;
-    let parentFinish = null;
-    let parentLevel = null;
+        let parentStart = null;
+        let parentFinish = null;
+        let parentLevel = null;
 
-    if (parentId) {
-        const selectedOption = $('#parent_id option:selected');
-        parentStart = formatDate(selectedOption.data('start'));
-        parentFinish = formatDate(selectedOption.data('finish'));
-        parentLevel = selectedOption.data('level');
-    }
-
-    // Atur minDate berdasarkan parent
-    if (parentStart) {
-        const pStart = parseDate(parentStart);
-        startPicker.set('minDate', pStart);
-        finishPicker.set('minDate', pStart);
-    } else {
-        startPicker.set('minDate', null);
-        finishPicker.set('minDate', null);
-    }
-
-    // Jika start diisi, atur minDate finish = start
-    if (startVal) {
-        const startDate = parseDate(startVal);
-        finishPicker.set('minDate', startDate);
-    }
-
-    // Hitung finish dari duration
-    if (lastChanged === 'duration' && durationVal && startVal) {
-        const startDate = parseDate(startVal);
-        const finishDate = new Date(startDate);
-        finishDate.setDate(startDate.getDate() + parseInt(durationVal) - 1);
-
-        programmatic = true;
-        finishPicker.setDate(finishDate, true);
-        programmatic = false;
-    }
-
-    // Hitung duration dari finish
-    if (lastChanged === 'finish' && finishVal && startVal) {
-        const startDate = parseDate(startVal);
-        const finishDate = parseDate(finishVal);
-        const diff = Math.ceil((finishDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-        if (diff > 0) {
-            $('#duration').val(diff);
+        if (parentId) {
+            const selectedOption = $('#parent_id option:selected');
+            parentStart = formatDate(selectedOption.data('start'));
+            parentFinish = formatDate(selectedOption.data('finish'));
+            parentLevel = selectedOption.data('level');
         }
-    }
 
-    // Validasi start < parentStart
-    if (parentStart && startVal) {
-        const startDate = parseDate(startVal);
-        const parentDate = parseDate(parentStart);
-        if (startDate < parentDate) {
+        // Atur minDate berdasarkan parent
+        if (parentStart) {
+            const pStart = parseDate(parentStart);
+            startPicker.set('minDate', pStart);
+            finishPicker.set('minDate', pStart);
+        } else {
+            startPicker.set('minDate', null);
+            finishPicker.set('minDate', null);
+        }
+
+        // Jika start diisi, atur minDate finish = start
+        if (startVal) {
+            const startDate = parseDate(startVal);
+            finishPicker.set('minDate', startDate);
+        }
+
+        // Hitung finish dari duration
+        if (lastChanged === 'duration' && durationVal && startVal) {
+            const startDate = parseDate(startVal);
+            const finishDate = new Date(startDate);
+            finishDate.setDate(startDate.getDate() + parseInt(durationVal) - 1);
+
             programmatic = true;
-            startPicker.setDate(parentDate, false);
+            finishPicker.setDate(finishDate, true);
             programmatic = false;
         }
-    }
-}
 
-    // Validasi sebelum submit
-    $('#taskForm').on('submit', function(e) {
-    let duration = $('#duration').val();
-    let start = $('#start').val();
-    let finish = $('#finish').val();
-    const parentId = $('#parent_id').val();
-    
-    let parentStart = null;
-    let parentFinish = null;
-    
-    if (parentId) {
-        const selectedOption = $('#parent_id option:selected');
-        parentStart = formatDate(selectedOption.data('start'));
-        parentFinish = formatDate(selectedOption.data('finish'));
-    }
+        // Hitung duration dari finish
+        if (lastChanged === 'finish' && finishVal && startVal) {
+            const startDate = parseDate(startVal);
+            const finishDate = parseDate(finishVal);
+            const diff = Math.ceil((finishDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            if (diff > 0) {
+                $('#duration').val(diff);
+            }
+        }
 
-    if (!start) {
-        e.preventDefault();
-        alert('Tanggal Mulai wajib diisi!');
-        return;
-    }
-
-    // Jika finish kosong, otomatis set = start
-    if (!finish) {
-        finish = start;
-        $('#finish').val(finish);
-        if (!duration) {
-            duration = 1;
-            $('#duration').val(duration);
+        // Validasi start < parentStart
+        if (parentStart && startVal) {
+            const startDate = parseDate(startVal);
+            const parentDate = parseDate(parentStart);
+            if (startDate < parentDate) {
+                programmatic = true;
+                startPicker.setDate(parentDate, false);
+                programmatic = false;
+            }
         }
     }
 
-    const startDate = parseDate(start);
-    const finishDate = parseDate(finish);
+    // REVISI: Validasi submit (tanpa check khusus untuk penanggung_jawab, karena opsional)
+    $('#taskForm').on('submit', function(e) {
+        let duration = $('#duration').val();
+        let start = $('#start').val();
+        let finish = $('#finish').val();
+        const parentId = $('#parent_id').val();
+        
+        let parentStart = null;
+        let parentFinish = null;
+        
+        if (parentId) {
+            const selectedOption = $('#parent_id option:selected');
+            parentStart = formatDate(selectedOption.data('start'));
+            parentFinish = formatDate(selectedOption.data('finish'));
+        }
 
-    // Alert hanya jika finish < start
-    if (finishDate < startDate) {
-        e.preventDefault();
-        alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
-        $('#finish').val('');
-        $('#duration').val('');
-        return;
-    }
+        if (!start) {
+            e.preventDefault();
+            alert('Tanggal Mulai wajib diisi!');
+            return;
+        }
 
-    // Jika duration kosong, hitung otomatis
-    if (!duration) {
-        const diff = Math.ceil((finishDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-        $('#duration').val(diff);
-    }
+        // Jika finish kosong, otomatis set = start
+        if (!finish) {
+            finish = start;
+            $('#finish').val(finish);
+            if (!duration) {
+                duration = 1;
+                $('#duration').val(duration);
+            }
+        }
 
-    // Validasi parent
-    if (parentStart && startDate < parseDate(parentStart)) {
-        e.preventDefault();
-        alert('Tanggal Mulai sub-task tidak boleh sebelum Tanggal Mulai task utama!');
-        programmatic = true;
-        startPicker.setDate(parseDate(parentStart), true);
-        programmatic = false;
-        return;
-    }
-});
+        const startDate = parseDate(start);
+        const finishDate = parseDate(finish);
+
+        // Alert hanya jika finish < start
+        if (finishDate < startDate) {
+            e.preventDefault();
+            alert('Tanggal Selesai tidak boleh sebelum Tanggal Mulai!');
+            $('#finish').val('');
+            $('#duration').val('');
+            return;
+        }
+
+        // Jika duration kosong, hitung otomatis
+        if (!duration) {
+            const diff = Math.ceil((finishDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            $('#duration').val(diff);
+        }
+
+        // Validasi parent
+        if (parentStart && startDate < parseDate(parentStart)) {
+            e.preventDefault();
+            alert('Tanggal Mulai sub-task tidak boleh sebelum Tanggal Mulai task utama!');
+            programmatic = true;
+            startPicker.setDate(parseDate(parentStart), true);
+            programmatic = false;
+            return;
+        }
+    });
 });
 </script>

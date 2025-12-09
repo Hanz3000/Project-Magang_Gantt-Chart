@@ -273,6 +273,36 @@
                         </div>
                     </div>
 
+                    <!-- TAMBAHAN: Row 4: Penanggung Jawab (Full Width, Wajib) -->
+                    <div class="mb-8">
+                        <div class="space-y-3">
+                            <label for="penanggung_jawab" class="flex items-center text-sm font-semibold text-slate-700">
+                                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Penanggung Jawab <span class="text-red-500 text-sm ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" name="penanggung_jawab" id="penanggung_jawab"
+                                       value="{{ old('penanggung_jawab', $task->penanggung_jawab) }}"
+                                       class="w-full px-4 py-3 bg-slate-50 border-2 rounded-xl text-slate-900 placeholder-slate-400
+                                              focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all duration-200
+                                              @error('penanggung_jawab') border-red-300 focus:border-red-500 @else border-slate-200 focus:border-blue-500 @enderror"
+                                       placeholder="Masukkan nama penanggung jawab..."
+                                       required>
+                                       
+                                @error('penanggung_jawab')
+                                    <div class="mt-2 flex items-center space-x-2 text-red-600">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="text-sm">{{ $message }}</span>
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center sm:justify-end">
                         <a href="{{ route('tasks.index') }}" 
@@ -562,6 +592,17 @@
                 }
             });
         }
+
+        // TAMBAHAN: Validasi wajib untuk Penanggung Jawab
+        $('#taskForm').on('submit', function(e) {
+            const penanggungJawab = $('#penanggung_jawab').val().trim();
+            if (!penanggungJawab) {
+                e.preventDefault();
+                alert('Penanggung Jawab wajib diisi!');
+                $('#penanggung_jawab').focus();
+                return false;
+            }
+        });
 
         // Jalankan awal
         updateDatePickers();

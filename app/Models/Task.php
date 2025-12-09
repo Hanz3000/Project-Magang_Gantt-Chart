@@ -10,7 +10,7 @@ class Task extends Model
 {
     protected $fillable = [
     'name', 'parent_id', 'duration', 'start', 'finish', 
-    'progress', // <--- INI SUDAH ADA, BAGUS!
+    'progress','penanggung_jawab',
     'level', 'order', 'description',
     'user_id', 
 ];

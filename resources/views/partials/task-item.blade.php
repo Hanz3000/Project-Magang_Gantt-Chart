@@ -3,10 +3,9 @@
     $isParent = $childrenCount > 0;
     $paddingLeft = ($task->level ?? 0) > 0 ? 32 : 8;
     
-    // FIX PENTING: Z-Index menurun berdasarkan urutan.
-    // Tugas pertama z-index: 10000, Tugas kedua: 9999, dst.
-    // Ini mencegah baris bawah menutupi baris atas.
-    $zIndex = 10000 - ($task->order ?? $loop->index); 
+    // Z-Index tetap rendah untuk semua task row agar tidak menutupi popup/modal
+    // Popup/modal harus punya z-index lebih tinggi (misal 1000+ di CSS)
+    $zIndex = 1; 
 @endphp
 
 <div class="task-row group transition-colors duration-200 {{ ($task->level ?? 0) > 0 ? 'task-child' : '' }}"
@@ -57,7 +56,7 @@
        {{-- Semua slider: update visual saat drag --}}
        oninput="updateProgressUI(this)"
        
-       title="Geser untuk update progress (Auto recalculation untuk parent)">
+       title="Geser untuk update progres">
                
         <span class="task-progress-label" id="progress-label-{{ $task->id }}">
             {{ $task->progress ?? 0 }}%
@@ -66,7 +65,7 @@
 </div>
 
 @if($isParent && isset($allTasks))
-    <div class="task-children transition-all duration-300" data-parent-id="{{ $task->id }}">
+    <div class="task-children transition-all duration-300" data-parent-id="{{ $task->id }}" style="position: relative; z-index: {{ $zIndex }};">
         @foreach($allTasks->where('parent_id', $task->id)->sortBy('order') as $child)
             @include('partials.task-item', ['task' => $child, 'allTasks' => $allTasks])
         @endforeach
